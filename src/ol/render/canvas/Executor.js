@@ -17,7 +17,7 @@ import {
   setFromArray as transformSetFromArray
 } from '../../transform.js';
 import {defaultTextAlign, measureTextHeight, measureAndCacheTextWidth, measureTextWidths} from '../canvas.js';
-import RBush from 'rbush/rbush.js';
+import RBush from 'rbush';
 
 
 /**

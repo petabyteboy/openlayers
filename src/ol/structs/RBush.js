@@ -2,7 +2,7 @@
  * @module ol/structs/RBush
  */
 import {getUid} from '../util.js';
-import RBush_ from 'rbush/rbush.js';
+import RBush_ from 'rbush';
 import {createOrUpdate, equals} from '../extent.js';
 import {isEmpty} from '../obj.js';
 
