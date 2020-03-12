@@ -1,16 +1,3 @@
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 /**
  * @module ol/format/GML32
  */
@@ -23,24 +10,20 @@ import { writeStringTextNode } from '../format/xsd.js';
  *            version 3.2.1.
  * @api
  */
-var GML32 = /** @class */ (function (_super) {
-    __extends(GML32, _super);
+class GML32 extends GML3 {
     /**
      * @param {import("./GMLBase.js").Options=} opt_options Optional configuration object.
      */
-    function GML32(opt_options) {
-        var _this = this;
-        var options = /** @type {import("./GMLBase.js").Options} */ (opt_options ? opt_options : {});
-        _this = _super.call(this, options) || this;
+    constructor(opt_options) {
+        const options = /** @type {import("./GMLBase.js").Options} */ (opt_options ? opt_options : {});
+        super(options);
         /**
          * @inheritDoc
          */
-        _this.schemaLocation = options.schemaLocation ?
-            options.schemaLocation : _this.namespace + ' http://schemas.opengis.net/gml/3.2.1/gml.xsd';
-        return _this;
+        this.schemaLocation = options.schemaLocation ?
+            options.schemaLocation : this.namespace + ' http://schemas.opengis.net/gml/3.2.1/gml.xsd';
     }
-    return GML32;
-}(GML3));
+}
 GML32.prototype.namespace = 'http://www.opengis.net/gml/3.2';
 /**
  * @const

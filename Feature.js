@@ -1,16 +1,3 @@
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 /**
  * @module ol/Feature
  */
@@ -69,55 +56,53 @@ import BaseObject, { getChangeEventType } from './Object.js';
  * @api
  * @template {import("./geom/Geometry.js").default} Geometry
  */
-var Feature = /** @class */ (function (_super) {
-    __extends(Feature, _super);
+class Feature extends BaseObject {
     /**
      * @param {Geometry|Object<string, *>=} opt_geometryOrProperties
      *     You may pass a Geometry object directly, or an object literal containing
      *     properties. If you pass an object literal, you may include a Geometry
      *     associated with a `geometry` key.
      */
-    function Feature(opt_geometryOrProperties) {
-        var _this = _super.call(this) || this;
+    constructor(opt_geometryOrProperties) {
+        super();
         /**
          * @private
          * @type {number|string|undefined}
          */
-        _this.id_ = undefined;
+        this.id_ = undefined;
         /**
          * @type {string}
          * @private
          */
-        _this.geometryName_ = 'geometry';
+        this.geometryName_ = 'geometry';
         /**
          * User provided style.
          * @private
          * @type {import("./style/Style.js").StyleLike}
          */
-        _this.style_ = null;
+        this.style_ = null;
         /**
          * @private
          * @type {import("./style/Style.js").StyleFunction|undefined}
          */
-        _this.styleFunction_ = undefined;
+        this.styleFunction_ = undefined;
         /**
          * @private
          * @type {?import("./events.js").EventsKey}
          */
-        _this.geometryChangeKey_ = null;
-        _this.addEventListener(getChangeEventType(_this.geometryName_), _this.handleGeometryChanged_);
+        this.geometryChangeKey_ = null;
+        this.addEventListener(getChangeEventType(this.geometryName_), this.handleGeometryChanged_);
         if (opt_geometryOrProperties) {
             if (typeof /** @type {?} */ (opt_geometryOrProperties).getSimplifiedGeometry === 'function') {
-                var geometry = /** @type {Geometry} */ (opt_geometryOrProperties);
-                _this.setGeometry(geometry);
+                const geometry = /** @type {Geometry} */ (opt_geometryOrProperties);
+                this.setGeometry(geometry);
             }
             else {
                 /** @type {Object<string, *>} */
-                var properties = opt_geometryOrProperties;
-                _this.setProperties(properties);
+                const properties = opt_geometryOrProperties;
+                this.setProperties(properties);
             }
         }
-        return _this;
     }
     /**
      * Clone this feature. If the original feature has a geometry it
@@ -125,19 +110,19 @@ var Feature = /** @class */ (function (_super) {
      * @return {Feature} The clone.
      * @api
      */
-    Feature.prototype.clone = function () {
-        var clone = new Feature(this.getProperties());
+    clone() {
+        const clone = new Feature(this.getProperties());
         clone.setGeometryName(this.getGeometryName());
-        var geometry = this.getGeometry();
+        const geometry = this.getGeometry();
         if (geometry) {
             clone.setGeometry(geometry.clone());
         }
-        var style = this.getStyle();
+        const style = this.getStyle();
         if (style) {
             clone.setStyle(style);
         }
         return clone;
-    };
+    }
     /**
      * Get the feature's default geometry.  A feature may have any number of named
      * geometries.  The "default" geometry (the one that is rendered by default) is
@@ -146,10 +131,10 @@ var Feature = /** @class */ (function (_super) {
      * @api
      * @observable
      */
-    Feature.prototype.getGeometry = function () {
+    getGeometry() {
         return (
         /** @type {Geometry|undefined} */ (this.get(this.geometryName_)));
-    };
+    }
     /**
      * Get the feature identifier.  This is a stable identifier for the feature and
      * is either set when reading data from a remote source or set explicitly by
@@ -157,9 +142,9 @@ var Feature = /** @class */ (function (_super) {
      * @return {number|string|undefined} Id.
      * @api
      */
-    Feature.prototype.getId = function () {
+    getId() {
         return this.id_;
-    };
+    }
     /**
      * Get the name of the feature's default geometry.  By default, the default
      * geometry is named `geometry`.
@@ -167,47 +152,47 @@ var Feature = /** @class */ (function (_super) {
      *     for this feature.
      * @api
      */
-    Feature.prototype.getGeometryName = function () {
+    getGeometryName() {
         return this.geometryName_;
-    };
+    }
     /**
      * Get the feature's style. Will return what was provided to the
      * {@link module:ol/Feature~Feature#setStyle} method.
      * @return {import("./style/Style.js").StyleLike} The feature style.
      * @api
      */
-    Feature.prototype.getStyle = function () {
+    getStyle() {
         return this.style_;
-    };
+    }
     /**
      * Get the feature's style function.
      * @return {import("./style/Style.js").StyleFunction|undefined} Return a function
      * representing the current style of this feature.
      * @api
      */
-    Feature.prototype.getStyleFunction = function () {
+    getStyleFunction() {
         return this.styleFunction_;
-    };
+    }
     /**
      * @private
      */
-    Feature.prototype.handleGeometryChange_ = function () {
+    handleGeometryChange_() {
         this.changed();
-    };
+    }
     /**
      * @private
      */
-    Feature.prototype.handleGeometryChanged_ = function () {
+    handleGeometryChanged_() {
         if (this.geometryChangeKey_) {
             unlistenByKey(this.geometryChangeKey_);
             this.geometryChangeKey_ = null;
         }
-        var geometry = this.getGeometry();
+        const geometry = this.getGeometry();
         if (geometry) {
             this.geometryChangeKey_ = listen(geometry, EventType.CHANGE, this.handleGeometryChange_, this);
         }
         this.changed();
-    };
+    }
     /**
      * Set the default geometry for the feature.  This will update the property
      * with the name returned by {@link module:ol/Feature~Feature#getGeometryName}.
@@ -215,9 +200,9 @@ var Feature = /** @class */ (function (_super) {
      * @api
      * @observable
      */
-    Feature.prototype.setGeometry = function (geometry) {
+    setGeometry(geometry) {
         this.set(this.geometryName_, geometry);
-    };
+    }
     /**
      * Set the style for the feature.  This can be a single style object, an array
      * of styles, or a function that takes a resolution and returns an array of
@@ -226,11 +211,11 @@ var Feature = /** @class */ (function (_super) {
      * @api
      * @fires module:ol/events/Event~BaseEvent#event:change
      */
-    Feature.prototype.setStyle = function (style) {
+    setStyle(style) {
         this.style_ = style;
         this.styleFunction_ = !style ? undefined : createStyleFunction(style);
         this.changed();
-    };
+    }
     /**
      * Set the feature id.  The feature id is considered stable and may be used when
      * requesting features or comparing identifiers returned from a remote source.
@@ -240,10 +225,10 @@ var Feature = /** @class */ (function (_super) {
      * @api
      * @fires module:ol/events/Event~BaseEvent#event:change
      */
-    Feature.prototype.setId = function (id) {
+    setId(id) {
         this.id_ = id;
         this.changed();
-    };
+    }
     /**
      * Set the property name to be used when getting the feature's default geometry.
      * When calling {@link module:ol/Feature~Feature#getGeometry}, the value of the property with
@@ -251,14 +236,13 @@ var Feature = /** @class */ (function (_super) {
      * @param {string} name The property name of the default geometry.
      * @api
      */
-    Feature.prototype.setGeometryName = function (name) {
+    setGeometryName(name) {
         this.removeEventListener(getChangeEventType(this.geometryName_), this.handleGeometryChanged_);
         this.geometryName_ = name;
         this.addEventListener(getChangeEventType(this.geometryName_), this.handleGeometryChanged_);
         this.handleGeometryChanged_();
-    };
-    return Feature;
-}(BaseObject));
+    }
+}
 /**
  * Convert the provided object into a feature style function.  Functions passed
  * through unchanged.  Arrays of Style or single style objects wrapped
@@ -275,17 +259,17 @@ export function createStyleFunction(obj) {
         /**
          * @type {Array<import("./style/Style.js").default>}
          */
-        var styles_1;
+        let styles;
         if (Array.isArray(obj)) {
-            styles_1 = obj;
+            styles = obj;
         }
         else {
             assert(typeof /** @type {?} */ (obj).getZIndex === 'function', 41); // Expected an `import("./style/Style.js").Style` or an array of `import("./style/Style.js").Style`
-            var style = /** @type {import("./style/Style.js").default} */ (obj);
-            styles_1 = [style];
+            const style = /** @type {import("./style/Style.js").default} */ (obj);
+            styles = [style];
         }
         return function () {
-            return styles_1;
+            return styles;
         };
     }
 }

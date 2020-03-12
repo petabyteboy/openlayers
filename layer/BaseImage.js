@@ -1,16 +1,3 @@
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 /**
  * @module ol/layer/BaseImage
  */
@@ -51,18 +38,14 @@ import Layer from './Layer.js';
  * @extends {Layer<import("../source/Image.js").default>}
  * @api
  */
-var BaseImageLayer = /** @class */ (function (_super) {
-    __extends(BaseImageLayer, _super);
+class BaseImageLayer extends Layer {
     /**
      * @param {Options=} opt_options Layer options.
      */
-    function BaseImageLayer(opt_options) {
-        var _this = this;
-        var options = opt_options ? opt_options : {};
-        _this = _super.call(this, options) || this;
-        return _this;
+    constructor(opt_options) {
+        const options = opt_options ? opt_options : {};
+        super(options);
     }
-    return BaseImageLayer;
-}(Layer));
+}
 export default BaseImageLayer;
 //# sourceMappingURL=BaseImage.js.map

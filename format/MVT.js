@@ -2,19 +2,6 @@
  * @module ol/format/MVT
  */
 //FIXME Implement projection handling
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 import { assert } from '../asserts.js';
 import PBF from 'pbf';
 import FeatureFormat, { transformGeometryWithOptions } from './Feature.js';
@@ -51,18 +38,17 @@ import { get } from '../proj.js';
  * @param {Options=} opt_options Options.
  * @api
  */
-var MVT = /** @class */ (function (_super) {
-    __extends(MVT, _super);
+class MVT extends FeatureFormat {
     /**
      * @param {Options=} opt_options Options.
      */
-    function MVT(opt_options) {
-        var _this = _super.call(this) || this;
-        var options = opt_options ? opt_options : {};
+    constructor(opt_options) {
+        super();
+        const options = opt_options ? opt_options : {};
         /**
          * @type {Projection}
          */
-        _this.dataProjection = new Projection({
+        this.dataProjection = new Projection({
             code: '',
             units: Units.TILE_PIXELS
         });
@@ -70,28 +56,27 @@ var MVT = /** @class */ (function (_super) {
          * @private
          * @type {import("../Feature.js").FeatureClass}
          */
-        _this.featureClass_ = options.featureClass ? options.featureClass : RenderFeature;
+        this.featureClass_ = options.featureClass ? options.featureClass : RenderFeature;
         /**
          * @private
          * @type {string|undefined}
          */
-        _this.geometryName_ = options.geometryName;
+        this.geometryName_ = options.geometryName;
         /**
          * @private
          * @type {string}
          */
-        _this.layerName_ = options.layerName ? options.layerName : 'layer';
+        this.layerName_ = options.layerName ? options.layerName : 'layer';
         /**
          * @private
          * @type {Array<string>}
          */
-        _this.layers_ = options.layers ? options.layers : null;
+        this.layers_ = options.layers ? options.layers : null;
         /**
          * @private
          * @type {string}
          */
-        _this.idProperty_ = options.idProperty;
-        return _this;
+        this.idProperty_ = options.idProperty;
     }
     /**
      * Read the raw geometry from the pbf offset stored in a raw feature's geometry
@@ -102,18 +87,18 @@ var MVT = /** @class */ (function (_super) {
      * @param {Array<number>} ends Array to store ends in.
      * @private
      */
-    MVT.prototype.readRawGeometry_ = function (pbf, feature, flatCoordinates, ends) {
+    readRawGeometry_(pbf, feature, flatCoordinates, ends) {
         pbf.pos = feature.geometry;
-        var end = pbf.readVarint() + pbf.pos;
-        var cmd = 1;
-        var length = 0;
-        var x = 0;
-        var y = 0;
-        var coordsLen = 0;
-        var currentEnd = 0;
+        const end = pbf.readVarint() + pbf.pos;
+        let cmd = 1;
+        let length = 0;
+        let x = 0;
+        let y = 0;
+        let coordsLen = 0;
+        let currentEnd = 0;
         while (pbf.pos < end) {
             if (!length) {
-                var cmdLen = pbf.readVarint();
+                const cmdLen = pbf.readVarint();
                 cmd = cmdLen & 0x7;
                 length = cmdLen >> 3;
             }
@@ -145,7 +130,7 @@ var MVT = /** @class */ (function (_super) {
             ends.push(coordsLen);
             currentEnd = coordsLen;
         }
-    };
+    }
     /**
      * @private
      * @param {PBF} pbf PBF
@@ -153,14 +138,14 @@ var MVT = /** @class */ (function (_super) {
      * @param {import("./Feature.js").ReadOptions} options Read options.
      * @return {import("../Feature.js").FeatureLike} Feature.
      */
-    MVT.prototype.createFeature_ = function (pbf, rawFeature, options) {
-        var type = rawFeature.type;
+    createFeature_(pbf, rawFeature, options) {
+        const type = rawFeature.type;
         if (type === 0) {
             return null;
         }
-        var feature;
-        var values = rawFeature.properties;
-        var id;
+        let feature;
+        const values = rawFeature.properties;
+        let id;
         if (!this.idProperty_) {
             id = rawFeature.id;
         }
@@ -169,22 +154,22 @@ var MVT = /** @class */ (function (_super) {
             delete values[this.idProperty_];
         }
         values[this.layerName_] = rawFeature.layer.name;
-        var flatCoordinates = [];
-        var ends = [];
+        const flatCoordinates = [];
+        const ends = [];
         this.readRawGeometry_(pbf, rawFeature, flatCoordinates, ends);
-        var geometryType = getGeometryType(type, ends.length);
+        const geometryType = getGeometryType(type, ends.length);
         if (this.featureClass_ === RenderFeature) {
             feature = new this.featureClass_(geometryType, flatCoordinates, ends, values, id);
             feature.transform(options.dataProjection, options.featureProjection);
         }
         else {
-            var geom = void 0;
+            let geom;
             if (geometryType == GeometryType.POLYGON) {
-                var endss = [];
-                var offset = 0;
-                var prevEndIndex = 0;
-                for (var i = 0, ii = ends.length; i < ii; ++i) {
-                    var end = ends[i];
+                const endss = [];
+                let offset = 0;
+                let prevEndIndex = 0;
+                for (let i = 0, ii = ends.length; i < ii; ++i) {
+                    const end = ends[i];
                     if (!linearRingIsClockwise(flatCoordinates, offset, end, 2)) {
                         endss.push(ends.slice(prevEndIndex, i));
                         prevEndIndex = i;
@@ -206,24 +191,24 @@ var MVT = /** @class */ (function (_super) {
                                 geometryType === GeometryType.MULTI_LINE_STRING ? new MultiLineString(flatCoordinates, GeometryLayout.XY, ends) :
                                     null;
             }
-            var ctor = /** @type {typeof import("../Feature.js").default} */ (this.featureClass_);
+            const ctor = /** @type {typeof import("../Feature.js").default} */ (this.featureClass_);
             feature = new ctor();
             if (this.geometryName_) {
                 feature.setGeometryName(this.geometryName_);
             }
-            var geometry = transformGeometryWithOptions(geom, false, options);
+            const geometry = transformGeometryWithOptions(geom, false, options);
             feature.setGeometry(geometry);
             feature.setId(id);
             feature.setProperties(values, true);
         }
         return feature;
-    };
+    }
     /**
      * @inheritDoc
      */
-    MVT.prototype.getType = function () {
+    getType() {
         return FormatType.ARRAY_BUFFER;
-    };
+    }
     /**
      * Read all features.
      *
@@ -232,46 +217,45 @@ var MVT = /** @class */ (function (_super) {
      * @return {Array<import("../Feature.js").FeatureLike>} Features.
      * @api
      */
-    MVT.prototype.readFeatures = function (source, opt_options) {
-        var layers = this.layers_;
-        var options = /** @type {import("./Feature.js").ReadOptions} */ (this.adaptOptions(opt_options));
-        var dataProjection = get(options.dataProjection);
+    readFeatures(source, opt_options) {
+        const layers = this.layers_;
+        const options = /** @type {import("./Feature.js").ReadOptions} */ (this.adaptOptions(opt_options));
+        const dataProjection = get(options.dataProjection);
         dataProjection.setWorldExtent(options.extent);
         options.dataProjection = dataProjection;
-        var pbf = new PBF(/** @type {ArrayBuffer} */ (source));
-        var pbfLayers = pbf.readFields(layersPBFReader, {});
-        var features = [];
-        for (var name_1 in pbfLayers) {
-            if (layers && layers.indexOf(name_1) == -1) {
+        const pbf = new PBF(/** @type {ArrayBuffer} */ (source));
+        const pbfLayers = pbf.readFields(layersPBFReader, {});
+        const features = [];
+        for (const name in pbfLayers) {
+            if (layers && layers.indexOf(name) == -1) {
                 continue;
             }
-            var pbfLayer = pbfLayers[name_1];
-            var extent = pbfLayer ? [0, 0, pbfLayer.extent, pbfLayer.extent] : null;
+            const pbfLayer = pbfLayers[name];
+            const extent = pbfLayer ? [0, 0, pbfLayer.extent, pbfLayer.extent] : null;
             dataProjection.setExtent(extent);
-            for (var i = 0, ii = pbfLayer.length; i < ii; ++i) {
-                var rawFeature = readRawFeature(pbf, pbfLayer, i);
+            for (let i = 0, ii = pbfLayer.length; i < ii; ++i) {
+                const rawFeature = readRawFeature(pbf, pbfLayer, i);
                 features.push(this.createFeature_(pbf, rawFeature, options));
             }
         }
         return features;
-    };
+    }
     /**
      * @inheritDoc
      * @api
      */
-    MVT.prototype.readProjection = function (source) {
+    readProjection(source) {
         return this.dataProjection;
-    };
+    }
     /**
      * Sets the layers that features will be read from.
      * @param {Array<string>} layers Layers.
      * @api
      */
-    MVT.prototype.setLayers = function (layers) {
+    setLayers(layers) {
         this.layers_ = layers;
-    };
-    return MVT;
-}(FeatureFormat));
+    }
+}
 /**
  * Reader callback for parsing layers.
  * @param {number} tag The tag.
@@ -280,12 +264,12 @@ var MVT = /** @class */ (function (_super) {
  */
 function layersPBFReader(tag, layers, pbf) {
     if (tag === 3) {
-        var layer = {
+        const layer = {
             keys: [],
             values: [],
             features: []
         };
-        var end = pbf.readVarint() + pbf.pos;
+        const end = pbf.readVarint() + pbf.pos;
         pbf.readFields(layerPBFReader, layer, end);
         layer.length = layer.features.length;
         if (layer.length) {
@@ -316,8 +300,8 @@ function layerPBFReader(tag, layer, pbf) {
         layer.keys.push(pbf.readString());
     }
     else if (tag === 4) {
-        var value = null;
-        var end = pbf.readVarint() + pbf.pos;
+        let value = null;
+        const end = pbf.readVarint() + pbf.pos;
         while (pbf.pos < end) {
             tag = pbf.readVarint() >> 3;
             value = tag === 1 ? pbf.readString() :
@@ -342,10 +326,10 @@ function featurePBFReader(tag, feature, pbf) {
         feature.id = pbf.readVarint();
     }
     else if (tag == 2) {
-        var end = pbf.readVarint() + pbf.pos;
+        const end = pbf.readVarint() + pbf.pos;
         while (pbf.pos < end) {
-            var key = feature.layer.keys[pbf.readVarint()];
-            var value = feature.layer.values[pbf.readVarint()];
+            const key = feature.layer.keys[pbf.readVarint()];
+            const value = feature.layer.values[pbf.readVarint()];
             feature.properties[key] = value;
         }
     }
@@ -365,8 +349,8 @@ function featurePBFReader(tag, feature, pbf) {
  */
 function readRawFeature(pbf, layer, i) {
     pbf.pos = layer.features[i];
-    var end = pbf.readVarint() + pbf.pos;
-    var feature = {
+    const end = pbf.readVarint() + pbf.pos;
+    const feature = {
         layer: layer,
         type: 0,
         properties: {}
@@ -382,7 +366,7 @@ function readRawFeature(pbf, layer, i) {
  */
 function getGeometryType(type, numEnds) {
     /** @type {GeometryType} */
-    var geometryType;
+    let geometryType;
     if (type === 1) {
         geometryType = numEnds === 1 ?
             GeometryType.POINT : GeometryType.MULTI_POINT;

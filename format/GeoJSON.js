@@ -1,19 +1,6 @@
 /**
  * @module ol/format/GeoJSON
  */
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 import { assert } from '../asserts.js';
 import Feature from '../Feature.js';
 import { transformGeometryWithOptions } from './Feature.js';
@@ -58,45 +45,42 @@ import GeometryType from '../geom/GeometryType.js';
  *
   * @api
  */
-var GeoJSON = /** @class */ (function (_super) {
-    __extends(GeoJSON, _super);
+class GeoJSON extends JSONFeature {
     /**
      * @param {Options=} opt_options Options.
      */
-    function GeoJSON(opt_options) {
-        var _this = this;
-        var options = opt_options ? opt_options : {};
-        _this = _super.call(this) || this;
+    constructor(opt_options) {
+        const options = opt_options ? opt_options : {};
+        super();
         /**
          * @inheritDoc
          */
-        _this.dataProjection = getProjection(options.dataProjection ?
+        this.dataProjection = getProjection(options.dataProjection ?
             options.dataProjection : 'EPSG:4326');
         if (options.featureProjection) {
-            _this.defaultFeatureProjection = getProjection(options.featureProjection);
+            this.defaultFeatureProjection = getProjection(options.featureProjection);
         }
         /**
          * Name of the geometry attribute for features.
          * @type {string|undefined}
          * @private
          */
-        _this.geometryName_ = options.geometryName;
+        this.geometryName_ = options.geometryName;
         /**
          * Look for the geometry name in the feature GeoJSON
          * @type {boolean|undefined}
          * @private
          */
-        _this.extractGeometryName_ = options.extractGeometryName;
-        return _this;
+        this.extractGeometryName_ = options.extractGeometryName;
     }
     /**
      * @inheritDoc
      */
-    GeoJSON.prototype.readFeatureFromObject = function (object, opt_options) {
+    readFeatureFromObject(object, opt_options) {
         /**
          * @type {GeoJSONFeature}
          */
-        var geoJSONFeature = null;
+        let geoJSONFeature = null;
         if (object['type'] === 'Feature') {
             geoJSONFeature = /** @type {GeoJSONFeature} */ (object);
         }
@@ -107,8 +91,8 @@ var GeoJSON = /** @class */ (function (_super) {
                 'properties': null
             };
         }
-        var geometry = readGeometry(geoJSONFeature['geometry'], opt_options);
-        var feature = new Feature();
+        const geometry = readGeometry(geoJSONFeature['geometry'], opt_options);
+        const feature = new Feature();
         if (this.geometryName_) {
             feature.setGeometryName(this.geometryName_);
         }
@@ -123,19 +107,19 @@ var GeoJSON = /** @class */ (function (_super) {
             feature.setProperties(geoJSONFeature['properties'], true);
         }
         return feature;
-    };
+    }
     /**
      * @inheritDoc
      */
-    GeoJSON.prototype.readFeaturesFromObject = function (object, opt_options) {
-        var geoJSONObject = /** @type {GeoJSONObject} */ (object);
+    readFeaturesFromObject(object, opt_options) {
+        const geoJSONObject = /** @type {GeoJSONObject} */ (object);
         /** @type {Array<import("../Feature.js").default>} */
-        var features = null;
+        let features = null;
         if (geoJSONObject['type'] === 'FeatureCollection') {
-            var geoJSONFeatureCollection = /** @type {GeoJSONFeatureCollection} */ (object);
+            const geoJSONFeatureCollection = /** @type {GeoJSONFeatureCollection} */ (object);
             features = [];
-            var geoJSONFeatures = geoJSONFeatureCollection['features'];
-            for (var i = 0, ii = geoJSONFeatures.length; i < ii; ++i) {
+            const geoJSONFeatures = geoJSONFeatureCollection['features'];
+            for (let i = 0, ii = geoJSONFeatures.length; i < ii; ++i) {
                 features.push(this.readFeatureFromObject(geoJSONFeatures[i], opt_options));
             }
         }
@@ -143,19 +127,19 @@ var GeoJSON = /** @class */ (function (_super) {
             features = [this.readFeatureFromObject(object, opt_options)];
         }
         return features;
-    };
+    }
     /**
      * @inheritDoc
      */
-    GeoJSON.prototype.readGeometryFromObject = function (object, opt_options) {
+    readGeometryFromObject(object, opt_options) {
         return readGeometry(/** @type {GeoJSONGeometry} */ (object), opt_options);
-    };
+    }
     /**
      * @inheritDoc
      */
-    GeoJSON.prototype.readProjectionFromObject = function (object) {
-        var crs = object['crs'];
-        var projection;
+    readProjectionFromObject(object) {
+        const crs = object['crs'];
+        let projection;
         if (crs) {
             if (crs['type'] == 'name') {
                 projection = getProjection(crs['properties']['name']);
@@ -172,7 +156,7 @@ var GeoJSON = /** @class */ (function (_super) {
         }
         return (
         /** @type {import("../proj/Projection.js").default} */ (projection));
-    };
+    }
     /**
      * Encode a feature as a GeoJSON Feature object.
      *
@@ -182,29 +166,29 @@ var GeoJSON = /** @class */ (function (_super) {
      * @override
      * @api
      */
-    GeoJSON.prototype.writeFeatureObject = function (feature, opt_options) {
+    writeFeatureObject(feature, opt_options) {
         opt_options = this.adaptOptions(opt_options);
         /** @type {GeoJSONFeature} */
-        var object = {
+        const object = {
             'type': 'Feature',
             geometry: null,
             properties: null
         };
-        var id = feature.getId();
+        const id = feature.getId();
         if (id !== undefined) {
             object.id = id;
         }
-        var geometry = feature.getGeometry();
+        const geometry = feature.getGeometry();
         if (geometry) {
             object.geometry = writeGeometry(geometry, opt_options);
         }
-        var properties = feature.getProperties();
+        const properties = feature.getProperties();
         delete properties[feature.getGeometryName()];
         if (!isEmpty(properties)) {
             object.properties = properties;
         }
         return object;
-    };
+    }
     /**
      * Encode an array of features as a GeoJSON object.
      *
@@ -214,17 +198,17 @@ var GeoJSON = /** @class */ (function (_super) {
      * @override
      * @api
      */
-    GeoJSON.prototype.writeFeaturesObject = function (features, opt_options) {
+    writeFeaturesObject(features, opt_options) {
         opt_options = this.adaptOptions(opt_options);
-        var objects = [];
-        for (var i = 0, ii = features.length; i < ii; ++i) {
+        const objects = [];
+        for (let i = 0, ii = features.length; i < ii; ++i) {
             objects.push(this.writeFeatureObject(features[i], opt_options));
         }
         return {
             type: 'FeatureCollection',
             features: objects
         };
-    };
+    }
     /**
      * Encode a geometry as a GeoJSON object.
      *
@@ -234,11 +218,10 @@ var GeoJSON = /** @class */ (function (_super) {
      * @override
      * @api
      */
-    GeoJSON.prototype.writeGeometryObject = function (geometry, opt_options) {
+    writeGeometryObject(geometry, opt_options) {
         return writeGeometry(geometry, this.adaptOptions(opt_options));
-    };
-    return GeoJSON;
-}(JSONFeature));
+    }
+}
 /**
  * @param {GeoJSONGeometry|GeoJSONGeometryCollection} object Object.
  * @param {import("./Feature.js").ReadOptions=} opt_options Read options.
@@ -251,7 +234,7 @@ function readGeometry(object, opt_options) {
     /**
      * @type {import("../geom/Geometry.js").default}
      */
-    var geometry;
+    let geometry;
     switch (object['type']) {
         case GeometryType.POINT: {
             geometry = readPointGeometry(/** @type {GeoJSONPoint} */ (object));
@@ -293,7 +276,7 @@ function readGeometry(object, opt_options) {
  * @return {GeometryCollection} Geometry collection.
  */
 function readGeometryCollectionGeometry(object, opt_options) {
-    var geometries = object['geometries'].map(
+    const geometries = object['geometries'].map(
     /**
      * @param {GeoJSONGeometry} geometry Geometry.
      * @return {import("../geom/Geometry.js").default} geometry Geometry.
@@ -352,9 +335,9 @@ function readPolygonGeometry(object) {
  */
 function writeGeometry(geometry, opt_options) {
     geometry = transformGeometryWithOptions(geometry, true, opt_options);
-    var type = geometry.getType();
+    const type = geometry.getType();
     /** @type {GeoJSONGeometry} */
-    var geoJSON;
+    let geoJSON;
     switch (type) {
         case GeometryType.POINT: {
             geoJSON = writePointGeometry(/** @type {Point} */ (geometry), opt_options);
@@ -403,8 +386,8 @@ function writeGeometry(geometry, opt_options) {
  * @return {GeoJSONGeometryCollection} GeoJSON geometry collection.
  */
 function writeGeometryCollectionGeometry(geometry, opt_options) {
-    var geometries = geometry.getGeometriesArray().map(function (geometry) {
-        var options = assign({}, opt_options);
+    const geometries = geometry.getGeometriesArray().map(function (geometry) {
+        const options = assign({}, opt_options);
         delete options.featureProjection;
         return writeGeometry(geometry, options);
     });
@@ -452,7 +435,7 @@ function writeMultiPointGeometry(geometry, opt_options) {
  * @return {GeoJSONGeometry} GeoJSON geometry.
  */
 function writeMultiPolygonGeometry(geometry, opt_options) {
-    var right;
+    let right;
     if (opt_options) {
         right = opt_options.rightHanded;
     }
@@ -478,7 +461,7 @@ function writePointGeometry(geometry, opt_options) {
  * @return {GeoJSONGeometry} GeoJSON geometry.
  */
 function writePolygonGeometry(geometry, opt_options) {
-    var right;
+    let right;
     if (opt_options) {
         right = opt_options.rightHanded;
     }

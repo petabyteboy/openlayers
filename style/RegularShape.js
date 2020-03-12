@@ -1,19 +1,6 @@
 /**
  * @module ol/style/RegularShape
  */
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 import { asArray } from '../color.js';
 import { asColorLike } from '../colorlike.js';
 import { createCanvasContext2D } from '../dom.js';
@@ -53,100 +40,97 @@ import ImageStyle from './Image.js';
  * `radius2` are provided.
  * @api
  */
-var RegularShape = /** @class */ (function (_super) {
-    __extends(RegularShape, _super);
+class RegularShape extends ImageStyle {
     /**
      * @param {Options} options Options.
      */
-    function RegularShape(options) {
-        var _this = this;
+    constructor(options) {
         /**
          * @type {boolean}
          */
-        var rotateWithView = options.rotateWithView !== undefined ?
+        const rotateWithView = options.rotateWithView !== undefined ?
             options.rotateWithView : false;
-        _this = _super.call(this, {
+        super({
             opacity: 1,
             rotateWithView: rotateWithView,
             rotation: options.rotation !== undefined ? options.rotation : 0,
             scale: 1,
             displacement: options.displacement !== undefined ? options.displacement : [0, 0]
-        }) || this;
+        });
         /**
          * @private
          * @type {HTMLCanvasElement}
          */
-        _this.canvas_ = null;
+        this.canvas_ = null;
         /**
          * @private
          * @type {HTMLCanvasElement}
          */
-        _this.hitDetectionCanvas_ = null;
+        this.hitDetectionCanvas_ = null;
         /**
          * @private
          * @type {import("./Fill.js").default}
          */
-        _this.fill_ = options.fill !== undefined ? options.fill : null;
+        this.fill_ = options.fill !== undefined ? options.fill : null;
         /**
          * @private
          * @type {Array<number>}
          */
-        _this.origin_ = [0, 0];
+        this.origin_ = [0, 0];
         /**
          * @private
          * @type {number}
          */
-        _this.points_ = options.points;
+        this.points_ = options.points;
         /**
          * @protected
          * @type {number}
          */
-        _this.radius_ = options.radius !== undefined ? options.radius : options.radius1;
+        this.radius_ = options.radius !== undefined ? options.radius : options.radius1;
         /**
          * @private
          * @type {number|undefined}
          */
-        _this.radius2_ = options.radius2;
+        this.radius2_ = options.radius2;
         /**
          * @private
          * @type {number}
          */
-        _this.angle_ = options.angle !== undefined ? options.angle : 0;
+        this.angle_ = options.angle !== undefined ? options.angle : 0;
         /**
          * @private
          * @type {import("./Stroke.js").default}
          */
-        _this.stroke_ = options.stroke !== undefined ? options.stroke : null;
+        this.stroke_ = options.stroke !== undefined ? options.stroke : null;
         /**
          * @private
          * @type {Array<number>}
          */
-        _this.anchor_ = null;
+        this.anchor_ = null;
         /**
          * @private
          * @type {import("../size.js").Size}
          */
-        _this.size_ = null;
+        this.size_ = null;
         /**
          * @private
          * @type {import("../size.js").Size}
          */
-        _this.imageSize_ = null;
+        this.imageSize_ = null;
         /**
          * @private
          * @type {import("../size.js").Size}
          */
-        _this.hitDetectionImageSize_ = null;
-        _this.render();
-        return _this;
+        this.hitDetectionImageSize_ = null;
+        this.render();
     }
     /**
      * Clones the style.
      * @return {RegularShape} The cloned style.
      * @api
      */
-    RegularShape.prototype.clone = function () {
-        var style = new RegularShape({
+    clone() {
+        const style = new RegularShape({
             fill: this.getFill() ? this.getFill().clone() : undefined,
             points: this.getPoints(),
             radius: this.getRadius(),
@@ -160,130 +144,130 @@ var RegularShape = /** @class */ (function (_super) {
         style.setOpacity(this.getOpacity());
         style.setScale(this.getScale());
         return style;
-    };
+    }
     /**
      * @inheritDoc
      * @api
      */
-    RegularShape.prototype.getAnchor = function () {
+    getAnchor() {
         return this.anchor_;
-    };
+    }
     /**
      * Get the angle used in generating the shape.
      * @return {number} Shape's rotation in radians.
      * @api
      */
-    RegularShape.prototype.getAngle = function () {
+    getAngle() {
         return this.angle_;
-    };
+    }
     /**
      * Get the fill style for the shape.
      * @return {import("./Fill.js").default} Fill style.
      * @api
      */
-    RegularShape.prototype.getFill = function () {
+    getFill() {
         return this.fill_;
-    };
+    }
     /**
      * @inheritDoc
      */
-    RegularShape.prototype.getHitDetectionImage = function (pixelRatio) {
+    getHitDetectionImage(pixelRatio) {
         return this.hitDetectionCanvas_;
-    };
+    }
     /**
      * @inheritDoc
      * @api
      */
-    RegularShape.prototype.getImage = function (pixelRatio) {
+    getImage(pixelRatio) {
         return this.canvas_;
-    };
+    }
     /**
      * @inheritDoc
      */
-    RegularShape.prototype.getImageSize = function () {
+    getImageSize() {
         return this.imageSize_;
-    };
+    }
     /**
      * @inheritDoc
      */
-    RegularShape.prototype.getHitDetectionImageSize = function () {
+    getHitDetectionImageSize() {
         return this.hitDetectionImageSize_;
-    };
+    }
     /**
      * @inheritDoc
      */
-    RegularShape.prototype.getImageState = function () {
+    getImageState() {
         return ImageState.LOADED;
-    };
+    }
     /**
      * @inheritDoc
      * @api
      */
-    RegularShape.prototype.getOrigin = function () {
+    getOrigin() {
         return this.origin_;
-    };
+    }
     /**
      * Get the number of points for generating the shape.
      * @return {number} Number of points for stars and regular polygons.
      * @api
      */
-    RegularShape.prototype.getPoints = function () {
+    getPoints() {
         return this.points_;
-    };
+    }
     /**
      * Get the (primary) radius for the shape.
      * @return {number} Radius.
      * @api
      */
-    RegularShape.prototype.getRadius = function () {
+    getRadius() {
         return this.radius_;
-    };
+    }
     /**
      * Get the secondary radius for the shape.
      * @return {number|undefined} Radius2.
      * @api
      */
-    RegularShape.prototype.getRadius2 = function () {
+    getRadius2() {
         return this.radius2_;
-    };
+    }
     /**
      * @inheritDoc
      * @api
      */
-    RegularShape.prototype.getSize = function () {
+    getSize() {
         return this.size_;
-    };
+    }
     /**
      * Get the stroke style for the shape.
      * @return {import("./Stroke.js").default} Stroke style.
      * @api
      */
-    RegularShape.prototype.getStroke = function () {
+    getStroke() {
         return this.stroke_;
-    };
+    }
     /**
      * @inheritDoc
      */
-    RegularShape.prototype.listenImageChange = function (listener) { };
+    listenImageChange(listener) { }
     /**
      * @inheritDoc
      */
-    RegularShape.prototype.load = function () { };
+    load() { }
     /**
      * @inheritDoc
      */
-    RegularShape.prototype.unlistenImageChange = function (listener) { };
+    unlistenImageChange(listener) { }
     /**
      * @protected
      */
-    RegularShape.prototype.render = function () {
-        var lineCap = defaultLineCap;
-        var lineJoin = defaultLineJoin;
-        var miterLimit = 0;
-        var lineDash = null;
-        var lineDashOffset = 0;
-        var strokeStyle;
-        var strokeWidth = 0;
+    render() {
+        let lineCap = defaultLineCap;
+        let lineJoin = defaultLineJoin;
+        let miterLimit = 0;
+        let lineDash = null;
+        let lineDashOffset = 0;
+        let strokeStyle;
+        let strokeWidth = 0;
         if (this.stroke_) {
             strokeStyle = this.stroke_.getColor();
             if (strokeStyle === null) {
@@ -309,8 +293,8 @@ var RegularShape = /** @class */ (function (_super) {
                 miterLimit = defaultMiterLimit;
             }
         }
-        var size = 2 * (this.radius_ + strokeWidth) + 1;
-        var renderOptions = {
+        let size = 2 * (this.radius_ + strokeWidth) + 1;
+        const renderOptions = {
             strokeStyle: strokeStyle,
             strokeWidth: strokeWidth,
             size: size,
@@ -320,18 +304,18 @@ var RegularShape = /** @class */ (function (_super) {
             lineJoin: lineJoin,
             miterLimit: miterLimit
         };
-        var context = createCanvasContext2D(size, size);
+        const context = createCanvasContext2D(size, size);
         this.canvas_ = context.canvas;
         // canvas.width and height are rounded to the closest integer
         size = this.canvas_.width;
-        var imageSize = size;
-        var displacement = this.getDisplacement();
+        const imageSize = size;
+        const displacement = this.getDisplacement();
         this.draw_(renderOptions, context, 0, 0);
         this.createHitDetectionCanvas_(renderOptions);
         this.anchor_ = [size / 2 - displacement[0], size / 2 + displacement[1]];
         this.size_ = [size, size];
         this.imageSize_ = [imageSize, imageSize];
-    };
+    }
     /**
      * @private
      * @param {RenderOptions} renderOptions Render options.
@@ -339,19 +323,19 @@ var RegularShape = /** @class */ (function (_super) {
      * @param {number} x The origin for the symbol (x).
      * @param {number} y The origin for the symbol (y).
      */
-    RegularShape.prototype.draw_ = function (renderOptions, context, x, y) {
-        var i, angle0, radiusC;
+    draw_(renderOptions, context, x, y) {
+        let i, angle0, radiusC;
         // reset transform
         context.setTransform(1, 0, 0, 1, 0, 0);
         // then move to (x, y)
         context.translate(x, y);
         context.beginPath();
-        var points = this.points_;
+        let points = this.points_;
         if (points === Infinity) {
             context.arc(renderOptions.size / 2, renderOptions.size / 2, this.radius_, 0, 2 * Math.PI, true);
         }
         else {
-            var radius2 = (this.radius2_ !== undefined) ? this.radius2_
+            const radius2 = (this.radius2_ !== undefined) ? this.radius2_
                 : this.radius_;
             if (radius2 !== this.radius_) {
                 points = 2 * points;
@@ -363,7 +347,7 @@ var RegularShape = /** @class */ (function (_super) {
             }
         }
         if (this.fill_) {
-            var color = this.fill_.getColor();
+            let color = this.fill_.getColor();
             if (color === null) {
                 color = defaultFillStyle;
             }
@@ -383,18 +367,18 @@ var RegularShape = /** @class */ (function (_super) {
             context.stroke();
         }
         context.closePath();
-    };
+    }
     /**
      * @private
      * @param {RenderOptions} renderOptions Render options.
      */
-    RegularShape.prototype.createHitDetectionCanvas_ = function (renderOptions) {
+    createHitDetectionCanvas_(renderOptions) {
         this.hitDetectionImageSize_ = [renderOptions.size, renderOptions.size];
         this.hitDetectionCanvas_ = this.canvas_;
         if (this.fill_) {
-            var color = this.fill_.getColor();
+            let color = this.fill_.getColor();
             // determine if fill is transparent (or pattern or gradient)
-            var opacity = 0;
+            let opacity = 0;
             if (typeof color === 'string') {
                 color = asArray(color);
             }
@@ -407,12 +391,12 @@ var RegularShape = /** @class */ (function (_super) {
             if (opacity === 0) {
                 // if a transparent fill style is set, create an extra hit-detection image
                 // with a default fill style
-                var context = createCanvasContext2D(renderOptions.size, renderOptions.size);
+                const context = createCanvasContext2D(renderOptions.size, renderOptions.size);
                 this.hitDetectionCanvas_ = context.canvas;
                 this.drawHitDetectionCanvas_(renderOptions, context, 0, 0);
             }
         }
-    };
+    }
     /**
      * @private
      * @param {RenderOptions} renderOptions Render options.
@@ -420,23 +404,23 @@ var RegularShape = /** @class */ (function (_super) {
      * @param {number} x The origin for the symbol (x).
      * @param {number} y The origin for the symbol (y).
      */
-    RegularShape.prototype.drawHitDetectionCanvas_ = function (renderOptions, context, x, y) {
+    drawHitDetectionCanvas_(renderOptions, context, x, y) {
         // reset transform
         context.setTransform(1, 0, 0, 1, 0, 0);
         // then move to (x, y)
         context.translate(x, y);
         context.beginPath();
-        var points = this.points_;
+        let points = this.points_;
         if (points === Infinity) {
             context.arc(renderOptions.size / 2, renderOptions.size / 2, this.radius_, 0, 2 * Math.PI, true);
         }
         else {
-            var radius2 = (this.radius2_ !== undefined) ? this.radius2_
+            const radius2 = (this.radius2_ !== undefined) ? this.radius2_
                 : this.radius_;
             if (radius2 !== this.radius_) {
                 points = 2 * points;
             }
-            var i = void 0, radiusC = void 0, angle0 = void 0;
+            let i, radiusC, angle0;
             for (i = 0; i <= points; i++) {
                 angle0 = i * 2 * Math.PI / points - Math.PI / 2 + this.angle_;
                 radiusC = i % 2 === 0 ? this.radius_ : radius2;
@@ -455,8 +439,7 @@ var RegularShape = /** @class */ (function (_super) {
             context.stroke();
         }
         context.closePath();
-    };
-    return RegularShape;
-}(ImageStyle));
+    }
+}
 export default RegularShape;
 //# sourceMappingURL=RegularShape.js.map

@@ -1,16 +1,3 @@
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 /**
  * @module ol/format/IGC
  */
@@ -24,7 +11,7 @@ import { get as getProjection } from '../proj.js';
  * IGC altitude/z. One of 'barometric', 'gps', 'none'.
  * @enum {string}
  */
-var IGCZ = {
+const IGCZ = {
     BAROMETRIC: 'barometric',
     GPS: 'gps',
     NONE: 'none'
@@ -33,24 +20,24 @@ var IGCZ = {
  * @const
  * @type {RegExp}
  */
-var B_RECORD_RE = /^B(\d{2})(\d{2})(\d{2})(\d{2})(\d{5})([NS])(\d{3})(\d{5})([EW])([AV])(\d{5})(\d{5})/;
+const B_RECORD_RE = /^B(\d{2})(\d{2})(\d{2})(\d{2})(\d{5})([NS])(\d{3})(\d{5})([EW])([AV])(\d{5})(\d{5})/;
 /**
  * @const
  * @type {RegExp}
  */
-var H_RECORD_RE = /^H.([A-Z]{3}).*?:(.*)/;
+const H_RECORD_RE = /^H.([A-Z]{3}).*?:(.*)/;
 /**
  * @const
  * @type {RegExp}
  */
-var HFDTE_RECORD_RE = /^HFDTE(\d{2})(\d{2})(\d{2})/;
+const HFDTE_RECORD_RE = /^HFDTE(\d{2})(\d{2})(\d{2})/;
 /**
  * A regular expression matching the newline characters `\r\n`, `\r` and `\n`.
  *
  * @const
  * @type {RegExp}
  */
-var NEWLINE_RE = /\r\n|\r|\n/;
+const NEWLINE_RE = /\r\n|\r|\n/;
 /**
  * @typedef {Object} Options
  * @property {IGCZ|string} [altitudeMode='none'] Altitude mode. Possible
@@ -66,59 +53,57 @@ var NEWLINE_RE = /\r\n|\r|\n/;
  *
  * @api
  */
-var IGC = /** @class */ (function (_super) {
-    __extends(IGC, _super);
+class IGC extends TextFeature {
     /**
      * @param {Options=} opt_options Options.
      */
-    function IGC(opt_options) {
-        var _this = _super.call(this) || this;
-        var options = opt_options ? opt_options : {};
+    constructor(opt_options) {
+        super();
+        const options = opt_options ? opt_options : {};
         /**
          * @inheritDoc
          */
-        _this.dataProjection = getProjection('EPSG:4326');
+        this.dataProjection = getProjection('EPSG:4326');
         /**
          * @private
          * @type {IGCZ}
          */
-        _this.altitudeMode_ = options.altitudeMode ? options.altitudeMode : IGCZ.NONE;
-        return _this;
+        this.altitudeMode_ = options.altitudeMode ? options.altitudeMode : IGCZ.NONE;
     }
     /**
      * @inheritDoc
      */
-    IGC.prototype.readFeatureFromText = function (text, opt_options) {
-        var altitudeMode = this.altitudeMode_;
-        var lines = text.split(NEWLINE_RE);
+    readFeatureFromText(text, opt_options) {
+        const altitudeMode = this.altitudeMode_;
+        const lines = text.split(NEWLINE_RE);
         /** @type {Object<string, string>} */
-        var properties = {};
-        var flatCoordinates = [];
-        var year = 2000;
-        var month = 0;
-        var day = 1;
-        var lastDateTime = -1;
-        var i, ii;
+        const properties = {};
+        const flatCoordinates = [];
+        let year = 2000;
+        let month = 0;
+        let day = 1;
+        let lastDateTime = -1;
+        let i, ii;
         for (i = 0, ii = lines.length; i < ii; ++i) {
-            var line = lines[i];
-            var m = void 0;
+            const line = lines[i];
+            let m;
             if (line.charAt(0) == 'B') {
                 m = B_RECORD_RE.exec(line);
                 if (m) {
-                    var hour = parseInt(m[1], 10);
-                    var minute = parseInt(m[2], 10);
-                    var second = parseInt(m[3], 10);
-                    var y = parseInt(m[4], 10) + parseInt(m[5], 10) / 60000;
+                    const hour = parseInt(m[1], 10);
+                    const minute = parseInt(m[2], 10);
+                    const second = parseInt(m[3], 10);
+                    let y = parseInt(m[4], 10) + parseInt(m[5], 10) / 60000;
                     if (m[6] == 'S') {
                         y = -y;
                     }
-                    var x = parseInt(m[7], 10) + parseInt(m[8], 10) / 60000;
+                    let x = parseInt(m[7], 10) + parseInt(m[8], 10) / 60000;
                     if (m[9] == 'W') {
                         x = -x;
                     }
                     flatCoordinates.push(x, y);
                     if (altitudeMode != IGCZ.NONE) {
-                        var z = void 0;
+                        let z;
                         if (altitudeMode == IGCZ.GPS) {
                             z = parseInt(m[11], 10);
                         }
@@ -130,7 +115,7 @@ var IGC = /** @class */ (function (_super) {
                         }
                         flatCoordinates.push(z);
                     }
-                    var dateTime = Date.UTC(year, month, day, hour, minute, second);
+                    let dateTime = Date.UTC(year, month, day, hour, minute, second);
                     // Detect UTC midnight wrap around.
                     if (dateTime < lastDateTime) {
                         dateTime = Date.UTC(year, month, day + 1, hour, minute, second);
@@ -157,25 +142,24 @@ var IGC = /** @class */ (function (_super) {
         if (flatCoordinates.length === 0) {
             return null;
         }
-        var layout = altitudeMode == IGCZ.NONE ? GeometryLayout.XYM : GeometryLayout.XYZM;
-        var lineString = new LineString(flatCoordinates, layout);
-        var feature = new Feature(transformGeometryWithOptions(lineString, false, opt_options));
+        const layout = altitudeMode == IGCZ.NONE ? GeometryLayout.XYM : GeometryLayout.XYZM;
+        const lineString = new LineString(flatCoordinates, layout);
+        const feature = new Feature(transformGeometryWithOptions(lineString, false, opt_options));
         feature.setProperties(properties, true);
         return feature;
-    };
+    }
     /**
      * @inheritDoc
      */
-    IGC.prototype.readFeaturesFromText = function (text, opt_options) {
-        var feature = this.readFeatureFromText(text, opt_options);
+    readFeaturesFromText(text, opt_options) {
+        const feature = this.readFeatureFromText(text, opt_options);
         if (feature) {
             return [feature];
         }
         else {
             return [];
         }
-    };
-    return IGC;
-}(TextFeature));
+    }
+}
 export default IGC;
 //# sourceMappingURL=IGC.js.map

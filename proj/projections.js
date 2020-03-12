@@ -4,7 +4,7 @@
 /**
  * @type {Object<string, import("./Projection.js").default>}
  */
-var cache = {};
+let cache = {};
 /**
  * Clear the projections cache.
  */

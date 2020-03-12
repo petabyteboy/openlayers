@@ -1,16 +1,3 @@
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 /**
  * @module ol/geom/SimpleGeometry
  */
@@ -27,74 +14,72 @@ import { rotate, scale, translate, transform2D } from './flat/transform.js';
  * @abstract
  * @api
  */
-var SimpleGeometry = /** @class */ (function (_super) {
-    __extends(SimpleGeometry, _super);
-    function SimpleGeometry() {
-        var _this = _super.call(this) || this;
+class SimpleGeometry extends Geometry {
+    constructor() {
+        super();
         /**
          * @protected
          * @type {GeometryLayout}
          */
-        _this.layout = GeometryLayout.XY;
+        this.layout = GeometryLayout.XY;
         /**
          * @protected
          * @type {number}
          */
-        _this.stride = 2;
+        this.stride = 2;
         /**
          * @protected
          * @type {Array<number>}
          */
-        _this.flatCoordinates = null;
-        return _this;
+        this.flatCoordinates = null;
     }
     /**
      * @inheritDoc
      */
-    SimpleGeometry.prototype.computeExtent = function (extent) {
+    computeExtent(extent) {
         return createOrUpdateFromFlatCoordinates(this.flatCoordinates, 0, this.flatCoordinates.length, this.stride, extent);
-    };
+    }
     /**
      * @abstract
      * @return {Array<*>} Coordinates.
      */
-    SimpleGeometry.prototype.getCoordinates = function () {
+    getCoordinates() {
         return abstract();
-    };
+    }
     /**
      * Return the first coordinate of the geometry.
      * @return {import("../coordinate.js").Coordinate} First coordinate.
      * @api
      */
-    SimpleGeometry.prototype.getFirstCoordinate = function () {
+    getFirstCoordinate() {
         return this.flatCoordinates.slice(0, this.stride);
-    };
+    }
     /**
      * @return {Array<number>} Flat coordinates.
      */
-    SimpleGeometry.prototype.getFlatCoordinates = function () {
+    getFlatCoordinates() {
         return this.flatCoordinates;
-    };
+    }
     /**
      * Return the last coordinate of the geometry.
      * @return {import("../coordinate.js").Coordinate} Last point.
      * @api
      */
-    SimpleGeometry.prototype.getLastCoordinate = function () {
+    getLastCoordinate() {
         return this.flatCoordinates.slice(this.flatCoordinates.length - this.stride);
-    };
+    }
     /**
      * Return the {@link module:ol/geom/GeometryLayout layout} of the geometry.
      * @return {GeometryLayout} Layout.
      * @api
      */
-    SimpleGeometry.prototype.getLayout = function () {
+    getLayout() {
         return this.layout;
-    };
+    }
     /**
      * @inheritDoc
      */
-    SimpleGeometry.prototype.getSimplifiedGeometry = function (squaredTolerance) {
+    getSimplifiedGeometry(squaredTolerance) {
         if (this.simplifiedGeometryRevision !== this.getRevision()) {
             this.simplifiedGeometryMaxMinSquaredTolerance = 0;
             this.simplifiedGeometryRevision = this.getRevision();
@@ -106,8 +91,8 @@ var SimpleGeometry = /** @class */ (function (_super) {
                 squaredTolerance <= this.simplifiedGeometryMaxMinSquaredTolerance)) {
             return this;
         }
-        var simplifiedGeometry = this.getSimplifiedGeometryInternal(squaredTolerance);
-        var simplifiedFlatCoordinates = simplifiedGeometry.getFlatCoordinates();
+        const simplifiedGeometry = this.getSimplifiedGeometryInternal(squaredTolerance);
+        const simplifiedFlatCoordinates = simplifiedGeometry.getFlatCoordinates();
         if (simplifiedFlatCoordinates.length < this.flatCoordinates.length) {
             return simplifiedGeometry;
         }
@@ -121,52 +106,52 @@ var SimpleGeometry = /** @class */ (function (_super) {
             this.simplifiedGeometryMaxMinSquaredTolerance = squaredTolerance;
             return this;
         }
-    };
+    }
     /**
      * @param {number} squaredTolerance Squared tolerance.
      * @return {SimpleGeometry} Simplified geometry.
      * @protected
      */
-    SimpleGeometry.prototype.getSimplifiedGeometryInternal = function (squaredTolerance) {
+    getSimplifiedGeometryInternal(squaredTolerance) {
         return this;
-    };
+    }
     /**
      * @return {number} Stride.
      */
-    SimpleGeometry.prototype.getStride = function () {
+    getStride() {
         return this.stride;
-    };
+    }
     /**
      * @param {GeometryLayout} layout Layout.
      * @param {Array<number>} flatCoordinates Flat coordinates.
      */
-    SimpleGeometry.prototype.setFlatCoordinates = function (layout, flatCoordinates) {
+    setFlatCoordinates(layout, flatCoordinates) {
         this.stride = getStrideForLayout(layout);
         this.layout = layout;
         this.flatCoordinates = flatCoordinates;
-    };
+    }
     /**
      * @abstract
      * @param {!Array<*>} coordinates Coordinates.
      * @param {GeometryLayout=} opt_layout Layout.
      */
-    SimpleGeometry.prototype.setCoordinates = function (coordinates, opt_layout) {
+    setCoordinates(coordinates, opt_layout) {
         abstract();
-    };
+    }
     /**
      * @param {GeometryLayout|undefined} layout Layout.
      * @param {Array<*>} coordinates Coordinates.
      * @param {number} nesting Nesting.
      * @protected
      */
-    SimpleGeometry.prototype.setLayout = function (layout, coordinates, nesting) {
+    setLayout(layout, coordinates, nesting) {
         /** @type {number} */
-        var stride;
+        let stride;
         if (layout) {
             stride = getStrideForLayout(layout);
         }
         else {
-            for (var i = 0; i < nesting; ++i) {
+            for (let i = 0; i < nesting; ++i) {
                 if (coordinates.length === 0) {
                     this.layout = GeometryLayout.XY;
                     this.stride = 2;
@@ -181,7 +166,7 @@ var SimpleGeometry = /** @class */ (function (_super) {
         }
         this.layout = layout;
         this.stride = stride;
-    };
+    }
     /**
      * Apply a transform function to the coordinates of the geometry.
      * The geometry is modified in place.
@@ -191,12 +176,12 @@ var SimpleGeometry = /** @class */ (function (_super) {
      * Called with a flat array of geometry coordinates.
      * @api
      */
-    SimpleGeometry.prototype.applyTransform = function (transformFn) {
+    applyTransform(transformFn) {
         if (this.flatCoordinates) {
             transformFn(this.flatCoordinates, this.flatCoordinates, this.stride);
             this.changed();
         }
-    };
+    }
     /**
      * Rotate the geometry around a given coordinate. This modifies the geometry
      * coordinates in place.
@@ -204,14 +189,14 @@ var SimpleGeometry = /** @class */ (function (_super) {
      * @param {import("../coordinate.js").Coordinate} anchor The rotation center.
      * @api
      */
-    SimpleGeometry.prototype.rotate = function (angle, anchor) {
-        var flatCoordinates = this.getFlatCoordinates();
+    rotate(angle, anchor) {
+        const flatCoordinates = this.getFlatCoordinates();
         if (flatCoordinates) {
-            var stride = this.getStride();
+            const stride = this.getStride();
             rotate(flatCoordinates, 0, flatCoordinates.length, stride, angle, anchor, flatCoordinates);
             this.changed();
         }
-    };
+    }
     /**
      * Scale the geometry (with an optional origin).  This modifies the geometry
      * coordinates in place.
@@ -222,22 +207,22 @@ var SimpleGeometry = /** @class */ (function (_super) {
      *     of the geometry extent).
      * @api
      */
-    SimpleGeometry.prototype.scale = function (sx, opt_sy, opt_anchor) {
-        var sy = opt_sy;
+    scale(sx, opt_sy, opt_anchor) {
+        let sy = opt_sy;
         if (sy === undefined) {
             sy = sx;
         }
-        var anchor = opt_anchor;
+        let anchor = opt_anchor;
         if (!anchor) {
             anchor = getCenter(this.getExtent());
         }
-        var flatCoordinates = this.getFlatCoordinates();
+        const flatCoordinates = this.getFlatCoordinates();
         if (flatCoordinates) {
-            var stride = this.getStride();
+            const stride = this.getStride();
             scale(flatCoordinates, 0, flatCoordinates.length, stride, sx, sy, anchor, flatCoordinates);
             this.changed();
         }
-    };
+    }
     /**
      * Translate the geometry.  This modifies the geometry coordinates in place.  If
      * instead you want a new geometry, first `clone()` this geometry.
@@ -245,22 +230,21 @@ var SimpleGeometry = /** @class */ (function (_super) {
      * @param {number} deltaY Delta Y.
      * @api
      */
-    SimpleGeometry.prototype.translate = function (deltaX, deltaY) {
-        var flatCoordinates = this.getFlatCoordinates();
+    translate(deltaX, deltaY) {
+        const flatCoordinates = this.getFlatCoordinates();
         if (flatCoordinates) {
-            var stride = this.getStride();
+            const stride = this.getStride();
             translate(flatCoordinates, 0, flatCoordinates.length, stride, deltaX, deltaY, flatCoordinates);
             this.changed();
         }
-    };
-    return SimpleGeometry;
-}(Geometry));
+    }
+}
 /**
  * @param {number} stride Stride.
  * @return {GeometryLayout} layout Layout.
  */
 function getLayoutForStride(stride) {
-    var layout;
+    let layout;
     if (stride == 2) {
         layout = GeometryLayout.XY;
     }
@@ -278,7 +262,7 @@ function getLayoutForStride(stride) {
  * @return {number} Stride.
  */
 export function getStrideForLayout(layout) {
-    var stride;
+    let stride;
     if (layout == GeometryLayout.XY) {
         stride = 2;
     }
@@ -297,12 +281,12 @@ export function getStrideForLayout(layout) {
  * @return {Array<number>} Transformed flat coordinates.
  */
 export function transformGeom2D(simpleGeometry, transform, opt_dest) {
-    var flatCoordinates = simpleGeometry.getFlatCoordinates();
+    const flatCoordinates = simpleGeometry.getFlatCoordinates();
     if (!flatCoordinates) {
         return null;
     }
     else {
-        var stride = simpleGeometry.getStride();
+        const stride = simpleGeometry.getStride();
         return transform2D(flatCoordinates, 0, flatCoordinates.length, stride, transform, opt_dest);
     }
 }

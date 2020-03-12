@@ -17,13 +17,13 @@ import { linearRingsContainsXY } from './contains.js';
  * length of the horizontal intersection that the point belongs to.
  */
 export function getInteriorPointOfArray(flatCoordinates, offset, ends, stride, flatCenters, flatCentersOffset, opt_dest) {
-    var i, ii, x, x1, x2, y1, y2;
-    var y = flatCenters[flatCentersOffset + 1];
+    let i, ii, x, x1, x2, y1, y2;
+    const y = flatCenters[flatCentersOffset + 1];
     /** @type {Array<number>} */
-    var intersections = [];
+    const intersections = [];
     // Calculate intersections with the horizontal line
-    for (var r = 0, rr = ends.length; r < rr; ++r) {
-        var end = ends[r];
+    for (let r = 0, rr = ends.length; r < rr; ++r) {
+        const end = ends[r];
         x1 = flatCoordinates[end - stride];
         y1 = flatCoordinates[end - stride + 1];
         for (i = offset; i < end; i += stride) {
@@ -39,13 +39,13 @@ export function getInteriorPointOfArray(flatCoordinates, offset, ends, stride, f
     }
     // Find the longest segment of the horizontal line that has its center point
     // inside the linear ring.
-    var pointX = NaN;
-    var maxSegmentLength = -Infinity;
+    let pointX = NaN;
+    let maxSegmentLength = -Infinity;
     intersections.sort(numberSafeCompareFunction);
     x1 = intersections[0];
     for (i = 1, ii = intersections.length; i < ii; ++i) {
         x2 = intersections[i];
-        var segmentLength = Math.abs(x2 - x1);
+        const segmentLength = Math.abs(x2 - x1);
         if (segmentLength > maxSegmentLength) {
             x = (x1 + x2) / 2;
             if (linearRingsContainsXY(flatCoordinates, offset, ends, stride, x, y)) {
@@ -78,9 +78,9 @@ export function getInteriorPointOfArray(flatCoordinates, offset, ends, stride, f
  * length of the horizontal intersection that the point belongs to.
  */
 export function getInteriorPointsOfMultiArray(flatCoordinates, offset, endss, stride, flatCenters) {
-    var interiorPoints = [];
-    for (var i = 0, ii = endss.length; i < ii; ++i) {
-        var ends = endss[i];
+    let interiorPoints = [];
+    for (let i = 0, ii = endss.length; i < ii; ++i) {
+        const ends = endss[i];
         interiorPoints = getInteriorPointOfArray(flatCoordinates, offset, ends, stride, flatCenters, 2 * i, interiorPoints);
         offset = ends[ends.length - 1];
     }

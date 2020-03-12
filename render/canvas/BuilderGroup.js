@@ -10,7 +10,7 @@ import TextBuilder from './TextBuilder.js';
 /**
  * @type {Object<import("./BuilderType").default, typeof Builder>}
  */
-var BATCH_CONSTRUCTORS = {
+const BATCH_CONSTRUCTORS = {
     'Circle': PolygonBuilder,
     'Default': Builder,
     'Image': ImageBuilder,
@@ -18,7 +18,7 @@ var BATCH_CONSTRUCTORS = {
     'Polygon': PolygonBuilder,
     'Text': TextBuilder
 };
-var BuilderGroup = /** @class */ (function () {
+class BuilderGroup {
     /**
      * @param {number} tolerance Tolerance.
      * @param {import("../../extent.js").Extent} maxExtent Max extent.
@@ -26,7 +26,7 @@ var BuilderGroup = /** @class */ (function () {
      * @param {number} pixelRatio Pixel ratio.
      * @param {boolean} declutter Decluttering enabled.
      */
-    function BuilderGroup(tolerance, maxExtent, resolution, pixelRatio, declutter) {
+    constructor(tolerance, maxExtent, resolution, pixelRatio, declutter) {
         /**
          * @type {boolean}
          * @private
@@ -67,8 +67,8 @@ var BuilderGroup = /** @class */ (function () {
      * @param {boolean} group Group with previous builder.
      * @return {import("../canvas").DeclutterGroups} The resulting instruction groups.
      */
-    BuilderGroup.prototype.addDeclutter = function (group) {
-        var declutter = null;
+    addDeclutter(group) {
+        let declutter = null;
         if (this.declutter_) {
             if (group) {
                 declutter = this.declutterGroups_;
@@ -81,43 +81,42 @@ var BuilderGroup = /** @class */ (function () {
             }
         }
         return declutter;
-    };
+    }
     /**
      * @return {!Object<string, !Object<import("./BuilderType").default, import("./Builder.js").SerializableInstructions>>} The serializable instructions
      */
-    BuilderGroup.prototype.finish = function () {
-        var builderInstructions = {};
-        for (var zKey in this.buildersByZIndex_) {
+    finish() {
+        const builderInstructions = {};
+        for (const zKey in this.buildersByZIndex_) {
             builderInstructions[zKey] = builderInstructions[zKey] || {};
-            var builders = this.buildersByZIndex_[zKey];
-            for (var builderKey in builders) {
-                var builderInstruction = builders[builderKey].finish();
+            const builders = this.buildersByZIndex_[zKey];
+            for (const builderKey in builders) {
+                const builderInstruction = builders[builderKey].finish();
                 builderInstructions[zKey][builderKey] = builderInstruction;
             }
         }
         return builderInstructions;
-    };
+    }
     /**
      * @param {number|undefined} zIndex Z index.
      * @param {import("./BuilderType.js").default} builderType Replay type.
      * @return {import("../VectorContext.js").default} Replay.
      */
-    BuilderGroup.prototype.getBuilder = function (zIndex, builderType) {
-        var zIndexKey = zIndex !== undefined ? zIndex.toString() : '0';
-        var replays = this.buildersByZIndex_[zIndexKey];
+    getBuilder(zIndex, builderType) {
+        const zIndexKey = zIndex !== undefined ? zIndex.toString() : '0';
+        let replays = this.buildersByZIndex_[zIndexKey];
         if (replays === undefined) {
             replays = {};
             this.buildersByZIndex_[zIndexKey] = replays;
         }
-        var replay = replays[builderType];
+        let replay = replays[builderType];
         if (replay === undefined) {
-            var Constructor = BATCH_CONSTRUCTORS[builderType];
+            const Constructor = BATCH_CONSTRUCTORS[builderType];
             replay = new Constructor(this.tolerance_, this.maxExtent_, this.resolution_, this.pixelRatio_);
             replays[builderType] = replay;
         }
         return replay;
-    };
-    return BuilderGroup;
-}());
+    }
+}
 export default BuilderGroup;
 //# sourceMappingURL=BuilderGroup.js.map

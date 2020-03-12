@@ -34,7 +34,7 @@ export function none(rotation) {
  * @return {Type} Rotation constraint.
  */
 export function createSnapToN(n) {
-    var theta = 2 * Math.PI / n;
+    const theta = 2 * Math.PI / n;
     return (
     /**
      * @param {number|undefined} rotation Rotation.
@@ -59,7 +59,7 @@ export function createSnapToN(n) {
  * @return {Type} Rotation constraint.
  */
 export function createSnapToZero(opt_tolerance) {
-    var tolerance = opt_tolerance || toRadians(5);
+    const tolerance = opt_tolerance || toRadians(5);
     return (
     /**
      * @param {number|undefined} rotation Rotation.

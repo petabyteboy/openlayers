@@ -32,14 +32,14 @@ export function VOID() { }
  * @template ReturnType
  */
 export function memoizeOne(fn) {
-    var called = false;
+    let called = false;
     /** @type {ReturnType} */
-    var lastResult;
+    let lastResult;
     /** @type {Array<any>} */
-    var lastArgs;
-    var lastThis;
+    let lastArgs;
+    let lastThis;
     return function () {
-        var nextArgs = Array.prototype.slice.call(arguments);
+        const nextArgs = Array.prototype.slice.call(arguments);
         if (!called || this !== lastThis || !arrayEquals(nextArgs, lastArgs)) {
             called = true;
             lastThis = this;

@@ -12,7 +12,7 @@
  * @type {number}
  * @api
  */
-export var ARRAY_BUFFER = 0x8892;
+export const ARRAY_BUFFER = 0x8892;
 /**
  * Used by {@link module:ol/webgl/Helper~WebGLHelper} for buffers containing indices data.
  * Index buffers are essentially lists of references to vertices defined in a vertex buffer
@@ -21,55 +21,55 @@ export var ARRAY_BUFFER = 0x8892;
  * @type {number}
  * @api
  */
-export var ELEMENT_ARRAY_BUFFER = 0x8893;
+export const ELEMENT_ARRAY_BUFFER = 0x8893;
 /**
  * Used by {link module:ol/webgl/Buffer~WebGLArrayBuffer}.
  * @const
  * @type {number}
  * @api
  */
-export var STREAM_DRAW = 0x88E0;
+export const STREAM_DRAW = 0x88E0;
 /**
  * Used by {link module:ol/webgl/Buffer~WebGLArrayBuffer}.
  * @const
  * @type {number}
  * @api
  */
-export var STATIC_DRAW = 0x88E4;
+export const STATIC_DRAW = 0x88E4;
 /**
  * Used by {link module:ol/webgl/Buffer~WebGLArrayBuffer}.
  * @const
  * @type {number}
  * @api
  */
-export var DYNAMIC_DRAW = 0x88E8;
+export const DYNAMIC_DRAW = 0x88E8;
 /**
  * @const
  * @type {number}
  */
-export var UNSIGNED_BYTE = 0x1401;
+export const UNSIGNED_BYTE = 0x1401;
 /**
  * @const
  * @type {number}
  */
-export var UNSIGNED_SHORT = 0x1403;
+export const UNSIGNED_SHORT = 0x1403;
 /**
  * @const
  * @type {number}
  */
-export var UNSIGNED_INT = 0x1405;
+export const UNSIGNED_INT = 0x1405;
 /**
  * @const
  * @type {number}
  */
-export var FLOAT = 0x1406;
+export const FLOAT = 0x1406;
 /** end of goog.webgl constants
  */
 /**
  * @const
  * @type {Array<string>}
  */
-var CONTEXT_IDS = [
+const CONTEXT_IDS = [
     'experimental-webgl',
     'webgl',
     'webkit-3d',
@@ -81,10 +81,10 @@ var CONTEXT_IDS = [
  * @return {WebGLRenderingContext} WebGL rendering context.
  */
 export function getContext(canvas, opt_attributes) {
-    var ii = CONTEXT_IDS.length;
-    for (var i = 0; i < ii; ++i) {
+    const ii = CONTEXT_IDS.length;
+    for (let i = 0; i < ii; ++i) {
         try {
-            var context = canvas.getContext(CONTEXT_IDS[i], opt_attributes);
+            const context = canvas.getContext(CONTEXT_IDS[i], opt_attributes);
             if (context) {
                 return /** @type {!WebGLRenderingContext} */ (context);
             }
@@ -98,14 +98,14 @@ export function getContext(canvas, opt_attributes) {
 /**
  * @type {Array<string>}
  */
-var supportedExtensions;
+let supportedExtensions;
 /**
  * @return {Array<string>} List of supported WebGL extensions.
  */
 export function getSupportedExtensions() {
     if (!supportedExtensions) {
-        var canvas = document.createElement('canvas');
-        var gl = getContext(canvas);
+        const canvas = document.createElement('canvas');
+        const gl = getContext(canvas);
         if (gl) {
             supportedExtensions = gl.getSupportedExtensions();
         }

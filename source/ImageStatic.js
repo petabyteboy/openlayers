@@ -1,19 +1,6 @@
 /**
  * @module ol/source/ImageStatic
  */
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 import ImageWrapper from '../Image.js';
 import ImageState from '../ImageState.js';
 import { createCanvasContext2D } from '../dom.js';
@@ -40,77 +27,74 @@ import ImageSource, { defaultImageLoadFunction } from './Image.js';
  * A layer source for displaying a single, static image.
  * @api
  */
-var Static = /** @class */ (function (_super) {
-    __extends(Static, _super);
+class Static extends ImageSource {
     /**
      * @param {Options} options ImageStatic options.
      */
-    function Static(options) {
-        var _this = this;
-        var crossOrigin = options.crossOrigin !== undefined ?
+    constructor(options) {
+        const crossOrigin = options.crossOrigin !== undefined ?
             options.crossOrigin : null;
-        var /** @type {import("../Image.js").LoadFunction} */ imageLoadFunction = options.imageLoadFunction !== undefined ?
+        const /** @type {import("../Image.js").LoadFunction} */ imageLoadFunction = options.imageLoadFunction !== undefined ?
             options.imageLoadFunction : defaultImageLoadFunction;
-        _this = _super.call(this, {
+        super({
             attributions: options.attributions,
             projection: getProjection(options.projection)
-        }) || this;
+        });
         /**
          * @private
          * @type {string}
          */
-        _this.url_ = options.url;
+        this.url_ = options.url;
         /**
          * @private
          * @type {import("../extent.js").Extent}
          */
-        _this.imageExtent_ = options.imageExtent;
+        this.imageExtent_ = options.imageExtent;
         /**
          * @private
          * @type {import("../Image.js").default}
          */
-        _this.image_ = new ImageWrapper(_this.imageExtent_, undefined, 1, _this.url_, crossOrigin, imageLoadFunction);
+        this.image_ = new ImageWrapper(this.imageExtent_, undefined, 1, this.url_, crossOrigin, imageLoadFunction);
         /**
          * @private
          * @type {import("../size.js").Size}
          */
-        _this.imageSize_ = options.imageSize ? options.imageSize : null;
-        _this.image_.addEventListener(EventType.CHANGE, _this.handleImageChange.bind(_this));
-        return _this;
+        this.imageSize_ = options.imageSize ? options.imageSize : null;
+        this.image_.addEventListener(EventType.CHANGE, this.handleImageChange.bind(this));
     }
     /**
      * Returns the image extent
      * @return {import("../extent.js").Extent} image extent.
      * @api
      */
-    Static.prototype.getImageExtent = function () {
+    getImageExtent() {
         return this.imageExtent_;
-    };
+    }
     /**
      * @inheritDoc
      */
-    Static.prototype.getImageInternal = function (extent, resolution, pixelRatio, projection) {
+    getImageInternal(extent, resolution, pixelRatio, projection) {
         if (intersects(extent, this.image_.getExtent())) {
             return this.image_;
         }
         return null;
-    };
+    }
     /**
      * Return the URL used for this image source.
      * @return {string} URL.
      * @api
      */
-    Static.prototype.getUrl = function () {
+    getUrl() {
         return this.url_;
-    };
+    }
     /**
      * @inheritDoc
      */
-    Static.prototype.handleImageChange = function (evt) {
+    handleImageChange(evt) {
         if (this.image_.getState() == ImageState.LOADED) {
-            var imageExtent = this.image_.getExtent();
-            var image = this.image_.getImage();
-            var imageWidth = void 0, imageHeight = void 0;
+            const imageExtent = this.image_.getExtent();
+            const image = this.image_.getImage();
+            let imageWidth, imageHeight;
             if (this.imageSize_) {
                 imageWidth = this.imageSize_[0];
                 imageHeight = this.imageSize_[1];
@@ -119,18 +103,17 @@ var Static = /** @class */ (function (_super) {
                 imageWidth = image.width;
                 imageHeight = image.height;
             }
-            var resolution = getHeight(imageExtent) / imageHeight;
-            var targetWidth = Math.ceil(getWidth(imageExtent) / resolution);
+            const resolution = getHeight(imageExtent) / imageHeight;
+            const targetWidth = Math.ceil(getWidth(imageExtent) / resolution);
             if (targetWidth != imageWidth) {
-                var context = createCanvasContext2D(targetWidth, imageHeight);
-                var canvas = context.canvas;
+                const context = createCanvasContext2D(targetWidth, imageHeight);
+                const canvas = context.canvas;
                 context.drawImage(image, 0, 0, imageWidth, imageHeight, 0, 0, canvas.width, canvas.height);
                 this.image_.setImage(canvas);
             }
         }
-        _super.prototype.handleImageChange.call(this, evt);
-    };
-    return Static;
-}(ImageSource));
+        super.handleImageChange(evt);
+    }
+}
 export default Static;
 //# sourceMappingURL=ImageStatic.js.map

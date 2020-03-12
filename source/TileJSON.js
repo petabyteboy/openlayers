@@ -2,19 +2,6 @@
  * @module ol/source/TileJSON
  */
 // FIXME check order of async callbacks
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 /**
  * See https://mapbox.com/developers/api/.
  */
@@ -73,13 +60,12 @@ import { createXYZ, extentFromProjection } from '../tilegrid.js';
  * Layer source for tile data in TileJSON format.
  * @api
  */
-var TileJSON = /** @class */ (function (_super) {
-    __extends(TileJSON, _super);
+class TileJSON extends TileImage {
     /**
      * @param {Options} options TileJSON options.
      */
-    function TileJSON(options) {
-        var _this = _super.call(this, {
+    constructor(options) {
+        super({
             attributions: options.attributions,
             cacheSize: options.cacheSize,
             crossOrigin: options.crossOrigin,
@@ -89,46 +75,45 @@ var TileJSON = /** @class */ (function (_super) {
             tileLoadFunction: options.tileLoadFunction,
             wrapX: options.wrapX !== undefined ? options.wrapX : true,
             transition: options.transition
-        }) || this;
+        });
         /**
          * @type {Config}
          * @private
          */
-        _this.tileJSON_ = null;
+        this.tileJSON_ = null;
         /**
          * @type {number|import("../size.js").Size}
          * @private
          */
-        _this.tileSize_ = options.tileSize;
+        this.tileSize_ = options.tileSize;
         if (options.url) {
             if (options.jsonp) {
-                requestJSONP(options.url, _this.handleTileJSONResponse.bind(_this), _this.handleTileJSONError.bind(_this));
+                requestJSONP(options.url, this.handleTileJSONResponse.bind(this), this.handleTileJSONError.bind(this));
             }
             else {
-                var client = new XMLHttpRequest();
-                client.addEventListener('load', _this.onXHRLoad_.bind(_this));
-                client.addEventListener('error', _this.onXHRError_.bind(_this));
+                const client = new XMLHttpRequest();
+                client.addEventListener('load', this.onXHRLoad_.bind(this));
+                client.addEventListener('error', this.onXHRError_.bind(this));
                 client.open('GET', options.url);
                 client.send();
             }
         }
         else if (options.tileJSON) {
-            _this.handleTileJSONResponse(options.tileJSON);
+            this.handleTileJSONResponse(options.tileJSON);
         }
         else {
             assert(false, 51); // Either `url` or `tileJSON` options must be provided
         }
-        return _this;
     }
     /**
      * @private
      * @param {Event} event The load event.
      */
-    TileJSON.prototype.onXHRLoad_ = function (event) {
-        var client = /** @type {XMLHttpRequest} */ (event.target);
+    onXHRLoad_(event) {
+        const client = /** @type {XMLHttpRequest} */ (event.target);
         // status will be 0 for file:// urls
         if (!client.status || client.status >= 200 && client.status < 300) {
-            var response = void 0;
+            let response;
             try {
                 response = /** @type {TileJSON} */ (JSON.parse(client.responseText));
             }
@@ -141,36 +126,36 @@ var TileJSON = /** @class */ (function (_super) {
         else {
             this.handleTileJSONError();
         }
-    };
+    }
     /**
      * @private
      * @param {Event} event The error event.
      */
-    TileJSON.prototype.onXHRError_ = function (event) {
+    onXHRError_(event) {
         this.handleTileJSONError();
-    };
+    }
     /**
      * @return {Config} The tilejson object.
      * @api
      */
-    TileJSON.prototype.getTileJSON = function () {
+    getTileJSON() {
         return this.tileJSON_;
-    };
+    }
     /**
      * @protected
      * @param {Config} tileJSON Tile JSON.
      */
-    TileJSON.prototype.handleTileJSONResponse = function (tileJSON) {
-        var epsg4326Projection = getProjection('EPSG:4326');
-        var sourceProjection = this.getProjection();
-        var extent;
+    handleTileJSONResponse(tileJSON) {
+        const epsg4326Projection = getProjection('EPSG:4326');
+        const sourceProjection = this.getProjection();
+        let extent;
         if (tileJSON['bounds'] !== undefined) {
-            var transform = getTransformFromProjections(epsg4326Projection, sourceProjection);
+            const transform = getTransformFromProjections(epsg4326Projection, sourceProjection);
             extent = applyTransform(tileJSON['bounds'], transform);
         }
-        var minZoom = tileJSON['minzoom'] || 0;
-        var maxZoom = tileJSON['maxzoom'] || 22;
-        var tileGrid = createXYZ({
+        const minZoom = tileJSON['minzoom'] || 0;
+        const maxZoom = tileJSON['maxzoom'] || 22;
+        const tileGrid = createXYZ({
             extent: extentFromProjection(sourceProjection),
             maxZoom: maxZoom,
             minZoom: minZoom,
@@ -179,10 +164,10 @@ var TileJSON = /** @class */ (function (_super) {
         this.tileGrid = tileGrid;
         this.tileUrlFunction = createFromTemplates(tileJSON['tiles'], tileGrid);
         if (tileJSON['attribution'] !== undefined && !this.getAttributions()) {
-            var attributionExtent_1 = extent !== undefined ?
+            const attributionExtent = extent !== undefined ?
                 extent : epsg4326Projection.getExtent();
             this.setAttributions(function (frameState) {
-                if (intersects(attributionExtent_1, frameState.extent)) {
+                if (intersects(attributionExtent, frameState.extent)) {
                     return [tileJSON['attribution']];
                 }
                 return null;
@@ -190,14 +175,13 @@ var TileJSON = /** @class */ (function (_super) {
         }
         this.tileJSON_ = tileJSON;
         this.setState(SourceState.READY);
-    };
+    }
     /**
      * @protected
      */
-    TileJSON.prototype.handleTileJSONError = function () {
+    handleTileJSONError() {
         this.setState(SourceState.ERROR);
-    };
-    return TileJSON;
-}(TileImage));
+    }
+}
 export default TileJSON;
 //# sourceMappingURL=TileJSON.js.map

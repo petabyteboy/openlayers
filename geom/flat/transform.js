@@ -11,11 +11,11 @@
  * @return {Array<number>} Transformed coordinates.
  */
 export function transform2D(flatCoordinates, offset, end, stride, transform, opt_dest) {
-    var dest = opt_dest ? opt_dest : [];
-    var i = 0;
-    for (var j = offset; j < end; j += stride) {
-        var x = flatCoordinates[j];
-        var y = flatCoordinates[j + 1];
+    const dest = opt_dest ? opt_dest : [];
+    let i = 0;
+    for (let j = offset; j < end; j += stride) {
+        const x = flatCoordinates[j];
+        const y = flatCoordinates[j + 1];
         dest[i++] = transform[0] * x + transform[2] * y + transform[4];
         dest[i++] = transform[1] * x + transform[3] * y + transform[5];
     }
@@ -35,18 +35,18 @@ export function transform2D(flatCoordinates, offset, end, stride, transform, opt
  * @return {Array<number>} Transformed coordinates.
  */
 export function rotate(flatCoordinates, offset, end, stride, angle, anchor, opt_dest) {
-    var dest = opt_dest ? opt_dest : [];
-    var cos = Math.cos(angle);
-    var sin = Math.sin(angle);
-    var anchorX = anchor[0];
-    var anchorY = anchor[1];
-    var i = 0;
-    for (var j = offset; j < end; j += stride) {
-        var deltaX = flatCoordinates[j] - anchorX;
-        var deltaY = flatCoordinates[j + 1] - anchorY;
+    const dest = opt_dest ? opt_dest : [];
+    const cos = Math.cos(angle);
+    const sin = Math.sin(angle);
+    const anchorX = anchor[0];
+    const anchorY = anchor[1];
+    let i = 0;
+    for (let j = offset; j < end; j += stride) {
+        const deltaX = flatCoordinates[j] - anchorX;
+        const deltaY = flatCoordinates[j + 1] - anchorY;
         dest[i++] = anchorX + deltaX * cos - deltaY * sin;
         dest[i++] = anchorY + deltaX * sin + deltaY * cos;
-        for (var k = j + 2; k < j + stride; ++k) {
+        for (let k = j + 2; k < j + stride; ++k) {
             dest[i++] = flatCoordinates[k];
         }
     }
@@ -68,16 +68,16 @@ export function rotate(flatCoordinates, offset, end, stride, angle, anchor, opt_
  * @return {Array<number>} Transformed coordinates.
  */
 export function scale(flatCoordinates, offset, end, stride, sx, sy, anchor, opt_dest) {
-    var dest = opt_dest ? opt_dest : [];
-    var anchorX = anchor[0];
-    var anchorY = anchor[1];
-    var i = 0;
-    for (var j = offset; j < end; j += stride) {
-        var deltaX = flatCoordinates[j] - anchorX;
-        var deltaY = flatCoordinates[j + 1] - anchorY;
+    const dest = opt_dest ? opt_dest : [];
+    const anchorX = anchor[0];
+    const anchorY = anchor[1];
+    let i = 0;
+    for (let j = offset; j < end; j += stride) {
+        const deltaX = flatCoordinates[j] - anchorX;
+        const deltaY = flatCoordinates[j + 1] - anchorY;
         dest[i++] = anchorX + sx * deltaX;
         dest[i++] = anchorY + sy * deltaY;
-        for (var k = j + 2; k < j + stride; ++k) {
+        for (let k = j + 2; k < j + stride; ++k) {
             dest[i++] = flatCoordinates[k];
         }
     }
@@ -97,12 +97,12 @@ export function scale(flatCoordinates, offset, end, stride, sx, sy, anchor, opt_
  * @return {Array<number>} Transformed coordinates.
  */
 export function translate(flatCoordinates, offset, end, stride, deltaX, deltaY, opt_dest) {
-    var dest = opt_dest ? opt_dest : [];
-    var i = 0;
-    for (var j = offset; j < end; j += stride) {
+    const dest = opt_dest ? opt_dest : [];
+    let i = 0;
+    for (let j = offset; j < end; j += stride) {
         dest[i++] = flatCoordinates[j] + deltaX;
         dest[i++] = flatCoordinates[j + 1] + deltaY;
-        for (var k = j + 2; k < j + stride; ++k) {
+        for (let k = j + 2; k < j + stride; ++k) {
             dest[i++] = flatCoordinates[k];
         }
     }

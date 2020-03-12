@@ -18,7 +18,7 @@ import { extend } from './array.js';
 /**
  * @type {string}
  */
-export var XML_SCHEMA_INSTANCE_URI = 'http://www.w3.org/2001/XMLSchema-instance';
+export const XML_SCHEMA_INSTANCE_URI = 'http://www.w3.org/2001/XMLSchema-instance';
 /**
  * @param {string} namespaceURI Namespace URI.
  * @param {string} qualifiedName Qualified name.
@@ -58,7 +58,7 @@ export function getAllTextContent_(node, normalizeWhitespace, accumulator) {
         }
     }
     else {
-        var n = void 0;
+        let n;
         for (n = node.firstChild; n; n = n.nextSibling) {
             getAllTextContent_(n, normalizeWhitespace, accumulator);
         }
@@ -105,9 +105,9 @@ export function makeArrayExtender(valueReader, opt_this) {
      * @param {Array<*>} objectStack Object stack.
      */
     function (node, objectStack) {
-        var value = valueReader.call(opt_this !== undefined ? opt_this : this, node, objectStack);
+        const value = valueReader.call(opt_this !== undefined ? opt_this : this, node, objectStack);
         if (value !== undefined) {
-            var array = /** @type {Array<*>} */ (objectStack[objectStack.length - 1]);
+            const array = /** @type {Array<*>} */ (objectStack[objectStack.length - 1]);
             extend(array, value);
         }
     });
@@ -127,9 +127,9 @@ export function makeArrayPusher(valueReader, opt_this) {
      * @param {Array<*>} objectStack Object stack.
      */
     function (node, objectStack) {
-        var value = valueReader.call(opt_this !== undefined ? opt_this : this, node, objectStack);
+        const value = valueReader.call(opt_this !== undefined ? opt_this : this, node, objectStack);
         if (value !== undefined) {
-            var array = /** @type {Array<*>} */ (objectStack[objectStack.length - 1]);
+            const array = /** @type {Array<*>} */ (objectStack[objectStack.length - 1]);
             array.push(value);
         }
     });
@@ -149,7 +149,7 @@ export function makeReplacer(valueReader, opt_this) {
      * @param {Array<*>} objectStack Object stack.
      */
     function (node, objectStack) {
-        var value = valueReader.call(opt_this !== undefined ? opt_this : this, node, objectStack);
+        const value = valueReader.call(opt_this !== undefined ? opt_this : this, node, objectStack);
         if (value !== undefined) {
             objectStack[objectStack.length - 1] = value;
         }
@@ -171,11 +171,11 @@ export function makeObjectPropertyPusher(valueReader, opt_property, opt_this) {
      * @param {Array<*>} objectStack Object stack.
      */
     function (node, objectStack) {
-        var value = valueReader.call(opt_this !== undefined ? opt_this : this, node, objectStack);
+        const value = valueReader.call(opt_this !== undefined ? opt_this : this, node, objectStack);
         if (value !== undefined) {
-            var object = /** @type {!Object} */ (objectStack[objectStack.length - 1]);
-            var property = opt_property !== undefined ? opt_property : node.localName;
-            var array = void 0;
+            const object = /** @type {!Object} */ (objectStack[objectStack.length - 1]);
+            const property = opt_property !== undefined ? opt_property : node.localName;
+            let array;
             if (property in object) {
                 array = object[property];
             }
@@ -202,10 +202,10 @@ export function makeObjectPropertySetter(valueReader, opt_property, opt_this) {
      * @param {Array<*>} objectStack Object stack.
      */
     function (node, objectStack) {
-        var value = valueReader.call(opt_this !== undefined ? opt_this : this, node, objectStack);
+        const value = valueReader.call(opt_this !== undefined ? opt_this : this, node, objectStack);
         if (value !== undefined) {
-            var object = /** @type {!Object} */ (objectStack[objectStack.length - 1]);
-            var property = opt_property !== undefined ? opt_property : node.localName;
+            const object = /** @type {!Object} */ (objectStack[objectStack.length - 1]);
+            const property = opt_property !== undefined ? opt_property : node.localName;
             object[property] = value;
         }
     });
@@ -222,8 +222,8 @@ export function makeObjectPropertySetter(valueReader, opt_property, opt_this) {
 export function makeChildAppender(nodeWriter, opt_this) {
     return function (node, value, objectStack) {
         nodeWriter.call(opt_this !== undefined ? opt_this : this, node, value, objectStack);
-        var parent = /** @type {NodeStackItem} */ (objectStack[objectStack.length - 1]);
-        var parentNode = parent.node;
+        const parent = /** @type {NodeStackItem} */ (objectStack[objectStack.length - 1]);
+        const parentNode = parent.node;
         parentNode.appendChild(node);
     };
 }
@@ -240,11 +240,11 @@ export function makeChildAppender(nodeWriter, opt_this) {
  * @template T, V
  */
 export function makeArraySerializer(nodeWriter, opt_this) {
-    var serializersNS, nodeFactory;
+    let serializersNS, nodeFactory;
     return function (node, value, objectStack) {
         if (serializersNS === undefined) {
             serializersNS = {};
-            var serializers = {};
+            const serializers = {};
             serializers[node.localName] = nodeWriter;
             serializersNS[node.namespaceURI] = serializers;
             nodeFactory = makeSimpleNodeFactory(node.localName);
@@ -266,7 +266,7 @@ export function makeArraySerializer(nodeWriter, opt_this) {
  * @return {function(*, Array<*>, string=): (Node|undefined)} Node factory.
  */
 export function makeSimpleNodeFactory(opt_nodeName, opt_namespaceURI) {
-    var fixedNodeName = opt_nodeName;
+    const fixedNodeName = opt_nodeName;
     return (
     /**
      * @param {*} value Value.
@@ -275,13 +275,13 @@ export function makeSimpleNodeFactory(opt_nodeName, opt_namespaceURI) {
      * @return {Node} Node.
      */
     function (value, objectStack, opt_nodeName) {
-        var context = /** @type {NodeStackItem} */ (objectStack[objectStack.length - 1]);
-        var node = context.node;
-        var nodeName = fixedNodeName;
+        const context = /** @type {NodeStackItem} */ (objectStack[objectStack.length - 1]);
+        const node = context.node;
+        let nodeName = fixedNodeName;
         if (nodeName === undefined) {
             nodeName = opt_nodeName;
         }
-        var namespaceURI = opt_namespaceURI !== undefined ? opt_namespaceURI : node.namespaceURI;
+        const namespaceURI = opt_namespaceURI !== undefined ? opt_namespaceURI : node.namespaceURI;
         return createElementNS(namespaceURI, /** @type {string} */ (nodeName));
     });
 }
@@ -292,7 +292,7 @@ export function makeSimpleNodeFactory(opt_nodeName, opt_namespaceURI) {
  * @const
  * @type {function(*, Array<*>, string=): (Node|undefined)}
  */
-export var OBJECT_PROPERTY_NODE_FACTORY = makeSimpleNodeFactory();
+export const OBJECT_PROPERTY_NODE_FACTORY = makeSimpleNodeFactory();
 /**
  * Create an array of `values` to be used with {@link module:ol/xml~serialize} or
  * {@link module:ol/xml~pushSerializeAndPop}, where `orderedKeys` has to be provided as
@@ -305,9 +305,9 @@ export var OBJECT_PROPERTY_NODE_FACTORY = makeSimpleNodeFactory();
  *     present in `object` will be `undefined` in the resulting array.
  */
 export function makeSequence(object, orderedKeys) {
-    var length = orderedKeys.length;
-    var sequence = new Array(length);
-    for (var i = 0; i < length; ++i) {
+    const length = orderedKeys.length;
+    const sequence = new Array(length);
+    for (let i = 0; i < length; ++i) {
         sequence[i] = object[orderedKeys[i]];
     }
     return sequence;
@@ -326,8 +326,8 @@ export function makeStructureNS(namespaceURIs, structure, opt_structureNS) {
     /**
      * @type {Object<string, T>}
      */
-    var structureNS = opt_structureNS !== undefined ? opt_structureNS : {};
-    var i, ii;
+    const structureNS = opt_structureNS !== undefined ? opt_structureNS : {};
+    let i, ii;
     for (i = 0, ii = namespaceURIs.length; i < ii; ++i) {
         structureNS[namespaceURIs[i]] = structure;
     }
@@ -342,11 +342,11 @@ export function makeStructureNS(namespaceURIs, structure, opt_structureNS) {
  * @param {*=} opt_this The object to use as `this`.
  */
 export function parseNode(parsersNS, node, objectStack, opt_this) {
-    var n;
+    let n;
     for (n = node.firstElementChild; n; n = n.nextElementSibling) {
-        var parsers = parsersNS[n.namespaceURI];
+        const parsers = parsersNS[n.namespaceURI];
         if (parsers !== undefined) {
-            var parser = parsers[n.localName];
+            const parser = parsers[n.localName];
             if (parser !== undefined) {
                 parser.call(opt_this, n, objectStack);
             }
@@ -392,9 +392,9 @@ export function pushParseAndPop(object, parsersNS, node, objectStack, opt_this) 
  * @template T
  */
 export function serialize(serializersNS, nodeFactory, values, objectStack, opt_keys, opt_this) {
-    var length = (opt_keys !== undefined ? opt_keys : values).length;
-    var value, node;
-    for (var i = 0; i < length; ++i) {
+    const length = (opt_keys !== undefined ? opt_keys : values).length;
+    let value, node;
+    for (let i = 0; i < length; ++i) {
         value = values[i];
         if (value !== undefined) {
             node = nodeFactory.call(opt_this !== undefined ? opt_this : this, value, objectStack, opt_keys !== undefined ? opt_keys[i] : undefined);
@@ -433,7 +433,7 @@ export function pushSerializeAndPop(object, serializersNS, nodeFactory, values, 
     serialize(serializersNS, nodeFactory, values, objectStack, opt_keys, opt_this);
     return /** @type {O|undefined} */ (objectStack.pop());
 }
-var xmlSerializer_ = undefined;
+let xmlSerializer_ = undefined;
 /**
  * Register a XMLSerializer. Can be used  to inject a XMLSerializer
  * where there is no globally available implementation.
@@ -453,7 +453,7 @@ export function getXMLSerializer() {
     }
     return xmlSerializer_;
 }
-var document_ = undefined;
+let document_ = undefined;
 /**
  * Register a Document to use when creating nodes for XML serializations. Can be used
  * to inject a Document where there is no globally available implementation.

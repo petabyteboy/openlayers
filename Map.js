@@ -1,16 +1,3 @@
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 /**
  * @module ol/Map
  */
@@ -66,13 +53,11 @@ import CompositeMapRenderer from './renderer/Composite.js';
  *
  * @api
  */
-var Map = /** @class */ (function (_super) {
-    __extends(Map, _super);
+class Map extends PluggableMap {
     /**
      * @param {import("./PluggableMap.js").MapOptions} options Map options.
      */
-    function Map(options) {
-        var _this = this;
+    constructor(options) {
         options = assign({}, options);
         if (!options.controls) {
             options.controls = defaultControls();
@@ -80,13 +65,11 @@ var Map = /** @class */ (function (_super) {
         if (!options.interactions) {
             options.interactions = defaultInteractions();
         }
-        _this = _super.call(this, options) || this;
-        return _this;
+        super(options);
     }
-    Map.prototype.createRenderer = function () {
+    createRenderer() {
         return new CompositeMapRenderer(this);
-    };
-    return Map;
-}(PluggableMap));
+    }
+}
 export default Map;
 //# sourceMappingURL=Map.js.map

@@ -24,27 +24,27 @@ import RBush from 'rbush';
 /**
  * @type {import("../../extent.js").Extent}
  */
-var tmpExtent = createEmpty();
+const tmpExtent = createEmpty();
 /**
  * @type {!import("../../transform.js").Transform}
  */
-var tmpTransform = createTransform();
+const tmpTransform = createTransform();
 /** @type {import("../../coordinate.js").Coordinate} */
-var p1 = [];
+const p1 = [];
 /** @type {import("../../coordinate.js").Coordinate} */
-var p2 = [];
+const p2 = [];
 /** @type {import("../../coordinate.js").Coordinate} */
-var p3 = [];
+const p3 = [];
 /** @type {import("../../coordinate.js").Coordinate} */
-var p4 = [];
-var Executor = /** @class */ (function () {
+const p4 = [];
+class Executor {
     /**
      * @param {number} resolution Resolution.
      * @param {number} pixelRatio Pixel ratio.
      * @param {boolean} overlaps The replay can have overlapping geometries.
      * @param {SerializableInstructions} instructions The serializable instructions
      */
-    function Executor(resolution, pixelRatio, overlaps, instructions) {
+    constructor(resolution, pixelRatio, overlaps, instructions) {
         /**
          * @protected
          * @type {boolean}
@@ -135,28 +135,28 @@ var Executor = /** @class */ (function () {
      * @param {string} strokeKey Stroke style key.
      * @return {import("../canvas.js").Label} Label.
      */
-    Executor.prototype.createLabel = function (text, textKey, fillKey, strokeKey) {
-        var key = text + textKey + fillKey + strokeKey;
+    createLabel(text, textKey, fillKey, strokeKey) {
+        const key = text + textKey + fillKey + strokeKey;
         if (this.labels_[key]) {
             return this.labels_[key];
         }
-        var strokeState = strokeKey ? this.strokeStates[strokeKey] : null;
-        var fillState = fillKey ? this.fillStates[fillKey] : null;
-        var textState = this.textStates[textKey];
-        var pixelRatio = this.pixelRatio;
-        var scale = textState.scale * pixelRatio;
-        var align = TEXT_ALIGN[textState.textAlign || defaultTextAlign];
-        var strokeWidth = strokeKey && strokeState.lineWidth ? strokeState.lineWidth : 0;
-        var lines = text.split('\n');
-        var numLines = lines.length;
-        var widths = [];
-        var width = measureTextWidths(textState.font, lines, widths);
-        var lineHeight = measureTextHeight(textState.font);
-        var height = lineHeight * numLines;
-        var renderWidth = width + strokeWidth;
-        var contextInstructions = [];
+        const strokeState = strokeKey ? this.strokeStates[strokeKey] : null;
+        const fillState = fillKey ? this.fillStates[fillKey] : null;
+        const textState = this.textStates[textKey];
+        const pixelRatio = this.pixelRatio;
+        const scale = textState.scale * pixelRatio;
+        const align = TEXT_ALIGN[textState.textAlign || defaultTextAlign];
+        const strokeWidth = strokeKey && strokeState.lineWidth ? strokeState.lineWidth : 0;
+        const lines = text.split('\n');
+        const numLines = lines.length;
+        const widths = [];
+        const width = measureTextWidths(textState.font, lines, widths);
+        const lineHeight = measureTextHeight(textState.font);
+        const height = lineHeight * numLines;
+        const renderWidth = width + strokeWidth;
+        const contextInstructions = [];
         /** @type {import("../canvas.js").Label} */
-        var label = {
+        const label = {
             // make canvas 2 pixels wider to account for italic text width measurement errors
             width: Math.ceil((renderWidth + 2) * scale),
             height: Math.ceil((height + strokeWidth) * scale),
@@ -182,9 +182,9 @@ var Executor = /** @class */ (function () {
         }
         contextInstructions.push('textBaseline', 'middle');
         contextInstructions.push('textAlign', 'center');
-        var leftRight = (0.5 - align);
-        var x = align * renderWidth + leftRight * strokeWidth;
-        var i;
+        const leftRight = (0.5 - align);
+        const x = align * renderWidth + leftRight * strokeWidth;
+        let i;
         if (strokeKey) {
             for (i = 0; i < numLines; ++i) {
                 contextInstructions.push('strokeText', [lines[i], x + leftRight * widths[i], 0.5 * (strokeWidth + lineHeight) + i * lineHeight]);
@@ -197,7 +197,7 @@ var Executor = /** @class */ (function () {
         }
         this.labels_[key] = label;
         return label;
-    };
+    }
     /**
      * @param {CanvasRenderingContext2D} context Context.
      * @param {import("../../coordinate.js").Coordinate} p1 1st point of the background box.
@@ -207,7 +207,7 @@ var Executor = /** @class */ (function () {
      * @param {Array<*>} fillInstruction Fill instruction.
      * @param {Array<*>} strokeInstruction Stroke instruction.
      */
-    Executor.prototype.replayTextBackground_ = function (context, p1, p2, p3, p4, fillInstruction, strokeInstruction) {
+    replayTextBackground_(context, p1, p2, p3, p4, fillInstruction, strokeInstruction) {
         context.beginPath();
         context.moveTo.apply(context, p1);
         context.lineTo.apply(context, p2);
@@ -222,7 +222,7 @@ var Executor = /** @class */ (function () {
             this.setStrokeStyle_(context, /** @type {Array<*>} */ (strokeInstruction));
             context.stroke();
         }
-    };
+    }
     /**
      * @param {CanvasRenderingContext2D} context Context.
      * @param {number} x X.
@@ -243,18 +243,18 @@ var Executor = /** @class */ (function () {
      * @param {Array<*>} fillInstruction Fill instruction.
      * @param {Array<*>} strokeInstruction Stroke instruction.
      */
-    Executor.prototype.replayImageOrLabel_ = function (context, x, y, imageOrLabel, anchorX, anchorY, declutterGroup, height, opacity, originX, originY, rotation, scale, snapToPixel, width, padding, fillInstruction, strokeInstruction) {
-        var fillStroke = fillInstruction || strokeInstruction;
+    replayImageOrLabel_(context, x, y, imageOrLabel, anchorX, anchorY, declutterGroup, height, opacity, originX, originY, rotation, scale, snapToPixel, width, padding, fillInstruction, strokeInstruction) {
+        const fillStroke = fillInstruction || strokeInstruction;
         anchorX *= scale;
         anchorY *= scale;
         x -= anchorX;
         y -= anchorY;
-        var w = (width + originX > imageOrLabel.width) ? imageOrLabel.width - originX : width;
-        var h = (height + originY > imageOrLabel.height) ? imageOrLabel.height - originY : height;
-        var boxW = padding[3] + w * scale + padding[1];
-        var boxH = padding[0] + h * scale + padding[2];
-        var boxX = x - padding[3];
-        var boxY = y - padding[0];
+        const w = (width + originX > imageOrLabel.width) ? imageOrLabel.width - originX : width;
+        const h = (height + originY > imageOrLabel.height) ? imageOrLabel.height - originY : height;
+        const boxW = padding[3] + w * scale + padding[1];
+        const boxH = padding[0] + h * scale + padding[2];
+        const boxX = x - padding[3];
+        const boxY = y - padding[0];
         if (fillStroke || rotation !== 0) {
             p1[0] = boxX;
             p4[0] = boxX;
@@ -265,10 +265,10 @@ var Executor = /** @class */ (function () {
             p3[1] = boxY + boxH;
             p4[1] = p3[1];
         }
-        var transform = null;
+        let transform = null;
         if (rotation !== 0) {
-            var centerX = x + anchorX;
-            var centerY = y + anchorY;
+            const centerX = x + anchorX;
+            const centerY = y + anchorY;
             transform = composeTransform(tmpTransform, centerX, centerY, 1, 1, rotation, -centerX, -centerY);
             applyTransform(tmpTransform, p1);
             applyTransform(tmpTransform, p2);
@@ -279,9 +279,9 @@ var Executor = /** @class */ (function () {
         else {
             createOrUpdate(boxX, boxY, boxX + boxW, boxY + boxH, tmpExtent);
         }
-        var canvas = context.canvas;
-        var strokePadding = strokeInstruction ? (strokeInstruction[2] * scale / 2) : 0;
-        var intersects = tmpExtent[0] - strokePadding <= canvas.width && tmpExtent[2] + strokePadding >= 0 &&
+        const canvas = context.canvas;
+        const strokePadding = strokeInstruction ? (strokeInstruction[2] * scale / 2) : 0;
+        const intersects = tmpExtent[0] - strokePadding <= canvas.width && tmpExtent[2] + strokePadding >= 0 &&
             tmpExtent[1] - strokePadding <= canvas.height && tmpExtent[3] + strokePadding >= 0;
         if (snapToPixel) {
             x = Math.round(x);
@@ -292,7 +292,7 @@ var Executor = /** @class */ (function () {
                 return;
             }
             extend(declutterGroup, tmpExtent);
-            var declutterArgs = intersects ?
+            const declutterArgs = intersects ?
                 [context, transform ? transform.slice(0) : null, opacity, imageOrLabel, originX, originY, w, h, x, y, scale] :
                 null;
             if (declutterArgs) {
@@ -310,30 +310,30 @@ var Executor = /** @class */ (function () {
             }
             drawImageOrLabel(context, transform, opacity, imageOrLabel, originX, originY, w, h, x, y, scale);
         }
-    };
+    }
     /**
      * @private
      * @param {CanvasRenderingContext2D} context Context.
      */
-    Executor.prototype.fill_ = function (context) {
+    fill_(context) {
         if (this.alignFill_) {
-            var origin_1 = applyTransform(this.renderedTransform_, [0, 0]);
-            var repeatSize = 512 * this.pixelRatio;
+            const origin = applyTransform(this.renderedTransform_, [0, 0]);
+            const repeatSize = 512 * this.pixelRatio;
             context.save();
-            context.translate(origin_1[0] % repeatSize, origin_1[1] % repeatSize);
+            context.translate(origin[0] % repeatSize, origin[1] % repeatSize);
             context.rotate(this.viewRotation_);
         }
         context.fill();
         if (this.alignFill_) {
             context.restore();
         }
-    };
+    }
     /**
      * @private
      * @param {CanvasRenderingContext2D} context Context.
      * @param {Array<*>} instruction Instruction.
      */
-    Executor.prototype.setStrokeStyle_ = function (context, instruction) {
+    setStrokeStyle_(context, instruction) {
         context.strokeStyle = /** @type {import("../../colorlike.js").ColorLike} */ (instruction[1]);
         context.lineWidth = /** @type {number} */ (instruction[2]);
         context.lineCap = /** @type {CanvasLineCap} */ (instruction[3]);
@@ -343,7 +343,7 @@ var Executor = /** @class */ (function () {
             context.lineDashOffset = /** @type {number} */ (instruction[7]);
             context.setLineDash(/** @type {Array<number>} */ (instruction[6]));
         }
-    };
+    }
     /**
      * @param {import("../canvas.js").DeclutterGroup} declutterGroup Declutter group.
      * @param {import("../../Feature.js").FeatureLike} feature Feature.
@@ -351,12 +351,12 @@ var Executor = /** @class */ (function () {
      * @param {?} declutterTree Declutter tree.
      * @return {?} Declutter tree.
      */
-    Executor.prototype.renderDeclutter = function (declutterGroup, feature, opacity, declutterTree) {
+    renderDeclutter(declutterGroup, feature, opacity, declutterTree) {
         if (declutterGroup && declutterGroup.length > 5) {
-            var groupCount = declutterGroup[4];
+            const groupCount = declutterGroup[4];
             if (groupCount == 1 || groupCount == declutterGroup.length - 5) {
                 /** @type {import("../../structs/RBush.js").Entry} */
-                var box = {
+                const box = {
                     minX: /** @type {number} */ (declutterGroup[0]),
                     minY: /** @type {number} */ (declutterGroup[1]),
                     maxX: /** @type {number} */ (declutterGroup[2]),
@@ -368,10 +368,10 @@ var Executor = /** @class */ (function () {
                 }
                 if (!declutterTree.collides(box)) {
                     declutterTree.insert(box);
-                    for (var j = 5, jj = declutterGroup.length; j < jj; ++j) {
-                        var declutterData = /** @type {Array} */ (declutterGroup[j]);
-                        var context = declutterData[0];
-                        var currentAlpha = context.globalAlpha;
+                    for (let j = 5, jj = declutterGroup.length; j < jj; ++j) {
+                        const declutterData = /** @type {Array} */ (declutterGroup[j]);
+                        const context = declutterData[0];
+                        const currentAlpha = context.globalAlpha;
                         if (currentAlpha !== opacity) {
                             context.globalAlpha = opacity;
                         }
@@ -389,7 +389,7 @@ var Executor = /** @class */ (function () {
             }
         }
         return declutterTree;
-    };
+    }
     /**
      * @private
      * @param {string} text The text to draw.
@@ -398,24 +398,24 @@ var Executor = /** @class */ (function () {
      * @param {string} fillKey The key for the fill state.
      * @return {{label: import("../canvas.js").Label, anchorX: number, anchorY: number}} The text image and its anchor.
      */
-    Executor.prototype.drawLabelWithPointPlacement_ = function (text, textKey, strokeKey, fillKey) {
-        var textState = this.textStates[textKey];
-        var label = this.createLabel(text, textKey, fillKey, strokeKey);
-        var strokeState = this.strokeStates[strokeKey];
-        var pixelRatio = this.pixelRatio;
-        var align = TEXT_ALIGN[textState.textAlign || defaultTextAlign];
-        var baseline = TEXT_ALIGN[textState.textBaseline || defaultTextBaseline];
-        var strokeWidth = strokeState && strokeState.lineWidth ? strokeState.lineWidth : 0;
+    drawLabelWithPointPlacement_(text, textKey, strokeKey, fillKey) {
+        const textState = this.textStates[textKey];
+        const label = this.createLabel(text, textKey, fillKey, strokeKey);
+        const strokeState = this.strokeStates[strokeKey];
+        const pixelRatio = this.pixelRatio;
+        const align = TEXT_ALIGN[textState.textAlign || defaultTextAlign];
+        const baseline = TEXT_ALIGN[textState.textBaseline || defaultTextBaseline];
+        const strokeWidth = strokeState && strokeState.lineWidth ? strokeState.lineWidth : 0;
         // Remove the 2 pixels we added in createLabel() for the anchor
-        var width = label.width / pixelRatio - 2 * textState.scale;
-        var anchorX = align * width + 2 * (0.5 - align) * strokeWidth;
-        var anchorY = baseline * label.height / pixelRatio + 2 * (0.5 - baseline) * strokeWidth;
+        const width = label.width / pixelRatio - 2 * textState.scale;
+        const anchorX = align * width + 2 * (0.5 - align) * strokeWidth;
+        const anchorY = baseline * label.height / pixelRatio + 2 * (0.5 - baseline) * strokeWidth;
         return {
             label: label,
             anchorX: anchorX,
             anchorY: anchorY
         };
-    };
+    }
     /**
      * @private
      * @param {CanvasRenderingContext2D} context Context.
@@ -428,10 +428,10 @@ var Executor = /** @class */ (function () {
      * @return {T|undefined} Callback result.
      * @template T
      */
-    Executor.prototype.execute_ = function (context, transform, instructions, snapToPixel, featureCallback, opt_hitExtent) {
+    execute_(context, transform, instructions, snapToPixel, featureCallback, opt_hitExtent) {
         this.declutterItems.length = 0;
         /** @type {Array<number>} */
-        var pixelCoordinates;
+        let pixelCoordinates;
         if (this.pixelCoordinates_ && equals(transform, this.renderedTransform_)) {
             pixelCoordinates = this.pixelCoordinates_;
         }
@@ -442,20 +442,20 @@ var Executor = /** @class */ (function () {
             pixelCoordinates = transform2D(this.coordinates, 0, this.coordinates.length, 2, transform, this.pixelCoordinates_);
             transformSetFromArray(this.renderedTransform_, transform);
         }
-        var i = 0; // instruction index
-        var ii = instructions.length; // end of instructions
-        var d = 0; // data index
-        var dd; // end of per-instruction data
-        var anchorX, anchorY, prevX, prevY, roundX, roundY, declutterGroup, declutterGroups, image, text, textKey;
-        var strokeKey, fillKey;
-        var pendingFill = 0;
-        var pendingStroke = 0;
-        var lastFillInstruction = null;
-        var lastStrokeInstruction = null;
-        var coordinateCache = this.coordinateCache_;
-        var viewRotation = this.viewRotation_;
-        var viewRotationFromTransform = Math.round(Math.atan2(-transform[1], transform[0]) * 1e12) / 1e12;
-        var state = /** @type {import("../../render.js").State} */ ({
+        let i = 0; // instruction index
+        const ii = instructions.length; // end of instructions
+        let d = 0; // data index
+        let dd; // end of per-instruction data
+        let anchorX, anchorY, prevX, prevY, roundX, roundY, declutterGroup, declutterGroups, image, text, textKey;
+        let strokeKey, fillKey;
+        let pendingFill = 0;
+        let pendingStroke = 0;
+        let lastFillInstruction = null;
+        let lastStrokeInstruction = null;
+        const coordinateCache = this.coordinateCache_;
+        const viewRotation = this.viewRotation_;
+        const viewRotationFromTransform = Math.round(Math.atan2(-transform[1], transform[0]) * 1e12) / 1e12;
+        const state = /** @type {import("../../render.js").State} */ ({
             context: context,
             pixelRatio: this.pixelRatio,
             resolution: this.resolution,
@@ -463,12 +463,12 @@ var Executor = /** @class */ (function () {
         });
         // When the batch size gets too big, performance decreases. 200 is a good
         // balance between batch size and number of fill/stroke instructions.
-        var batchSize = this.instructions != instructions || this.overlaps ? 0 : 200;
-        var /** @type {import("../../Feature.js").FeatureLike} */ feature;
-        var x, y;
+        const batchSize = this.instructions != instructions || this.overlaps ? 0 : 200;
+        let /** @type {import("../../Feature.js").FeatureLike} */ feature;
+        let x, y;
         while (i < ii) {
-            var instruction = instructions[i];
-            var type = /** @type {CanvasInstruction} */ (instruction[0]);
+            const instruction = instructions[i];
+            const type = /** @type {CanvasInstruction} */ (instruction[0]);
             switch (type) {
                 case CanvasInstruction.BEGIN_GEOMETRY:
                     feature = /** @type {import("../../Feature.js").FeatureLike} */ (instruction[1]);
@@ -500,13 +500,13 @@ var Executor = /** @class */ (function () {
                     break;
                 case CanvasInstruction.CIRCLE:
                     d = /** @type {number} */ (instruction[1]);
-                    var x1 = pixelCoordinates[d];
-                    var y1 = pixelCoordinates[d + 1];
-                    var x2 = pixelCoordinates[d + 2];
-                    var y2 = pixelCoordinates[d + 3];
-                    var dx = x2 - x1;
-                    var dy = y2 - y1;
-                    var r = Math.sqrt(dx * dx + dy * dy);
+                    const x1 = pixelCoordinates[d];
+                    const y1 = pixelCoordinates[d + 1];
+                    const x2 = pixelCoordinates[d + 2];
+                    const y2 = pixelCoordinates[d + 3];
+                    const dx = x2 - x1;
+                    const dy = y2 - y1;
+                    const r = Math.sqrt(dx * dx + dy * dy);
                     context.moveTo(x1 + r, y1);
                     context.arc(x1, y1, r, 0, 2 * Math.PI, true);
                     ++i;
@@ -518,15 +518,15 @@ var Executor = /** @class */ (function () {
                 case CanvasInstruction.CUSTOM:
                     d = /** @type {number} */ (instruction[1]);
                     dd = instruction[2];
-                    var geometry = /** @type {import("../../geom/SimpleGeometry.js").default} */ (instruction[3]);
-                    var renderer = instruction[4];
-                    var fn = instruction.length == 6 ? instruction[5] : undefined;
+                    const geometry = /** @type {import("../../geom/SimpleGeometry.js").default} */ (instruction[3]);
+                    const renderer = instruction[4];
+                    const fn = instruction.length == 6 ? instruction[5] : undefined;
                     state.geometry = geometry;
                     state.feature = feature;
                     if (!(i in coordinateCache)) {
                         coordinateCache[i] = [];
                     }
-                    var coords = coordinateCache[i];
+                    const coords = coordinateCache[i];
                     if (fn) {
                         fn(pixelCoordinates, d, dd, 2, coords);
                     }
@@ -546,27 +546,27 @@ var Executor = /** @class */ (function () {
                     anchorX = /** @type {number} */ (instruction[4]);
                     anchorY = /** @type {number} */ (instruction[5]);
                     declutterGroups = featureCallback ? null : instruction[6];
-                    var height = /** @type {number} */ (instruction[7]);
-                    var opacity = /** @type {number} */ (instruction[8]);
-                    var originX = /** @type {number} */ (instruction[9]);
-                    var originY = /** @type {number} */ (instruction[10]);
-                    var rotateWithView = /** @type {boolean} */ (instruction[11]);
-                    var rotation = /** @type {number} */ (instruction[12]);
-                    var scale = /** @type {number} */ (instruction[13]);
-                    var width = /** @type {number} */ (instruction[14]);
+                    let height = /** @type {number} */ (instruction[7]);
+                    const opacity = /** @type {number} */ (instruction[8]);
+                    const originX = /** @type {number} */ (instruction[9]);
+                    const originY = /** @type {number} */ (instruction[10]);
+                    const rotateWithView = /** @type {boolean} */ (instruction[11]);
+                    let rotation = /** @type {number} */ (instruction[12]);
+                    const scale = /** @type {number} */ (instruction[13]);
+                    let width = /** @type {number} */ (instruction[14]);
                     if (!image && instruction.length >= 19) {
                         // create label images
                         text = /** @type {string} */ (instruction[18]);
                         textKey = /** @type {string} */ (instruction[19]);
                         strokeKey = /** @type {string} */ (instruction[20]);
                         fillKey = /** @type {string} */ (instruction[21]);
-                        var labelWithAnchor = this.drawLabelWithPointPlacement_(text, textKey, strokeKey, fillKey);
+                        const labelWithAnchor = this.drawLabelWithPointPlacement_(text, textKey, strokeKey, fillKey);
                         image = labelWithAnchor.label;
                         instruction[3] = image;
-                        var textOffsetX = /** @type {number} */ (instruction[22]);
+                        const textOffsetX = /** @type {number} */ (instruction[22]);
                         anchorX = (labelWithAnchor.anchorX - textOffsetX) * this.pixelRatio;
                         instruction[4] = anchorX;
-                        var textOffsetY = /** @type {number} */ (instruction[23]);
+                        const textOffsetY = /** @type {number} */ (instruction[23]);
                         anchorY = (labelWithAnchor.anchorY - textOffsetY) * this.pixelRatio;
                         instruction[5] = anchorY;
                         height = image.height;
@@ -574,11 +574,11 @@ var Executor = /** @class */ (function () {
                         width = image.width;
                         instruction[14] = width;
                     }
-                    var geometryWidths = void 0;
+                    let geometryWidths;
                     if (instruction.length > 24) {
                         geometryWidths = /** @type {number} */ (instruction[24]);
                     }
-                    var padding = void 0, backgroundFill = void 0, backgroundStroke = void 0;
+                    let padding, backgroundFill, backgroundStroke;
                     if (instruction.length > 16) {
                         padding = /** @type {Array<number>} */ (instruction[15]);
                         backgroundFill = /** @type {boolean} */ (instruction[16]);
@@ -597,14 +597,14 @@ var Executor = /** @class */ (function () {
                         // Canvas is not rotated, images need to be rotated back to be north-up.
                         rotation -= viewRotation;
                     }
-                    var widthIndex = 0;
-                    var declutterGroupIndex = 0;
+                    let widthIndex = 0;
+                    let declutterGroupIndex = 0;
                     for (; d < dd; d += 2) {
                         if (geometryWidths && geometryWidths[widthIndex++] < width / this.pixelRatio) {
                             continue;
                         }
                         if (declutterGroups) {
-                            var index = Math.floor(declutterGroupIndex);
+                            const index = Math.floor(declutterGroupIndex);
                             if (declutterGroups.length < index + 1) {
                                 declutterGroup = createEmpty();
                                 declutterGroup.push(declutterGroups[0][4]);
@@ -623,24 +623,24 @@ var Executor = /** @class */ (function () {
                     ++i;
                     break;
                 case CanvasInstruction.DRAW_CHARS:
-                    var begin = /** @type {number} */ (instruction[1]);
-                    var end = /** @type {number} */ (instruction[2]);
-                    var baseline = /** @type {number} */ (instruction[3]);
+                    const begin = /** @type {number} */ (instruction[1]);
+                    const end = /** @type {number} */ (instruction[2]);
+                    const baseline = /** @type {number} */ (instruction[3]);
                     declutterGroup = featureCallback ? null : instruction[4];
-                    var overflow = /** @type {number} */ (instruction[5]);
+                    const overflow = /** @type {number} */ (instruction[5]);
                     fillKey = /** @type {string} */ (instruction[6]);
-                    var maxAngle = /** @type {number} */ (instruction[7]);
-                    var measurePixelRatio = /** @type {number} */ (instruction[8]);
-                    var offsetY = /** @type {number} */ (instruction[9]);
+                    const maxAngle = /** @type {number} */ (instruction[7]);
+                    const measurePixelRatio = /** @type {number} */ (instruction[8]);
+                    const offsetY = /** @type {number} */ (instruction[9]);
                     strokeKey = /** @type {string} */ (instruction[10]);
-                    var strokeWidth = /** @type {number} */ (instruction[11]);
+                    const strokeWidth = /** @type {number} */ (instruction[11]);
                     text = /** @type {string} */ (instruction[12]);
                     textKey = /** @type {string} */ (instruction[13]);
-                    var pixelRatioScale = /** @type {number} */ (instruction[14]);
-                    var textState = this.textStates[textKey];
-                    var font = textState.font;
-                    var textScale = textState.scale * measurePixelRatio;
-                    var cachedWidths = void 0;
+                    const pixelRatioScale = /** @type {number} */ (instruction[14]);
+                    const textState = this.textStates[textKey];
+                    const font = textState.font;
+                    const textScale = textState.scale * measurePixelRatio;
+                    let cachedWidths;
                     if (font in this.widths_) {
                         cachedWidths = this.widths_[font];
                     }
@@ -648,14 +648,14 @@ var Executor = /** @class */ (function () {
                         cachedWidths = {};
                         this.widths_[font] = cachedWidths;
                     }
-                    var pathLength = lineStringLength(pixelCoordinates, begin, end, 2);
-                    var textLength = textScale * measureAndCacheTextWidth(font, text, cachedWidths);
+                    const pathLength = lineStringLength(pixelCoordinates, begin, end, 2);
+                    const textLength = textScale * measureAndCacheTextWidth(font, text, cachedWidths);
                     if (overflow || textLength <= pathLength) {
-                        var textAlign = this.textStates[textKey].textAlign;
-                        var startM = (pathLength - textLength) * TEXT_ALIGN[textAlign];
-                        var parts = drawTextOnPath(pixelCoordinates, begin, end, 2, text, startM, maxAngle, textScale, measureAndCacheTextWidth, font, cachedWidths);
+                        const textAlign = this.textStates[textKey].textAlign;
+                        const startM = (pathLength - textLength) * TEXT_ALIGN[textAlign];
+                        const parts = drawTextOnPath(pixelCoordinates, begin, end, 2, text, startM, maxAngle, textScale, measureAndCacheTextWidth, font, cachedWidths);
                         if (parts) {
-                            var c = void 0, cc = void 0, chars = void 0, label = void 0, part = void 0;
+                            let c, cc, chars, label, part;
                             if (strokeKey) {
                                 for (c = 0, cc = parts.length; c < cc; ++c) {
                                     part = parts[c]; // x, y, anchorX, rotation, chunk
@@ -688,7 +688,7 @@ var Executor = /** @class */ (function () {
                 case CanvasInstruction.END_GEOMETRY:
                     if (featureCallback !== undefined) {
                         feature = /** @type {import("../../Feature.js").FeatureLike} */ (instruction[1]);
-                        var result = featureCallback(feature);
+                        const result = featureCallback(feature);
                         if (result) {
                             return result;
                         }
@@ -773,17 +773,17 @@ var Executor = /** @class */ (function () {
             context.stroke();
         }
         return undefined;
-    };
+    }
     /**
      * @param {CanvasRenderingContext2D} context Context.
      * @param {import("../../transform.js").Transform} transform Transform.
      * @param {number} viewRotation View rotation.
      * @param {boolean} snapToPixel Snap point symbols and text to integer pixels.
      */
-    Executor.prototype.execute = function (context, transform, viewRotation, snapToPixel) {
+    execute(context, transform, viewRotation, snapToPixel) {
         this.viewRotation_ = viewRotation;
         this.execute_(context, transform, this.instructions, snapToPixel, undefined, undefined);
-    };
+    }
     /**
      * @param {CanvasRenderingContext2D} context Context.
      * @param {import("../../transform.js").Transform} transform Transform.
@@ -795,11 +795,10 @@ var Executor = /** @class */ (function () {
      * @return {T|undefined} Callback result.
      * @template T
      */
-    Executor.prototype.executeHitDetection = function (context, transform, viewRotation, opt_featureCallback, opt_hitExtent) {
+    executeHitDetection(context, transform, viewRotation, opt_featureCallback, opt_hitExtent) {
         this.viewRotation_ = viewRotation;
         return this.execute_(context, transform, this.hitDetectionInstructions, true, opt_featureCallback, opt_hitExtent);
-    };
-    return Executor;
-}());
+    }
+}
 export default Executor;
 //# sourceMappingURL=Executor.js.map

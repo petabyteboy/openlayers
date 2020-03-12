@@ -9,7 +9,7 @@
  * @return {CanvasRenderingContext2D} The context.
  */
 export function createCanvasContext2D(opt_width, opt_height, opt_canvasPool) {
-    var canvas = opt_canvasPool && opt_canvasPool.length ?
+    const canvas = opt_canvasPool && opt_canvasPool.length ?
         opt_canvasPool.shift() : document.createElement('canvas');
     if (opt_width) {
         canvas.width = opt_width;
@@ -27,8 +27,8 @@ export function createCanvasContext2D(opt_width, opt_height, opt_canvasPool) {
  * @return {number} The width.
  */
 export function outerWidth(element) {
-    var width = element.offsetWidth;
-    var style = getComputedStyle(element);
+    let width = element.offsetWidth;
+    const style = getComputedStyle(element);
     width += parseInt(style.marginLeft, 10) + parseInt(style.marginRight, 10);
     return width;
 }
@@ -40,8 +40,8 @@ export function outerWidth(element) {
  * @return {number} The height.
  */
 export function outerHeight(element) {
-    var height = element.offsetHeight;
-    var style = getComputedStyle(element);
+    let height = element.offsetHeight;
+    const style = getComputedStyle(element);
     height += parseInt(style.marginTop, 10) + parseInt(style.marginBottom, 10);
     return height;
 }
@@ -50,7 +50,7 @@ export function outerHeight(element) {
  * @param {Node} oldNode The node to be replaced
  */
 export function replaceNode(newNode, oldNode) {
-    var parent = oldNode.parentNode;
+    const parent = oldNode.parentNode;
     if (parent) {
         parent.replaceChild(newNode, oldNode);
     }
@@ -79,10 +79,10 @@ export function removeChildren(node) {
  * @param {Array<Node>} children The desired children.
  */
 export function replaceChildren(node, children) {
-    var oldChildren = node.childNodes;
-    for (var i = 0; true; ++i) {
-        var oldChild = oldChildren[i];
-        var newChild = children[i];
+    const oldChildren = node.childNodes;
+    for (let i = 0; true; ++i) {
+        const oldChild = oldChildren[i];
+        const newChild = children[i];
         // check if our work is done
         if (!oldChild && !newChild) {
             break;

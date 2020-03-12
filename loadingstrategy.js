@@ -36,12 +36,12 @@ export function tile(tileGrid) {
      * @return {Array<import("./extent.js").Extent>} Extents.
      */
     function (extent, resolution) {
-        var z = tileGrid.getZForResolution(resolution);
-        var tileRange = tileGrid.getTileRangeForExtentAndZ(extent, z);
+        const z = tileGrid.getZForResolution(resolution);
+        const tileRange = tileGrid.getTileRangeForExtentAndZ(extent, z);
         /** @type {Array<import("./extent.js").Extent>} */
-        var extents = [];
+        const extents = [];
         /** @type {import("./tilecoord.js").TileCoord} */
-        var tileCoord = [z, 0, 0];
+        const tileCoord = [z, 0, 0];
         for (tileCoord[1] = tileRange.minX; tileCoord[1] <= tileRange.maxX; ++tileCoord[1]) {
             for (tileCoord[2] = tileRange.minY; tileCoord[2] <= tileRange.maxY; ++tileCoord[2]) {
                 extents.push(tileGrid.getTileCoordExtent(tileCoord));

@@ -6,8 +6,8 @@ import { asString } from '../color.js';
  * @classdesc
  * Singleton class. Available through {@link module:ol/style/IconImageCache~shared}.
  */
-var IconImageCache = /** @class */ (function () {
-    function IconImageCache() {
+class IconImageCache {
+    constructor() {
         /**
         * @type {!Object<string, import("./IconImage.js").default>}
         * @private
@@ -27,52 +27,52 @@ var IconImageCache = /** @class */ (function () {
     /**
     * FIXME empty description for jsdoc
     */
-    IconImageCache.prototype.clear = function () {
+    clear() {
         this.cache_ = {};
         this.cacheSize_ = 0;
-    };
+    }
     /**
      * @return {boolean} Can expire cache.
      */
-    IconImageCache.prototype.canExpireCache = function () {
+    canExpireCache() {
         return this.cacheSize_ > this.maxCacheSize_;
-    };
+    }
     /**
     * FIXME empty description for jsdoc
     */
-    IconImageCache.prototype.expire = function () {
+    expire() {
         if (this.canExpireCache()) {
-            var i = 0;
-            for (var key in this.cache_) {
-                var iconImage = this.cache_[key];
+            let i = 0;
+            for (const key in this.cache_) {
+                const iconImage = this.cache_[key];
                 if ((i++ & 3) === 0 && !iconImage.hasListener()) {
                     delete this.cache_[key];
                     --this.cacheSize_;
                 }
             }
         }
-    };
+    }
     /**
     * @param {string} src Src.
     * @param {?string} crossOrigin Cross origin.
     * @param {import("../color.js").Color} color Color.
     * @return {import("./IconImage.js").default} Icon image.
     */
-    IconImageCache.prototype.get = function (src, crossOrigin, color) {
-        var key = getKey(src, crossOrigin, color);
+    get(src, crossOrigin, color) {
+        const key = getKey(src, crossOrigin, color);
         return key in this.cache_ ? this.cache_[key] : null;
-    };
+    }
     /**
     * @param {string} src Src.
     * @param {?string} crossOrigin Cross origin.
     * @param {import("../color.js").Color} color Color.
     * @param {import("./IconImage.js").default} iconImage Icon image.
     */
-    IconImageCache.prototype.set = function (src, crossOrigin, color, iconImage) {
-        var key = getKey(src, crossOrigin, color);
+    set(src, crossOrigin, color, iconImage) {
+        const key = getKey(src, crossOrigin, color);
         this.cache_[key] = iconImage;
         ++this.cacheSize_;
-    };
+    }
     /**
     * Set the cache size of the icon cache. Default is `32`. Change this value when
     * your map uses more than 32 different icon images and you are not caching icon
@@ -80,12 +80,11 @@ var IconImageCache = /** @class */ (function () {
     * @param {number} maxCacheSize Cache max size.
     * @api
     */
-    IconImageCache.prototype.setSize = function (maxCacheSize) {
+    setSize(maxCacheSize) {
         this.maxCacheSize_ = maxCacheSize;
         this.expire();
-    };
-    return IconImageCache;
-}());
+    }
+}
 /**
  * @param {string} src Src.
  * @param {?string} crossOrigin Cross origin.
@@ -93,7 +92,7 @@ var IconImageCache = /** @class */ (function () {
  * @return {string} Cache key.
  */
 function getKey(src, crossOrigin, color) {
-    var colorString = color ? asString(color) : 'null';
+    const colorString = color ? asString(color) : 'null';
     return crossOrigin + ':' + src + ':' + colorString;
 }
 export default IconImageCache;
@@ -102,5 +101,5 @@ export default IconImageCache;
  * {@link module:ol/style/Icon~Icon} images.
  * @api
  */
-export var shared = new IconImageCache();
+export const shared = new IconImageCache();
 //# sourceMappingURL=IconImageCache.js.map

@@ -11,7 +11,7 @@
  * @return {Array<number>} Flat coordinates.
  */
 export function flipXY(flatCoordinates, offset, end, stride, opt_dest, opt_destOffset) {
-    var dest, destOffset;
+    let dest, destOffset;
     if (opt_dest !== undefined) {
         dest = opt_dest;
         destOffset = opt_destOffset !== undefined ? opt_destOffset : 0;
@@ -20,12 +20,12 @@ export function flipXY(flatCoordinates, offset, end, stride, opt_dest, opt_destO
         dest = [];
         destOffset = 0;
     }
-    var j = offset;
+    let j = offset;
     while (j < end) {
-        var x = flatCoordinates[j++];
+        const x = flatCoordinates[j++];
         dest[destOffset++] = flatCoordinates[j++];
         dest[destOffset++] = x;
-        for (var k = 2; k < stride; ++k) {
+        for (let k = 2; k < stride; ++k) {
             dest[destOffset++] = flatCoordinates[j++];
         }
     }

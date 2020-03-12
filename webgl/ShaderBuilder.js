@@ -24,8 +24,8 @@ import { expressionToGlsl, getStringNumberEquivalent, ValueTypes } from '../styl
  *   .outputSymbolFragmentShader();
  * ```
  */
-var ShaderBuilder = /** @class */ (function () {
-    function ShaderBuilder() {
+export class ShaderBuilder {
+    constructor() {
         /**
          * Uniforms; these will be declared in the header (should include the type).
          * @type {Array<string>}
@@ -86,20 +86,20 @@ var ShaderBuilder = /** @class */ (function () {
      * @param {string} name Uniform name
      * @return {ShaderBuilder} the builder object
      */
-    ShaderBuilder.prototype.addUniform = function (name) {
+    addUniform(name) {
         this.uniforms.push(name);
         return this;
-    };
+    }
     /**
      * Adds an attribute accessible in the vertex shader, read from the geometry buffer.
      * The given name should include a type, such as `vec2 a_position`.
      * @param {string} name Attribute name
      * @return {ShaderBuilder} the builder object
      */
-    ShaderBuilder.prototype.addAttribute = function (name) {
+    addAttribute(name) {
         this.attributes.push(name);
         return this;
-    };
+    }
     /**
      * Adds a varying defined in the vertex shader and accessible from the fragment shader.
      * The type and expression of the varying have to be specified separately.
@@ -108,14 +108,14 @@ var ShaderBuilder = /** @class */ (function () {
      * @param {string} expression Expression used to assign a value to the varying.
      * @return {ShaderBuilder} the builder object
      */
-    ShaderBuilder.prototype.addVarying = function (name, type, expression) {
+    addVarying(name, type, expression) {
         this.varyings.push({
             name: name,
             type: type,
             expression: expression
         });
         return this;
-    };
+    }
     /**
      * Sets an expression to compute the size of the shape.
      * This expression can use all the uniforms and attributes available
@@ -123,10 +123,10 @@ var ShaderBuilder = /** @class */ (function () {
      * @param {string} expression Size expression
      * @return {ShaderBuilder} the builder object
      */
-    ShaderBuilder.prototype.setSizeExpression = function (expression) {
+    setSizeExpression(expression) {
         this.sizeExpression = expression;
         return this;
-    };
+    }
     /**
      * Sets an expression to compute the rotation of the shape.
      * This expression can use all the uniforms and attributes available
@@ -134,10 +134,10 @@ var ShaderBuilder = /** @class */ (function () {
      * @param {string} expression Size expression
      * @return {ShaderBuilder} the builder object
      */
-    ShaderBuilder.prototype.setRotationExpression = function (expression) {
+    setRotationExpression(expression) {
         this.rotationExpression = expression;
         return this;
-    };
+    }
     /**
      * Sets an expression to compute the offset of the symbol from the point center.
      * This expression can use all the uniforms and attributes available
@@ -146,10 +146,10 @@ var ShaderBuilder = /** @class */ (function () {
      * @param {string} expression Offset expression
      * @return {ShaderBuilder} the builder object
      */
-    ShaderBuilder.prototype.setSymbolOffsetExpression = function (expression) {
+    setSymbolOffsetExpression(expression) {
         this.offsetExpression = expression;
         return this;
-    };
+    }
     /**
      * Sets an expression to compute the color of the shape.
      * This expression can use all the uniforms, varyings and attributes available
@@ -157,10 +157,10 @@ var ShaderBuilder = /** @class */ (function () {
      * @param {string} expression Color expression
      * @return {ShaderBuilder} the builder object
      */
-    ShaderBuilder.prototype.setColorExpression = function (expression) {
+    setColorExpression(expression) {
         this.colorExpression = expression;
         return this;
-    };
+    }
     /**
      * Sets an expression to compute the texture coordinates of the vertices.
      * This expression can use all the uniforms and attributes available
@@ -168,10 +168,10 @@ var ShaderBuilder = /** @class */ (function () {
      * @param {string} expression Texture coordinate expression
      * @return {ShaderBuilder} the builder object
      */
-    ShaderBuilder.prototype.setTextureCoordinateExpression = function (expression) {
+    setTextureCoordinateExpression(expression) {
         this.texCoordExpression = expression;
         return this;
-    };
+    }
     /**
      * Sets an expression to determine whether a fragment (pixel) should be discarded,
      * i.e. not drawn at all.
@@ -181,50 +181,50 @@ var ShaderBuilder = /** @class */ (function () {
      * @param {string} expression Fragment discard expression
      * @return {ShaderBuilder} the builder object
      */
-    ShaderBuilder.prototype.setFragmentDiscardExpression = function (expression) {
+    setFragmentDiscardExpression(expression) {
         this.discardExpression = expression;
         return this;
-    };
+    }
     /**
      * Sets whether the symbols should rotate with the view or stay aligned with the map.
      * Note: will only be used for point geometry shaders.
      * @param {boolean} rotateWithView Rotate with view
      * @return {ShaderBuilder} the builder object
      */
-    ShaderBuilder.prototype.setSymbolRotateWithView = function (rotateWithView) {
+    setSymbolRotateWithView(rotateWithView) {
         this.rotateWithView = rotateWithView;
         return this;
-    };
+    }
     /**
      * @returns {string} Previously set size expression
      */
-    ShaderBuilder.prototype.getSizeExpression = function () {
+    getSizeExpression() {
         return this.sizeExpression;
-    };
+    }
     /**
      * @returns {string} Previously set symbol offset expression
      */
-    ShaderBuilder.prototype.getOffsetExpression = function () {
+    getOffsetExpression() {
         return this.offsetExpression;
-    };
+    }
     /**
      * @returns {string} Previously set color expression
      */
-    ShaderBuilder.prototype.getColorExpression = function () {
+    getColorExpression() {
         return this.colorExpression;
-    };
+    }
     /**
      * @returns {string} Previously set texture coordinate expression
      */
-    ShaderBuilder.prototype.getTextureCoordinateExpression = function () {
+    getTextureCoordinateExpression() {
         return this.texCoordExpression;
-    };
+    }
     /**
      * @returns {string} Previously set fragment discard expression
      */
-    ShaderBuilder.prototype.getFragmentDiscardExpression = function () {
+    getFragmentDiscardExpression() {
         return this.discardExpression;
-    };
+    }
     /**
      * Generates a symbol vertex shader from the builder parameters,
      * intended to be used on point geometries.
@@ -242,12 +242,12 @@ var ShaderBuilder = /** @class */ (function () {
      * (namely, hit color with encoded feature id).
      * @returns {string} The full shader as a string.
      */
-    ShaderBuilder.prototype.getSymbolVertexShader = function (forHitDetection) {
-        var offsetMatrix = this.rotateWithView ?
+    getSymbolVertexShader(forHitDetection) {
+        const offsetMatrix = this.rotateWithView ?
             'u_offsetScaleMatrix * u_offsetRotateMatrix' :
             'u_offsetScaleMatrix';
-        var attributes = this.attributes;
-        var varyings = this.varyings;
+        let attributes = this.attributes;
+        let varyings = this.varyings;
         if (forHitDetection) {
             attributes = attributes.concat('vec4 a_hitColor');
             varyings = varyings.concat({
@@ -256,16 +256,60 @@ var ShaderBuilder = /** @class */ (function () {
                 expression: 'a_hitColor'
             });
         }
-        return "precision mediump float;\nuniform mat4 u_projectionMatrix;\nuniform mat4 u_offsetScaleMatrix;\nuniform mat4 u_offsetRotateMatrix;\nuniform float u_time;\nuniform float u_zoom;\nuniform float u_resolution;\n" + this.uniforms.map(function (uniform) {
+        return `precision mediump float;
+uniform mat4 u_projectionMatrix;
+uniform mat4 u_offsetScaleMatrix;
+uniform mat4 u_offsetRotateMatrix;
+uniform float u_time;
+uniform float u_zoom;
+uniform float u_resolution;
+${this.uniforms.map(function (uniform) {
             return 'uniform ' + uniform + ';';
-        }).join('\n') + "\nattribute vec2 a_position;\nattribute float a_index;\n" + attributes.map(function (attribute) {
+        }).join('\n')}
+attribute vec2 a_position;
+attribute float a_index;
+${attributes.map(function (attribute) {
             return 'attribute ' + attribute + ';';
-        }).join('\n') + "\nvarying vec2 v_texCoord;\nvarying vec2 v_quadCoord;\n" + varyings.map(function (varying) {
+        }).join('\n')}
+varying vec2 v_texCoord;
+varying vec2 v_quadCoord;
+${varyings.map(function (varying) {
             return 'varying ' + varying.type + ' ' + varying.name + ';';
-        }).join('\n') + "\nvoid main(void) {\n  mat4 offsetMatrix = " + offsetMatrix + ";\n  vec2 halfSize = " + this.sizeExpression + " * 0.5;\n  vec2 offset = " + this.offsetExpression + ";\n  float angle = " + this.rotationExpression + ";\n  float offsetX;\n  float offsetY;\n  if (a_index == 0.0) {\n    offsetX = (offset.x - halfSize.x) * cos(angle) + (offset.y - halfSize.y) * sin(angle);\n    offsetY = (offset.y - halfSize.y) * cos(angle) - (offset.x - halfSize.x) * sin(angle);\n  } else if (a_index == 1.0) {\n    offsetX = (offset.x + halfSize.x) * cos(angle) + (offset.y - halfSize.y) * sin(angle);\n    offsetY = (offset.y - halfSize.y) * cos(angle) - (offset.x + halfSize.x) * sin(angle);\n  } else if (a_index == 2.0) {\n    offsetX = (offset.x + halfSize.x) * cos(angle) + (offset.y + halfSize.y) * sin(angle);\n    offsetY = (offset.y + halfSize.y) * cos(angle) - (offset.x + halfSize.x) * sin(angle);\n  } else {\n    offsetX = (offset.x - halfSize.x) * cos(angle) + (offset.y + halfSize.y) * sin(angle);\n    offsetY = (offset.y + halfSize.y) * cos(angle) - (offset.x - halfSize.x) * sin(angle);\n  }\n  vec4 offsets = offsetMatrix * vec4(offsetX, offsetY, 0.0, 0.0);\n  gl_Position = u_projectionMatrix * vec4(a_position, 0.0, 1.0) + offsets;\n  vec4 texCoord = " + this.texCoordExpression + ";\n  float u = a_index == 0.0 || a_index == 3.0 ? texCoord.s : texCoord.p;\n  float v = a_index == 2.0 || a_index == 3.0 ? texCoord.t : texCoord.q;\n  v_texCoord = vec2(u, v);\n  u = a_index == 0.0 || a_index == 3.0 ? 0.0 : 1.0;\n  v = a_index == 2.0 || a_index == 3.0 ? 0.0 : 1.0;\n  v_quadCoord = vec2(u, v);\n" + varyings.map(function (varying) {
+        }).join('\n')}
+void main(void) {
+  mat4 offsetMatrix = ${offsetMatrix};
+  vec2 halfSize = ${this.sizeExpression} * 0.5;
+  vec2 offset = ${this.offsetExpression};
+  float angle = ${this.rotationExpression};
+  float offsetX;
+  float offsetY;
+  if (a_index == 0.0) {
+    offsetX = (offset.x - halfSize.x) * cos(angle) + (offset.y - halfSize.y) * sin(angle);
+    offsetY = (offset.y - halfSize.y) * cos(angle) - (offset.x - halfSize.x) * sin(angle);
+  } else if (a_index == 1.0) {
+    offsetX = (offset.x + halfSize.x) * cos(angle) + (offset.y - halfSize.y) * sin(angle);
+    offsetY = (offset.y - halfSize.y) * cos(angle) - (offset.x + halfSize.x) * sin(angle);
+  } else if (a_index == 2.0) {
+    offsetX = (offset.x + halfSize.x) * cos(angle) + (offset.y + halfSize.y) * sin(angle);
+    offsetY = (offset.y + halfSize.y) * cos(angle) - (offset.x + halfSize.x) * sin(angle);
+  } else {
+    offsetX = (offset.x - halfSize.x) * cos(angle) + (offset.y + halfSize.y) * sin(angle);
+    offsetY = (offset.y + halfSize.y) * cos(angle) - (offset.x - halfSize.x) * sin(angle);
+  }
+  vec4 offsets = offsetMatrix * vec4(offsetX, offsetY, 0.0, 0.0);
+  gl_Position = u_projectionMatrix * vec4(a_position, 0.0, 1.0) + offsets;
+  vec4 texCoord = ${this.texCoordExpression};
+  float u = a_index == 0.0 || a_index == 3.0 ? texCoord.s : texCoord.p;
+  float v = a_index == 2.0 || a_index == 3.0 ? texCoord.t : texCoord.q;
+  v_texCoord = vec2(u, v);
+  u = a_index == 0.0 || a_index == 3.0 ? 0.0 : 1.0;
+  v = a_index == 2.0 || a_index == 3.0 ? 0.0 : 1.0;
+  v_quadCoord = vec2(u, v);
+${varyings.map(function (varying) {
             return '  ' + varying.name + ' = ' + varying.expression + ';';
-        }).join('\n') + "\n}";
-    };
+        }).join('\n')}
+}`;
+    }
     /**
      * Generates a symbol fragment shader from the builder parameters,
      * intended to be used on point geometries.
@@ -277,10 +321,10 @@ var ShaderBuilder = /** @class */ (function () {
      * (namely, hit color with encoded feature id).
      * @returns {string} The full shader as a string.
      */
-    ShaderBuilder.prototype.getSymbolFragmentShader = function (forHitDetection) {
-        var hitDetectionBypass = forHitDetection ?
+    getSymbolFragmentShader(forHitDetection) {
+        const hitDetectionBypass = forHitDetection ?
             '  if (gl_FragColor.a < 0.1) { discard; } gl_FragColor = v_hitColor;' : '';
-        var varyings = this.varyings;
+        let varyings = this.varyings;
         if (forHitDetection) {
             varyings = varyings.concat({
                 name: 'v_hitColor',
@@ -288,15 +332,26 @@ var ShaderBuilder = /** @class */ (function () {
                 expression: 'a_hitColor'
             });
         }
-        return "precision mediump float;\nuniform float u_time;\nuniform float u_zoom;\nuniform float u_resolution;\n" + this.uniforms.map(function (uniform) {
+        return `precision mediump float;
+uniform float u_time;
+uniform float u_zoom;
+uniform float u_resolution;
+${this.uniforms.map(function (uniform) {
             return 'uniform ' + uniform + ';';
-        }).join('\n') + "\nvarying vec2 v_texCoord;\nvarying vec2 v_quadCoord;\n" + varyings.map(function (varying) {
+        }).join('\n')}
+varying vec2 v_texCoord;
+varying vec2 v_quadCoord;
+${varyings.map(function (varying) {
             return 'varying ' + varying.type + ' ' + varying.name + ';';
-        }).join('\n') + "\nvoid main(void) {\n  if (" + this.discardExpression + ") { discard; }\n  gl_FragColor = " + this.colorExpression + ";\n  gl_FragColor.rgb *= gl_FragColor.a;\n" + hitDetectionBypass + "\n}";
-    };
-    return ShaderBuilder;
-}());
-export { ShaderBuilder };
+        }).join('\n')}
+void main(void) {
+  if (${this.discardExpression}) { discard; }
+  gl_FragColor = ${this.colorExpression};
+  gl_FragColor.rgb *= gl_FragColor.a;
+${hitDetectionBypass}
+}`;
+    }
+}
 /**
  * @typedef {Object} StyleParseResult
  * @property {ShaderBuilder} builder Shader builder pre-configured according to a given style
@@ -315,74 +370,74 @@ export { ShaderBuilder };
  * @returns {StyleParseResult} Result containing shader params, attributes and uniforms.
  */
 export function parseLiteralStyle(style) {
-    var symbStyle = style.symbol;
-    var size = symbStyle.size !== undefined ? symbStyle.size : 1;
-    var color = symbStyle.color || 'white';
-    var texCoord = symbStyle.textureCoord || [0, 0, 1, 1];
-    var offset = symbStyle.offset || [0, 0];
-    var opacity = symbStyle.opacity !== undefined ? symbStyle.opacity : 1;
-    var rotation = symbStyle.rotation !== undefined ? symbStyle.rotation : 0;
+    const symbStyle = style.symbol;
+    const size = symbStyle.size !== undefined ? symbStyle.size : 1;
+    const color = symbStyle.color || 'white';
+    const texCoord = symbStyle.textureCoord || [0, 0, 1, 1];
+    const offset = symbStyle.offset || [0, 0];
+    const opacity = symbStyle.opacity !== undefined ? symbStyle.opacity : 1;
+    const rotation = symbStyle.rotation !== undefined ? symbStyle.rotation : 0;
     /**
      * @type {import("../style/expressions.js").ParsingContext}
      */
-    var vertContext = {
+    const vertContext = {
         inFragmentShader: false,
         variables: [],
         attributes: [],
         stringLiteralsMap: {}
     };
-    var parsedSize = expressionToGlsl(vertContext, size, ValueTypes.NUMBER_ARRAY | ValueTypes.NUMBER);
-    var parsedOffset = expressionToGlsl(vertContext, offset, ValueTypes.NUMBER_ARRAY);
-    var parsedTexCoord = expressionToGlsl(vertContext, texCoord, ValueTypes.NUMBER_ARRAY);
-    var parsedRotation = expressionToGlsl(vertContext, rotation, ValueTypes.NUMBER);
+    const parsedSize = expressionToGlsl(vertContext, size, ValueTypes.NUMBER_ARRAY | ValueTypes.NUMBER);
+    const parsedOffset = expressionToGlsl(vertContext, offset, ValueTypes.NUMBER_ARRAY);
+    const parsedTexCoord = expressionToGlsl(vertContext, texCoord, ValueTypes.NUMBER_ARRAY);
+    const parsedRotation = expressionToGlsl(vertContext, rotation, ValueTypes.NUMBER);
     /**
      * @type {import("../style/expressions.js").ParsingContext}
      */
-    var fragContext = {
+    const fragContext = {
         inFragmentShader: true,
         variables: vertContext.variables,
         attributes: [],
         stringLiteralsMap: vertContext.stringLiteralsMap
     };
-    var parsedColor = expressionToGlsl(fragContext, color, ValueTypes.COLOR);
-    var parsedOpacity = expressionToGlsl(fragContext, opacity, ValueTypes.NUMBER);
-    var opacityFilter = '1.0';
-    var visibleSize = "vec2(" + expressionToGlsl(fragContext, size, ValueTypes.NUMBER_ARRAY | ValueTypes.NUMBER) + ").x";
+    const parsedColor = expressionToGlsl(fragContext, color, ValueTypes.COLOR);
+    const parsedOpacity = expressionToGlsl(fragContext, opacity, ValueTypes.NUMBER);
+    let opacityFilter = '1.0';
+    const visibleSize = `vec2(${expressionToGlsl(fragContext, size, ValueTypes.NUMBER_ARRAY | ValueTypes.NUMBER)}).x`;
     switch (symbStyle.symbolType) {
         case 'square': break;
         case 'image': break;
         // taken from https://thebookofshaders.com/07/
         case 'circle':
-            opacityFilter = "(1.0-smoothstep(1.-4./" + visibleSize + ",1.,dot(v_quadCoord-.5,v_quadCoord-.5)*4.))";
+            opacityFilter = `(1.0-smoothstep(1.-4./${visibleSize},1.,dot(v_quadCoord-.5,v_quadCoord-.5)*4.))`;
             break;
         case 'triangle':
-            var st = '(v_quadCoord*2.-1.)';
-            var a = "(atan(" + st + ".x," + st + ".y))";
-            opacityFilter = "(1.0-smoothstep(.5-3./" + visibleSize + ",.5,cos(floor(.5+" + a + "/2.094395102)*2.094395102-" + a + ")*length(" + st + ")))";
+            const st = '(v_quadCoord*2.-1.)';
+            const a = `(atan(${st}.x,${st}.y))`;
+            opacityFilter = `(1.0-smoothstep(.5-3./${visibleSize},.5,cos(floor(.5+${a}/2.094395102)*2.094395102-${a})*length(${st})))`;
             break;
         default: throw new Error('Unexpected symbol type: ' + symbStyle.symbolType);
     }
-    var builder = new ShaderBuilder()
-        .setSizeExpression("vec2(" + parsedSize + ")")
+    const builder = new ShaderBuilder()
+        .setSizeExpression(`vec2(${parsedSize})`)
         .setRotationExpression(parsedRotation)
         .setSymbolOffsetExpression(parsedOffset)
         .setTextureCoordinateExpression(parsedTexCoord)
         .setSymbolRotateWithView(!!symbStyle.rotateWithView)
-        .setColorExpression("vec4(" + parsedColor + ".rgb, " + parsedColor + ".a * " + parsedOpacity + " * " + opacityFilter + ")");
+        .setColorExpression(`vec4(${parsedColor}.rgb, ${parsedColor}.a * ${parsedOpacity} * ${opacityFilter})`);
     if (style.filter) {
-        var parsedFilter = expressionToGlsl(fragContext, style.filter, ValueTypes.BOOLEAN);
-        builder.setFragmentDiscardExpression("!" + parsedFilter);
+        const parsedFilter = expressionToGlsl(fragContext, style.filter, ValueTypes.BOOLEAN);
+        builder.setFragmentDiscardExpression(`!${parsedFilter}`);
     }
     /** @type {Object.<string,import("../webgl/Helper").UniformValue>} */
-    var uniforms = {};
+    const uniforms = {};
     // define one uniform per variable
     fragContext.variables.forEach(function (varName) {
-        builder.addUniform("float u_" + varName);
-        uniforms["u_" + varName] = function () {
+        builder.addUniform(`float u_${varName}`);
+        uniforms[`u_${varName}`] = function () {
             if (!style.variables || style.variables[varName] === undefined) {
-                throw new Error("The following variable is missing from the style: " + varName);
+                throw new Error(`The following variable is missing from the style: ${varName}`);
             }
-            var value = style.variables[varName];
+            let value = style.variables[varName];
             if (typeof value === 'string') {
                 value = getStringNumberEquivalent(vertContext, value);
             }
@@ -390,7 +445,7 @@ export function parseLiteralStyle(style) {
         };
     });
     if (symbStyle.symbolType === 'image' && symbStyle.src) {
-        var texture = new Image();
+        const texture = new Image();
         texture.src = symbStyle.src;
         builder.addUniform('sampler2D u_texture')
             .setColorExpression(builder.getColorExpression() +
@@ -403,11 +458,11 @@ export function parseLiteralStyle(style) {
         if (vertContext.attributes.indexOf(attrName) === -1) {
             vertContext.attributes.push(attrName);
         }
-        builder.addVarying("v_" + attrName, 'float', "a_" + attrName);
+        builder.addVarying(`v_${attrName}`, 'float', `a_${attrName}`);
     });
     // for each feature attribute used in the vertex shader, define an attribute in the vertex shader.
     vertContext.attributes.forEach(function (attrName) {
-        builder.addAttribute("float a_" + attrName);
+        builder.addAttribute(`float a_${attrName}`);
     });
     return {
         builder: builder,
@@ -415,7 +470,7 @@ export function parseLiteralStyle(style) {
             return {
                 name: attributeName,
                 callback: function (feature, props) {
-                    var value = props[attributeName];
+                    let value = props[attributeName];
                     if (typeof value === 'string') {
                         value = getStringNumberEquivalent(vertContext, value);
                     }

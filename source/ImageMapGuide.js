@@ -1,19 +1,6 @@
 /**
  * @module ol/source/ImageMapGuide
  */
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 import ImageWrapper from '../Image.js';
 import EventType from '../events/EventType.js';
 import { containsExtent, getCenter, getHeight, getWidth, scaleFromCenter } from '../extent.js';
@@ -46,77 +33,75 @@ import { appendParams } from '../uri.js';
  * @fires module:ol/source/Image.ImageSourceEvent
  * @api
  */
-var ImageMapGuide = /** @class */ (function (_super) {
-    __extends(ImageMapGuide, _super);
+class ImageMapGuide extends ImageSource {
     /**
      * @param {Options} options ImageMapGuide options.
      */
-    function ImageMapGuide(options) {
-        var _this = _super.call(this, {
+    constructor(options) {
+        super({
             projection: options.projection,
             resolutions: options.resolutions
-        }) || this;
+        });
         /**
          * @private
          * @type {?string}
          */
-        _this.crossOrigin_ =
+        this.crossOrigin_ =
             options.crossOrigin !== undefined ? options.crossOrigin : null;
         /**
          * @private
          * @type {number}
          */
-        _this.displayDpi_ = options.displayDpi !== undefined ?
+        this.displayDpi_ = options.displayDpi !== undefined ?
             options.displayDpi : 96;
         /**
          * @private
          * @type {!Object}
          */
-        _this.params_ = options.params || {};
+        this.params_ = options.params || {};
         /**
          * @private
          * @type {string|undefined}
          */
-        _this.url_ = options.url;
+        this.url_ = options.url;
         /**
          * @private
          * @type {import("../Image.js").LoadFunction}
          */
-        _this.imageLoadFunction_ = options.imageLoadFunction !== undefined ?
+        this.imageLoadFunction_ = options.imageLoadFunction !== undefined ?
             options.imageLoadFunction : defaultImageLoadFunction;
         /**
          * @private
          * @type {boolean}
          */
-        _this.hidpi_ = options.hidpi !== undefined ? options.hidpi : true;
+        this.hidpi_ = options.hidpi !== undefined ? options.hidpi : true;
         /**
          * @private
          * @type {number}
          */
-        _this.metersPerUnit_ = options.metersPerUnit !== undefined ?
+        this.metersPerUnit_ = options.metersPerUnit !== undefined ?
             options.metersPerUnit : 1;
         /**
          * @private
          * @type {number}
          */
-        _this.ratio_ = options.ratio !== undefined ? options.ratio : 1;
+        this.ratio_ = options.ratio !== undefined ? options.ratio : 1;
         /**
          * @private
          * @type {boolean}
          */
-        _this.useOverlay_ = options.useOverlay !== undefined ?
+        this.useOverlay_ = options.useOverlay !== undefined ?
             options.useOverlay : false;
         /**
          * @private
          * @type {import("../Image.js").default}
          */
-        _this.image_ = null;
+        this.image_ = null;
         /**
          * @private
          * @type {number}
          */
-        _this.renderedRevision_ = 0;
-        return _this;
+        this.renderedRevision_ = 0;
     }
     /**
      * Get the user-provided params, i.e. those passed to the constructor through
@@ -124,16 +109,16 @@ var ImageMapGuide = /** @class */ (function (_super) {
      * @return {Object} Params.
      * @api
      */
-    ImageMapGuide.prototype.getParams = function () {
+    getParams() {
         return this.params_;
-    };
+    }
     /**
      * @inheritDoc
      */
-    ImageMapGuide.prototype.getImageInternal = function (extent, resolution, pixelRatio, projection) {
+    getImageInternal(extent, resolution, pixelRatio, projection) {
         resolution = this.findNearestResolution(resolution);
         pixelRatio = this.hidpi_ ? pixelRatio : 1;
-        var image = this.image_;
+        let image = this.image_;
         if (image &&
             this.renderedRevision_ == this.getRevision() &&
             image.getResolution() == resolution &&
@@ -145,11 +130,11 @@ var ImageMapGuide = /** @class */ (function (_super) {
             extent = extent.slice();
             scaleFromCenter(extent, this.ratio_);
         }
-        var width = getWidth(extent) / resolution;
-        var height = getHeight(extent) / resolution;
-        var size = [width * pixelRatio, height * pixelRatio];
+        const width = getWidth(extent) / resolution;
+        const height = getHeight(extent) / resolution;
+        const size = [width * pixelRatio, height * pixelRatio];
         if (this.url_ !== undefined) {
-            var imageUrl = this.getUrl(this.url_, this.params_, extent, size, projection);
+            const imageUrl = this.getUrl(this.url_, this.params_, extent, size, projection);
             image = new ImageWrapper(extent, resolution, pixelRatio, imageUrl, this.crossOrigin_, this.imageLoadFunction_);
             image.addEventListener(EventType.CHANGE, this.handleImageChange.bind(this));
         }
@@ -159,24 +144,24 @@ var ImageMapGuide = /** @class */ (function (_super) {
         this.image_ = image;
         this.renderedRevision_ = this.getRevision();
         return image;
-    };
+    }
     /**
      * Return the image load function of the source.
      * @return {import("../Image.js").LoadFunction} The image load function.
      * @api
      */
-    ImageMapGuide.prototype.getImageLoadFunction = function () {
+    getImageLoadFunction() {
         return this.imageLoadFunction_;
-    };
+    }
     /**
      * Update the user-provided params.
      * @param {Object} params Params.
      * @api
      */
-    ImageMapGuide.prototype.updateParams = function (params) {
+    updateParams(params) {
         assign(this.params_, params);
         this.changed();
-    };
+    }
     /**
      * @param {string} baseUrl The mapagent url.
      * @param {Object<string, string|number>} params Request parameters.
@@ -185,10 +170,10 @@ var ImageMapGuide = /** @class */ (function (_super) {
      * @param {import("../proj/Projection.js").default} projection Projection.
      * @return {string} The mapagent map image request URL.
      */
-    ImageMapGuide.prototype.getUrl = function (baseUrl, params, extent, size, projection) {
-        var scale = getScale(extent, size, this.metersPerUnit_, this.displayDpi_);
-        var center = getCenter(extent);
-        var baseParams = {
+    getUrl(baseUrl, params, extent, size, projection) {
+        const scale = getScale(extent, size, this.metersPerUnit_, this.displayDpi_);
+        const center = getCenter(extent);
+        const baseParams = {
             'OPERATION': this.useOverlay_ ? 'GETDYNAMICMAPOVERLAYIMAGE' : 'GETMAPIMAGE',
             'VERSION': '2.0.0',
             'LOCALE': 'en',
@@ -203,19 +188,18 @@ var ImageMapGuide = /** @class */ (function (_super) {
         };
         assign(baseParams, params);
         return appendParams(baseUrl, baseParams);
-    };
+    }
     /**
      * Set the image load function of the MapGuide source.
      * @param {import("../Image.js").LoadFunction} imageLoadFunction Image load function.
      * @api
      */
-    ImageMapGuide.prototype.setImageLoadFunction = function (imageLoadFunction) {
+    setImageLoadFunction(imageLoadFunction) {
         this.image_ = null;
         this.imageLoadFunction_ = imageLoadFunction;
         this.changed();
-    };
-    return ImageMapGuide;
-}(ImageSource));
+    }
+}
 /**
  * @param {import("../extent.js").Extent} extent The map extents.
  * @param {import("../size.js").Size} size The viewport size.
@@ -224,11 +208,11 @@ var ImageMapGuide = /** @class */ (function (_super) {
  * @return {number} The computed map scale.
  */
 function getScale(extent, size, metersPerUnit, dpi) {
-    var mcsW = getWidth(extent);
-    var mcsH = getHeight(extent);
-    var devW = size[0];
-    var devH = size[1];
-    var mpp = 0.0254 / dpi;
+    const mcsW = getWidth(extent);
+    const mcsH = getHeight(extent);
+    const devW = size[0];
+    const devH = size[1];
+    const mpp = 0.0254 / dpi;
     if (devH * mcsW > devW * mcsH) {
         return mcsW * metersPerUnit / (devW * mpp); // width limited
     }

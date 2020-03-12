@@ -1,16 +1,3 @@
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 /**
  * @module ol/interaction/Extent
  */
@@ -45,7 +32,7 @@ import { toUserExtent } from '../proj.js';
 /**
  * @enum {string}
  */
-var ExtentEventType = {
+const ExtentEventType = {
     /**
      * Triggered after the extent is changed
      * @event ExtentEvent#extentchanged
@@ -58,23 +45,20 @@ var ExtentEventType = {
  * Events emitted by {@link module:ol/interaction/Extent~Extent} instances are
  * instances of this type.
  */
-var ExtentEvent = /** @class */ (function (_super) {
-    __extends(ExtentEvent, _super);
+class ExtentEvent extends Event {
     /**
      * @param {import("../extent.js").Extent} extent the new extent
      */
-    function ExtentEvent(extent) {
-        var _this = _super.call(this, ExtentEventType.EXTENTCHANGED) || this;
+    constructor(extent) {
+        super(ExtentEventType.EXTENTCHANGED);
         /**
          * The current extent.
          * @type {import("../extent.js").Extent}
          * @api
          */
-        _this.extent = extent;
-        return _this;
+        this.extent = extent;
     }
-    return ExtentEvent;
-}(Event));
+}
 /**
  * @classdesc
  * Allows the user to draw a vector box by clicking and dragging on the map.
@@ -84,52 +68,50 @@ var ExtentEvent = /** @class */ (function (_super) {
  * @fires ExtentEvent
  * @api
  */
-var Extent = /** @class */ (function (_super) {
-    __extends(Extent, _super);
+class Extent extends PointerInteraction {
     /**
      * @param {Options=} opt_options Options.
      */
-    function Extent(opt_options) {
-        var _this = this;
-        var options = opt_options || {};
-        _this = _super.call(this, /** @type {import("./Pointer.js").Options} */ (options)) || this;
+    constructor(opt_options) {
+        const options = opt_options || {};
+        super(/** @type {import("./Pointer.js").Options} */ (options));
         /**
          * Extent of the drawn box
          * @type {import("../extent.js").Extent}
          * @private
          */
-        _this.extent_ = null;
+        this.extent_ = null;
         /**
          * Handler for pointer move events
          * @type {function (import("../coordinate.js").Coordinate): import("../extent.js").Extent|null}
          * @private
          */
-        _this.pointerHandler_ = null;
+        this.pointerHandler_ = null;
         /**
          * Pixel threshold to snap to extent
          * @type {number}
          * @private
          */
-        _this.pixelTolerance_ = options.pixelTolerance !== undefined ?
+        this.pixelTolerance_ = options.pixelTolerance !== undefined ?
             options.pixelTolerance : 10;
         /**
          * Is the pointer snapped to an extent vertex
          * @type {boolean}
          * @private
          */
-        _this.snappedToVertex_ = false;
+        this.snappedToVertex_ = false;
         /**
          * Feature for displaying the visible extent
          * @type {Feature}
          * @private
          */
-        _this.extentFeature_ = null;
+        this.extentFeature_ = null;
         /**
          * Feature for displaying the visible pointer
          * @type {Feature<Point>}
          * @private
          */
-        _this.vertexFeature_ = null;
+        this.vertexFeature_ = null;
         if (!opt_options) {
             opt_options = {};
         }
@@ -138,7 +120,7 @@ var Extent = /** @class */ (function (_super) {
          * @type {VectorLayer}
          * @private
          */
-        _this.extentOverlay_ = new VectorLayer({
+        this.extentOverlay_ = new VectorLayer({
             source: new VectorSource({
                 useSpatialIndex: false,
                 wrapX: !!opt_options.wrapX
@@ -152,7 +134,7 @@ var Extent = /** @class */ (function (_super) {
          * @type {VectorLayer}
          * @private
          */
-        _this.vertexOverlay_ = new VectorLayer({
+        this.vertexOverlay_ = new VectorLayer({
             source: new VectorSource({
                 useSpatialIndex: false,
                 wrapX: !!opt_options.wrapX
@@ -162,9 +144,8 @@ var Extent = /** @class */ (function (_super) {
             updateWhileInteracting: true
         });
         if (opt_options.extent) {
-            _this.setExtent(opt_options.extent);
+            this.setExtent(opt_options.extent);
         }
-        return _this;
     }
     /**
      * @param {import("../pixel.js").Pixel} pixel cursor location
@@ -172,28 +153,28 @@ var Extent = /** @class */ (function (_super) {
      * @returns {import("../coordinate.js").Coordinate|null} snapped vertex on extent
      * @private
      */
-    Extent.prototype.snapToVertex_ = function (pixel, map) {
-        var pixelCoordinate = map.getCoordinateFromPixelInternal(pixel);
-        var sortByDistance = function (a, b) {
+    snapToVertex_(pixel, map) {
+        const pixelCoordinate = map.getCoordinateFromPixelInternal(pixel);
+        const sortByDistance = function (a, b) {
             return squaredDistanceToSegment(pixelCoordinate, a) -
                 squaredDistanceToSegment(pixelCoordinate, b);
         };
-        var extent = this.getExtentInternal();
+        const extent = this.getExtentInternal();
         if (extent) {
             //convert extents to line segments and find the segment closest to pixelCoordinate
-            var segments = getSegments(extent);
+            const segments = getSegments(extent);
             segments.sort(sortByDistance);
-            var closestSegment = segments[0];
-            var vertex = (closestOnSegment(pixelCoordinate, closestSegment));
-            var vertexPixel = map.getPixelFromCoordinateInternal(vertex);
+            const closestSegment = segments[0];
+            let vertex = (closestOnSegment(pixelCoordinate, closestSegment));
+            const vertexPixel = map.getPixelFromCoordinateInternal(vertex);
             //if the distance is within tolerance, snap to the segment
             if (coordinateDistance(pixel, vertexPixel) <= this.pixelTolerance_) {
                 //test if we should further snap to a vertex
-                var pixel1 = map.getPixelFromCoordinateInternal(closestSegment[0]);
-                var pixel2 = map.getPixelFromCoordinateInternal(closestSegment[1]);
-                var squaredDist1 = squaredCoordinateDistance(vertexPixel, pixel1);
-                var squaredDist2 = squaredCoordinateDistance(vertexPixel, pixel2);
-                var dist = Math.sqrt(Math.min(squaredDist1, squaredDist2));
+                const pixel1 = map.getPixelFromCoordinateInternal(closestSegment[0]);
+                const pixel2 = map.getPixelFromCoordinateInternal(closestSegment[1]);
+                const squaredDist1 = squaredCoordinateDistance(vertexPixel, pixel1);
+                const squaredDist2 = squaredCoordinateDistance(vertexPixel, pixel2);
+                const dist = Math.sqrt(Math.min(squaredDist1, squaredDist2));
                 this.snappedToVertex_ = dist <= this.pixelTolerance_;
                 if (this.snappedToVertex_) {
                     vertex = squaredDist1 > squaredDist2 ?
@@ -203,27 +184,27 @@ var Extent = /** @class */ (function (_super) {
             }
         }
         return null;
-    };
+    }
     /**
      * @param {import("../MapBrowserEvent.js").default} mapBrowserEvent pointer move event
      * @private
      */
-    Extent.prototype.handlePointerMove_ = function (mapBrowserEvent) {
-        var pixel = mapBrowserEvent.pixel;
-        var map = mapBrowserEvent.map;
-        var vertex = this.snapToVertex_(pixel, map);
+    handlePointerMove_(mapBrowserEvent) {
+        const pixel = mapBrowserEvent.pixel;
+        const map = mapBrowserEvent.map;
+        let vertex = this.snapToVertex_(pixel, map);
         if (!vertex) {
             vertex = map.getCoordinateFromPixelInternal(pixel);
         }
         this.createOrUpdatePointerFeature_(vertex);
-    };
+    }
     /**
      * @param {import("../extent.js").Extent} extent extent
      * @returns {Feature} extent as featrue
      * @private
      */
-    Extent.prototype.createOrUpdateExtentFeature_ = function (extent) {
-        var extentFeature = this.extentFeature_;
+    createOrUpdateExtentFeature_(extent) {
+        let extentFeature = this.extentFeature_;
         if (!extentFeature) {
             if (!extent) {
                 extentFeature = new Feature({});
@@ -243,29 +224,29 @@ var Extent = /** @class */ (function (_super) {
             }
         }
         return extentFeature;
-    };
+    }
     /**
      * @param {import("../coordinate.js").Coordinate} vertex location of feature
      * @returns {Feature} vertex as feature
      * @private
      */
-    Extent.prototype.createOrUpdatePointerFeature_ = function (vertex) {
-        var vertexFeature = this.vertexFeature_;
+    createOrUpdatePointerFeature_(vertex) {
+        let vertexFeature = this.vertexFeature_;
         if (!vertexFeature) {
             vertexFeature = new Feature(new Point(vertex));
             this.vertexFeature_ = vertexFeature;
             this.vertexOverlay_.getSource().addFeature(vertexFeature);
         }
         else {
-            var geometry = vertexFeature.getGeometry();
+            const geometry = vertexFeature.getGeometry();
             geometry.setCoordinates(vertex);
         }
         return vertexFeature;
-    };
+    }
     /**
      * @inheritDoc
      */
-    Extent.prototype.handleEvent = function (mapBrowserEvent) {
+    handleEvent(mapBrowserEvent) {
         if (!( /** @type {import("../MapBrowserPointerEvent.js").default} */(mapBrowserEvent).pointerEvent)) {
             return true;
         }
@@ -274,22 +255,22 @@ var Extent = /** @class */ (function (_super) {
             this.handlePointerMove_(mapBrowserEvent);
         }
         //call pointer to determine up/down/drag
-        _super.prototype.handleEvent.call(this, mapBrowserEvent);
+        super.handleEvent(mapBrowserEvent);
         //return false to stop propagation
         return false;
-    };
+    }
     /**
      * @inheritDoc
      */
-    Extent.prototype.handleDownEvent = function (mapBrowserEvent) {
-        var pixel = mapBrowserEvent.pixel;
-        var map = mapBrowserEvent.map;
-        var extent = this.getExtentInternal();
-        var vertex = this.snapToVertex_(pixel, map);
+    handleDownEvent(mapBrowserEvent) {
+        const pixel = mapBrowserEvent.pixel;
+        const map = mapBrowserEvent.map;
+        const extent = this.getExtentInternal();
+        let vertex = this.snapToVertex_(pixel, map);
         //find the extent corner opposite the passed corner
-        var getOpposingPoint = function (point) {
-            var x_ = null;
-            var y_ = null;
+        const getOpposingPoint = function (point) {
+            let x_ = null;
+            let y_ = null;
             if (point[0] == extent[0]) {
                 x_ = extent[2];
             }
@@ -308,8 +289,8 @@ var Extent = /** @class */ (function (_super) {
             return null;
         };
         if (vertex && extent) {
-            var x = (vertex[0] == extent[0] || vertex[0] == extent[2]) ? vertex[0] : null;
-            var y = (vertex[1] == extent[1] || vertex[1] == extent[3]) ? vertex[1] : null;
+            const x = (vertex[0] == extent[0] || vertex[0] == extent[2]) ? vertex[0] : null;
+            const y = (vertex[1] == extent[1] || vertex[1] == extent[3]) ? vertex[1] : null;
             //snap to point
             if (x !== null && y !== null) {
                 this.pointerHandler_ = getPointHandler(getOpposingPoint(vertex));
@@ -329,77 +310,76 @@ var Extent = /** @class */ (function (_super) {
             this.pointerHandler_ = getPointHandler(vertex);
         }
         return true; //event handled; start downup sequence
-    };
+    }
     /**
      * @inheritDoc
      */
-    Extent.prototype.handleDragEvent = function (mapBrowserEvent) {
+    handleDragEvent(mapBrowserEvent) {
         if (this.pointerHandler_) {
-            var pixelCoordinate = mapBrowserEvent.coordinate;
+            const pixelCoordinate = mapBrowserEvent.coordinate;
             this.setExtent(this.pointerHandler_(pixelCoordinate));
             this.createOrUpdatePointerFeature_(pixelCoordinate);
         }
         return true;
-    };
+    }
     /**
      * @inheritDoc
      */
-    Extent.prototype.handleUpEvent = function (mapBrowserEvent) {
+    handleUpEvent(mapBrowserEvent) {
         this.pointerHandler_ = null;
         //If bbox is zero area, set to null;
-        var extent = this.getExtentInternal();
+        const extent = this.getExtentInternal();
         if (!extent || getArea(extent) === 0) {
             this.setExtent(null);
         }
         return false; //Stop handling downup sequence
-    };
+    }
     /**
      * @inheritDoc
      */
-    Extent.prototype.setMap = function (map) {
+    setMap(map) {
         this.extentOverlay_.setMap(map);
         this.vertexOverlay_.setMap(map);
-        _super.prototype.setMap.call(this, map);
-    };
+        super.setMap(map);
+    }
     /**
      * Returns the current drawn extent in the view projection (or user projection if set)
      *
      * @return {import("../extent.js").Extent} Drawn extent in the view projection.
      * @api
      */
-    Extent.prototype.getExtent = function () {
+    getExtent() {
         return toUserExtent(this.getExtentInternal(), this.getMap().getView().getProjection());
-    };
+    }
     /**
      * Returns the current drawn extent in the view projection
      *
      * @return {import("../extent.js").Extent} Drawn extent in the view projection.
      * @api
      */
-    Extent.prototype.getExtentInternal = function () {
+    getExtentInternal() {
         return this.extent_;
-    };
+    }
     /**
      * Manually sets the drawn extent, using the view projection.
      *
      * @param {import("../extent.js").Extent} extent Extent
      * @api
      */
-    Extent.prototype.setExtent = function (extent) {
+    setExtent(extent) {
         //Null extent means no bbox
         this.extent_ = extent ? extent : null;
         this.createOrUpdateExtentFeature_(extent);
         this.dispatchEvent(new ExtentEvent(this.extent_));
-    };
-    return Extent;
-}(PointerInteraction));
+    }
+}
 /**
  * Returns the default style for the drawn bbox
  *
  * @return {import("../style/Style.js").StyleFunction} Default Extent style
  */
 function getDefaultExtentStyleFunction() {
-    var style = createEditingStyle();
+    const style = createEditingStyle();
     return function (feature, resolution) {
         return style[GeometryType.POLYGON];
     };
@@ -410,7 +390,7 @@ function getDefaultExtentStyleFunction() {
  * @return {import("../style/Style.js").StyleFunction} Default pointer style
  */
 function getDefaultPointerStyleFunction() {
-    var style = createEditingStyle();
+    const style = createEditingStyle();
     return function (feature, resolution) {
         return style[GeometryType.POINT];
     };

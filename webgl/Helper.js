@@ -1,16 +1,3 @@
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 /**
  * @module ol/webgl/Helper
  */
@@ -33,7 +20,7 @@ import { assert } from '../asserts.js';
  * Shader types, either `FRAGMENT_SHADER` or `VERTEX_SHADER`.
  * @enum {number}
  */
-export var ShaderType = {
+export const ShaderType = {
     FRAGMENT_SHADER: 0x8B30,
     VERTEX_SHADER: 0x8B31
 };
@@ -42,7 +29,7 @@ export var ShaderType = {
  * and `OFFSET_ROTATION_MATRIX`.
  * @enum {string}
  */
-export var DefaultUniform = {
+export const DefaultUniform = {
     PROJECTION_MATRIX: 'u_projectionMatrix',
     OFFSET_SCALE_MATRIX: 'u_offsetScaleMatrix',
     OFFSET_ROTATION_MATRIX: 'u_offsetRotateMatrix',
@@ -55,7 +42,7 @@ export var DefaultUniform = {
  * Note: an attribute stored in a `Float32Array` should be of type `FLOAT`.
  * @enum {number}
  */
-export var AttributeType = {
+export const AttributeType = {
     UNSIGNED_BYTE: UNSIGNED_BYTE,
     UNSIGNED_SHORT: UNSIGNED_SHORT,
     UNSIGNED_INT: UNSIGNED_INT,
@@ -225,82 +212,81 @@ export var AttributeType = {
  *
  * @api
  */
-var WebGLHelper = /** @class */ (function (_super) {
-    __extends(WebGLHelper, _super);
+class WebGLHelper extends Disposable {
     /**
      * @param {Options=} opt_options Options.
      */
-    function WebGLHelper(opt_options) {
-        var _this = _super.call(this) || this;
-        var options = opt_options || {};
+    constructor(opt_options) {
+        super();
+        const options = opt_options || {};
         /** @private */
-        _this.boundHandleWebGLContextLost_ = _this.handleWebGLContextLost.bind(_this);
+        this.boundHandleWebGLContextLost_ = this.handleWebGLContextLost.bind(this);
         /** @private */
-        _this.boundHandleWebGLContextRestored_ = _this.handleWebGLContextRestored.bind(_this);
+        this.boundHandleWebGLContextRestored_ = this.handleWebGLContextRestored.bind(this);
         /**
          * @private
          * @type {HTMLCanvasElement}
          */
-        _this.canvas_ = document.createElement('canvas');
-        _this.canvas_.style.position = 'absolute';
-        _this.canvas_.style.left = '0';
+        this.canvas_ = document.createElement('canvas');
+        this.canvas_.style.position = 'absolute';
+        this.canvas_.style.left = '0';
         /**
          * @private
          * @type {WebGLRenderingContext}
          */
-        _this.gl_ = getContext(_this.canvas_);
-        var gl = _this.getGL();
+        this.gl_ = getContext(this.canvas_);
+        const gl = this.getGL();
         /**
          * @private
          * @type {!Object<string, BufferCacheEntry>}
          */
-        _this.bufferCache_ = {};
+        this.bufferCache_ = {};
         /**
          * @private
          * @type {WebGLProgram}
          */
-        _this.currentProgram_ = null;
+        this.currentProgram_ = null;
         assert(includes(getSupportedExtensions(), 'OES_element_index_uint'), 63);
         gl.getExtension('OES_element_index_uint');
-        _this.canvas_.addEventListener(ContextEventType.LOST, _this.boundHandleWebGLContextLost_);
-        _this.canvas_.addEventListener(ContextEventType.RESTORED, _this.boundHandleWebGLContextRestored_);
+        this.canvas_.addEventListener(ContextEventType.LOST, this.boundHandleWebGLContextLost_);
+        this.canvas_.addEventListener(ContextEventType.RESTORED, this.boundHandleWebGLContextRestored_);
         /**
          * @private
          * @type {import("../transform.js").Transform}
          */
-        _this.offsetRotateMatrix_ = createTransform();
+        this.offsetRotateMatrix_ = createTransform();
         /**
          * @private
          * @type {import("../transform.js").Transform}
          */
-        _this.offsetScaleMatrix_ = createTransform();
+        this.offsetScaleMatrix_ = createTransform();
         /**
          * @private
          * @type {Array<number>}
          */
-        _this.tmpMat4_ = create();
+        this.tmpMat4_ = create();
         /**
          * @private
          * @type {Object.<string, WebGLUniformLocation>}
          */
-        _this.uniformLocations_ = {};
+        this.uniformLocations_ = {};
         /**
          * @private
          * @type {Object.<string, number>}
          */
-        _this.attribLocations_ = {};
+        this.attribLocations_ = {};
         /**
          * Holds info about custom uniforms used in the post processing pass.
          * If the uniform is a texture, the WebGL Texture object will be stored here.
          * @type {Array<UniformInternalDescription>}
          * @private
          */
-        _this.uniforms_ = [];
+        this.uniforms_ = [];
         if (options.uniforms) {
-            for (var name_1 in options.uniforms) {
-                _this.uniforms_.push({
-                    name: name_1,
-                    value: options.uniforms[name_1]
+            for (const name in options.uniforms) {
+                this.uniforms_.push({
+                    name: name,
+                    value: options.uniforms[name]
                 });
             }
         }
@@ -311,7 +297,7 @@ var WebGLHelper = /** @class */ (function (_super) {
          * @type {Array<WebGLPostProcessingPass>}
          * @private
          */
-        _this.postProcessPasses_ = options.postProcesses ? options.postProcesses.map(function (options) {
+        this.postProcessPasses_ = options.postProcesses ? options.postProcesses.map(function (options) {
             return new WebGLPostProcessingPass({
                 webGlContext: gl,
                 scaleRatio: options.scaleRatio,
@@ -324,13 +310,12 @@ var WebGLHelper = /** @class */ (function (_super) {
          * @type {string|null}
          * @private
          */
-        _this.shaderCompileErrors_ = null;
+        this.shaderCompileErrors_ = null;
         /**
          * @type {number}
          * @private
          */
-        _this.startTime_ = Date.now();
-        return _this;
+        this.startTime_ = Date.now();
     }
     /**
      * Just bind the buffer if it's in the cache. Otherwise create
@@ -339,12 +324,12 @@ var WebGLHelper = /** @class */ (function (_super) {
      * @param {import("./Buffer").default} buffer Buffer.
      * @api
      */
-    WebGLHelper.prototype.bindBuffer = function (buffer) {
-        var gl = this.getGL();
-        var bufferKey = getUid(buffer);
-        var bufferCache = this.bufferCache_[bufferKey];
+    bindBuffer(buffer) {
+        const gl = this.getGL();
+        const bufferKey = getUid(buffer);
+        let bufferCache = this.bufferCache_[bufferKey];
         if (!bufferCache) {
-            var webGlBuffer = gl.createBuffer();
+            const webGlBuffer = gl.createBuffer();
             bufferCache = {
                 buffer: buffer,
                 webGlBuffer: webGlBuffer
@@ -352,37 +337,37 @@ var WebGLHelper = /** @class */ (function (_super) {
             this.bufferCache_[bufferKey] = bufferCache;
         }
         gl.bindBuffer(buffer.getType(), bufferCache.webGlBuffer);
-    };
+    }
     /**
      * Update the data contained in the buffer array; this is required for the
      * new data to be rendered
      * @param {import("./Buffer").default} buffer Buffer.
      * @api
      */
-    WebGLHelper.prototype.flushBufferData = function (buffer) {
-        var gl = this.getGL();
+    flushBufferData(buffer) {
+        const gl = this.getGL();
         this.bindBuffer(buffer);
         gl.bufferData(buffer.getType(), buffer.getArray(), buffer.getUsage());
-    };
+    }
     /**
      * @param {import("./Buffer.js").default} buf Buffer.
      */
-    WebGLHelper.prototype.deleteBuffer = function (buf) {
-        var gl = this.getGL();
-        var bufferKey = getUid(buf);
-        var bufferCacheEntry = this.bufferCache_[bufferKey];
+    deleteBuffer(buf) {
+        const gl = this.getGL();
+        const bufferKey = getUid(buf);
+        const bufferCacheEntry = this.bufferCache_[bufferKey];
         if (!gl.isContextLost()) {
             gl.deleteBuffer(bufferCacheEntry.buffer);
         }
         delete this.bufferCache_[bufferKey];
-    };
+    }
     /**
      * @inheritDoc
      */
-    WebGLHelper.prototype.disposeInternal = function () {
+    disposeInternal() {
         this.canvas_.removeEventListener(ContextEventType.LOST, this.boundHandleWebGLContextLost_);
         this.canvas_.removeEventListener(ContextEventType.RESTORED, this.boundHandleWebGLContextRestored_);
-    };
+    }
     /**
      * Clear the buffer & set the viewport to draw.
      * Post process passes will be initialized here, the first one being bound as a render target for
@@ -390,18 +375,18 @@ var WebGLHelper = /** @class */ (function (_super) {
      * @param {import("../PluggableMap.js").FrameState} frameState current frame state
      * @api
      */
-    WebGLHelper.prototype.prepareDraw = function (frameState) {
-        var gl = this.getGL();
-        var canvas = this.getCanvas();
-        var size = frameState.size;
-        var pixelRatio = frameState.pixelRatio;
+    prepareDraw(frameState) {
+        const gl = this.getGL();
+        const canvas = this.getCanvas();
+        const size = frameState.size;
+        const pixelRatio = frameState.pixelRatio;
         canvas.width = size[0] * pixelRatio;
         canvas.height = size[1] * pixelRatio;
         canvas.style.width = size[0] + 'px';
         canvas.style.height = size[1] + 'px';
         gl.useProgram(this.currentProgram_);
         // loop backwards in post processes list
-        for (var i = this.postProcessPasses_.length - 1; i >= 0; i--) {
+        for (let i = this.postProcessPasses_.length - 1; i >= 0; i--) {
             this.postProcessPasses_[i].init(frameState);
         }
         gl.bindTexture(gl.TEXTURE_2D, null);
@@ -412,7 +397,7 @@ var WebGLHelper = /** @class */ (function (_super) {
         gl.useProgram(this.currentProgram_);
         this.applyFrameState(frameState);
         this.applyUniforms(frameState);
-    };
+    }
     /**
      * Clear the render target & bind it for future draw operations.
      * This is similar to `prepareDraw`, only post processes will not be applied.
@@ -421,9 +406,9 @@ var WebGLHelper = /** @class */ (function (_super) {
      * @param {import("./RenderTarget.js").default} renderTarget Render target to draw to
      * @param {boolean} [opt_disableAlphaBlend] If true, no alpha blending will happen.
      */
-    WebGLHelper.prototype.prepareDrawToRenderTarget = function (frameState, renderTarget, opt_disableAlphaBlend) {
-        var gl = this.getGL();
-        var size = renderTarget.getSize();
+    prepareDrawToRenderTarget(frameState, renderTarget, opt_disableAlphaBlend) {
+        const gl = this.getGL();
+        const size = renderTarget.getSize();
         gl.bindFramebuffer(gl.FRAMEBUFFER, renderTarget.getFramebuffer());
         gl.viewport(0, 0, size[0], size[1]);
         gl.bindTexture(gl.TEXTURE_2D, renderTarget.getTexture());
@@ -434,58 +419,58 @@ var WebGLHelper = /** @class */ (function (_super) {
         gl.useProgram(this.currentProgram_);
         this.applyFrameState(frameState);
         this.applyUniforms(frameState);
-    };
+    }
     /**
      * Execute a draw call based on the currently bound program, texture, buffers, attributes.
      * @param {number} start Start index.
      * @param {number} end End index.
      * @api
      */
-    WebGLHelper.prototype.drawElements = function (start, end) {
-        var gl = this.getGL();
-        var elementType = gl.UNSIGNED_INT;
-        var elementSize = 4;
-        var numItems = end - start;
-        var offsetInBytes = start * elementSize;
+    drawElements(start, end) {
+        const gl = this.getGL();
+        const elementType = gl.UNSIGNED_INT;
+        const elementSize = 4;
+        const numItems = end - start;
+        const offsetInBytes = start * elementSize;
         gl.drawElements(gl.TRIANGLES, numItems, elementType, offsetInBytes);
-    };
+    }
     /**
      * Apply the successive post process passes which will eventually render to the actual canvas.
      * @param {import("../PluggableMap.js").FrameState} frameState current frame state
      * @api
      */
-    WebGLHelper.prototype.finalizeDraw = function (frameState) {
+    finalizeDraw(frameState) {
         // apply post processes using the next one as target
-        for (var i = 0; i < this.postProcessPasses_.length; i++) {
+        for (let i = 0; i < this.postProcessPasses_.length; i++) {
             this.postProcessPasses_[i].apply(frameState, this.postProcessPasses_[i + 1] || null);
         }
-    };
+    }
     /**
      * @return {HTMLCanvasElement} Canvas.
      * @api
      */
-    WebGLHelper.prototype.getCanvas = function () {
+    getCanvas() {
         return this.canvas_;
-    };
+    }
     /**
      * Get the WebGL rendering context
      * @return {WebGLRenderingContext} The rendering context.
      * @api
      */
-    WebGLHelper.prototype.getGL = function () {
+    getGL() {
         return this.gl_;
-    };
+    }
     /**
      * Sets the default matrix uniforms for a given frame state. This is called internally in `prepareDraw`.
      * @param {import("../PluggableMap.js").FrameState} frameState Frame state.
      * @private
      */
-    WebGLHelper.prototype.applyFrameState = function (frameState) {
-        var size = frameState.size;
-        var rotation = frameState.viewState.rotation;
-        var offsetScaleMatrix = resetTransform(this.offsetScaleMatrix_);
+    applyFrameState(frameState) {
+        const size = frameState.size;
+        const rotation = frameState.viewState.rotation;
+        const offsetScaleMatrix = resetTransform(this.offsetScaleMatrix_);
         scaleTransform(offsetScaleMatrix, 2 / size[0], 2 / size[1]);
-        var offsetRotateMatrix = resetTransform(this.offsetRotateMatrix_);
+        const offsetRotateMatrix = resetTransform(this.offsetRotateMatrix_);
         if (rotation !== 0) {
             rotateTransform(offsetRotateMatrix, -rotation);
         }
@@ -494,16 +479,16 @@ var WebGLHelper = /** @class */ (function (_super) {
         this.setUniformFloatValue(DefaultUniform.TIME, (Date.now() - this.startTime_) * 0.001);
         this.setUniformFloatValue(DefaultUniform.ZOOM, frameState.viewState.zoom);
         this.setUniformFloatValue(DefaultUniform.RESOLUTION, frameState.viewState.resolution);
-    };
+    }
     /**
      * Sets the custom uniforms based on what was given in the constructor. This is called internally in `prepareDraw`.
      * @param {import("../PluggableMap.js").FrameState} frameState Frame state.
      * @private
      */
-    WebGLHelper.prototype.applyUniforms = function (frameState) {
-        var gl = this.getGL();
-        var value;
-        var textureSlot = 0;
+    applyUniforms(frameState) {
+        const gl = this.getGL();
+        let value;
+        let textureSlot = 0;
         this.uniforms_.forEach(function (uniform) {
             value = typeof uniform.value === 'function' ? uniform.value(frameState) : uniform.value;
             // apply value based on type
@@ -513,12 +498,12 @@ var WebGLHelper = /** @class */ (function (_super) {
                     uniform.prevValue = undefined;
                     uniform.texture = gl.createTexture();
                 }
-                gl.activeTexture(gl["TEXTURE" + textureSlot]);
+                gl.activeTexture(gl[`TEXTURE${textureSlot}`]);
                 gl.bindTexture(gl.TEXTURE_2D, uniform.texture);
                 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
                 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
                 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-                var imageReady = !(value instanceof HTMLImageElement) || /** @type {HTMLImageElement} */ (value).complete;
+                const imageReady = !(value instanceof HTMLImageElement) || /** @type {HTMLImageElement} */ (value).complete;
                 if (imageReady && uniform.prevValue !== value) {
                     uniform.prevValue = value;
                     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, value);
@@ -548,26 +533,26 @@ var WebGLHelper = /** @class */ (function (_super) {
                 gl.uniform1f(this.getUniformLocation(uniform.name), value);
             }
         }.bind(this));
-    };
+    }
     /**
      * Use a program.  If the program is already in use, this will return `false`.
      * @param {WebGLProgram} program Program.
      * @return {boolean} Changed.
      * @api
      */
-    WebGLHelper.prototype.useProgram = function (program) {
+    useProgram(program) {
         if (program == this.currentProgram_) {
             return false;
         }
         else {
-            var gl = this.getGL();
+            const gl = this.getGL();
             gl.useProgram(program);
             this.currentProgram_ = program;
             this.uniformLocations_ = {};
             this.attribLocations_ = {};
             return true;
         }
-    };
+    }
     /**
      * Will attempt to compile a vertex or fragment shader based on source
      * On error, the shader will be returned but
@@ -577,13 +562,13 @@ var WebGLHelper = /** @class */ (function (_super) {
      * @param {ShaderType} type VERTEX_SHADER or FRAGMENT_SHADER
      * @return {WebGLShader} Shader object
      */
-    WebGLHelper.prototype.compileShader = function (source, type) {
-        var gl = this.getGL();
-        var shader = gl.createShader(type);
+    compileShader(source, type) {
+        const gl = this.getGL();
+        const shader = gl.createShader(type);
         gl.shaderSource(shader, source);
         gl.compileShader(shader);
         return shader;
-    };
+    }
     /**
      * Create a program for a vertex and fragment shader. The shaders compilation may have failed:
      * use `WebGLHelper.getShaderCompileErrors()`to have details if any.
@@ -592,57 +577,57 @@ var WebGLHelper = /** @class */ (function (_super) {
      * @return {WebGLProgram} Program
      * @api
      */
-    WebGLHelper.prototype.getProgram = function (fragmentShaderSource, vertexShaderSource) {
-        var gl = this.getGL();
-        var fragmentShader = this.compileShader(fragmentShaderSource, gl.FRAGMENT_SHADER);
-        var vertexShader = this.compileShader(vertexShaderSource, gl.VERTEX_SHADER);
+    getProgram(fragmentShaderSource, vertexShaderSource) {
+        const gl = this.getGL();
+        const fragmentShader = this.compileShader(fragmentShaderSource, gl.FRAGMENT_SHADER);
+        const vertexShader = this.compileShader(vertexShaderSource, gl.VERTEX_SHADER);
         this.shaderCompileErrors_ = null;
         if (gl.getShaderInfoLog(fragmentShader)) {
             this.shaderCompileErrors_ =
-                "Fragment shader compilation failed:\n" + gl.getShaderInfoLog(fragmentShader);
+                `Fragment shader compilation failed:\n${gl.getShaderInfoLog(fragmentShader)}`;
         }
         if (gl.getShaderInfoLog(vertexShader)) {
             this.shaderCompileErrors_ = (this.shaderCompileErrors_ || '') +
-                ("Vertex shader compilation failed:\n" + gl.getShaderInfoLog(vertexShader));
+                `Vertex shader compilation failed:\n${gl.getShaderInfoLog(vertexShader)}`;
         }
-        var program = gl.createProgram();
+        const program = gl.createProgram();
         gl.attachShader(program, fragmentShader);
         gl.attachShader(program, vertexShader);
         gl.linkProgram(program);
         return program;
-    };
+    }
     /**
      * Will return the last shader compilation errors. If no error happened, will return null;
      * @return {string|null} Errors description, or null if last compilation was successful
      * @api
      */
-    WebGLHelper.prototype.getShaderCompileErrors = function () {
+    getShaderCompileErrors() {
         return this.shaderCompileErrors_;
-    };
+    }
     /**
      * Will get the location from the shader or the cache
      * @param {string} name Uniform name
      * @return {WebGLUniformLocation} uniformLocation
      * @api
      */
-    WebGLHelper.prototype.getUniformLocation = function (name) {
+    getUniformLocation(name) {
         if (this.uniformLocations_[name] === undefined) {
             this.uniformLocations_[name] = this.getGL().getUniformLocation(this.currentProgram_, name);
         }
         return this.uniformLocations_[name];
-    };
+    }
     /**
      * Will get the location from the shader or the cache
      * @param {string} name Attribute name
      * @return {number} attribLocation
      * @api
      */
-    WebGLHelper.prototype.getAttributeLocation = function (name) {
+    getAttributeLocation(name) {
         if (this.attribLocations_[name] === undefined) {
             this.attribLocations_[name] = this.getGL().getAttribLocation(this.currentProgram_, name);
         }
         return this.attribLocations_[name];
-    };
+    }
     /**
      * Modifies the given transform to apply the rotation/translation/scaling of the given frame state.
      * The resulting transform can be used to convert world space coordinates to view coordinates.
@@ -651,33 +636,33 @@ var WebGLHelper = /** @class */ (function (_super) {
      * @return {import("../transform").Transform} The updated transform object.
      * @api
      */
-    WebGLHelper.prototype.makeProjectionTransform = function (frameState, transform) {
-        var size = frameState.size;
-        var rotation = frameState.viewState.rotation;
-        var resolution = frameState.viewState.resolution;
-        var center = frameState.viewState.center;
+    makeProjectionTransform(frameState, transform) {
+        const size = frameState.size;
+        const rotation = frameState.viewState.rotation;
+        const resolution = frameState.viewState.resolution;
+        const center = frameState.viewState.center;
         resetTransform(transform);
         composeTransform(transform, 0, 0, 2 / (resolution * size[0]), 2 / (resolution * size[1]), -rotation, -center[0], -center[1]);
         return transform;
-    };
+    }
     /**
      * Give a value for a standard float uniform
      * @param {string} uniform Uniform name
      * @param {number} value Value
      * @api
      */
-    WebGLHelper.prototype.setUniformFloatValue = function (uniform, value) {
+    setUniformFloatValue(uniform, value) {
         this.getGL().uniform1f(this.getUniformLocation(uniform), value);
-    };
+    }
     /**
      * Give a value for a standard matrix4 uniform
      * @param {string} uniform Uniform name
      * @param {Array<number>} value Matrix value
      * @api
      */
-    WebGLHelper.prototype.setUniformMatrixValue = function (uniform, value) {
+    setUniformMatrixValue(uniform, value) {
         this.getGL().uniformMatrix4fv(this.getUniformLocation(uniform), false, value);
-    };
+    }
     /**
      * Will set the currently bound buffer to an attribute of the shader program. Used by `#enableAttributes`
      * internally.
@@ -688,15 +673,15 @@ var WebGLHelper = /** @class */ (function (_super) {
      * @param {number} offset Offset in bytes
      * @private
      */
-    WebGLHelper.prototype.enableAttributeArray_ = function (attribName, size, type, stride, offset) {
-        var location = this.getAttributeLocation(attribName);
+    enableAttributeArray_(attribName, size, type, stride, offset) {
+        const location = this.getAttributeLocation(attribName);
         // the attribute has not been found in the shaders; do not enable it
         if (location < 0) {
             return;
         }
         this.getGL().enableVertexAttribArray(location);
         this.getGL().vertexAttribPointer(location, size, type, false, stride, offset);
-    };
+    }
     /**
      * Will enable the following attributes to be read from the currently bound buffer,
      * i.e. tell the GPU where to read the different attributes in the buffer. An error in the
@@ -704,29 +689,29 @@ var WebGLHelper = /** @class */ (function (_super) {
      * @param {Array<AttributeDescription>} attributes Ordered list of attributes to read from the buffer
      * @api
      */
-    WebGLHelper.prototype.enableAttributes = function (attributes) {
-        var stride = computeAttributesStride(attributes);
-        var offset = 0;
-        for (var i = 0; i < attributes.length; i++) {
-            var attr = attributes[i];
+    enableAttributes(attributes) {
+        const stride = computeAttributesStride(attributes);
+        let offset = 0;
+        for (let i = 0; i < attributes.length; i++) {
+            const attr = attributes[i];
             this.enableAttributeArray_(attr.name, attr.size, attr.type || FLOAT, stride, offset);
             offset += attr.size * getByteSizeFromType(attr.type);
         }
-    };
+    }
     /**
      * WebGL context was lost
      * @private
      */
-    WebGLHelper.prototype.handleWebGLContextLost = function () {
+    handleWebGLContextLost() {
         clear(this.bufferCache_);
         this.currentProgram_ = null;
-    };
+    }
     /**
      * WebGL context was restored
      * @private
      */
-    WebGLHelper.prototype.handleWebGLContextRestored = function () {
-    };
+    handleWebGLContextRestored() {
+    }
     /**
      * Will create or reuse a given webgl texture and apply the given size. If no image data
      * specified, the texture will be empty, otherwise image data will be used and the `size`
@@ -738,15 +723,15 @@ var WebGLHelper = /** @class */ (function (_super) {
      * @return {WebGLTexture} The generated texture
      * @api
      */
-    WebGLHelper.prototype.createTexture = function (size, opt_data, opt_texture) {
-        var gl = this.getGL();
-        var texture = opt_texture || gl.createTexture();
+    createTexture(size, opt_data, opt_texture) {
+        const gl = this.getGL();
+        const texture = opt_texture || gl.createTexture();
         // set params & size
-        var level = 0;
-        var internalFormat = gl.RGBA;
-        var border = 0;
-        var format = gl.RGBA;
-        var type = gl.UNSIGNED_BYTE;
+        const level = 0;
+        const internalFormat = gl.RGBA;
+        const border = 0;
+        const format = gl.RGBA;
+        const type = gl.UNSIGNED_BYTE;
         gl.bindTexture(gl.TEXTURE_2D, texture);
         if (opt_data) {
             gl.texImage2D(gl.TEXTURE_2D, level, internalFormat, format, type, opt_data);
@@ -758,9 +743,8 @@ var WebGLHelper = /** @class */ (function (_super) {
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
         return texture;
-    };
-    return WebGLHelper;
-}(Disposable));
+    }
+}
 /**
  * Compute a stride in bytes based on a list of attributes
  * @param {Array<AttributeDescription>} attributes Ordered list of attributes
@@ -768,9 +752,9 @@ var WebGLHelper = /** @class */ (function (_super) {
  * @api
  */
 export function computeAttributesStride(attributes) {
-    var stride = 0;
-    for (var i = 0; i < attributes.length; i++) {
-        var attr = attributes[i];
+    let stride = 0;
+    for (let i = 0; i < attributes.length; i++) {
+        const attr = attributes[i];
         stride += attr.size * getByteSizeFromType(attr.type);
     }
     return stride;

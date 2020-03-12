@@ -1,16 +1,3 @@
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 /**
  * @module ol/format/OWS
  */
@@ -22,48 +9,46 @@ import { makeObjectPropertyPusher, makeObjectPropertySetter, makeStructureNS, pu
  * @const
  * @type {Array<null|string>}
  */
-var NAMESPACE_URIS = [null, 'http://www.opengis.net/ows/1.1'];
+const NAMESPACE_URIS = [null, 'http://www.opengis.net/ows/1.1'];
 /**
  * @const
  * @type {Object<string, Object<string, import("../xml.js").Parser>>}
  */
 // @ts-ignore
-var PARSERS = makeStructureNS(NAMESPACE_URIS, {
+const PARSERS = makeStructureNS(NAMESPACE_URIS, {
     'ServiceIdentification': makeObjectPropertySetter(readServiceIdentification),
     'ServiceProvider': makeObjectPropertySetter(readServiceProvider),
     'OperationsMetadata': makeObjectPropertySetter(readOperationsMetadata)
 });
-var OWS = /** @class */ (function (_super) {
-    __extends(OWS, _super);
-    function OWS() {
-        return _super.call(this) || this;
+class OWS extends XML {
+    constructor() {
+        super();
     }
     /**
      * @inheritDoc
      */
-    OWS.prototype.readFromDocument = function (doc) {
-        for (var n = doc.firstChild; n; n = n.nextSibling) {
+    readFromDocument(doc) {
+        for (let n = doc.firstChild; n; n = n.nextSibling) {
             if (n.nodeType == Node.ELEMENT_NODE) {
                 return this.readFromNode(n);
             }
         }
         return null;
-    };
+    }
     /**
      * @inheritDoc
      */
-    OWS.prototype.readFromNode = function (node) {
-        var owsObject = pushParseAndPop({}, PARSERS, node, []);
+    readFromNode(node) {
+        const owsObject = pushParseAndPop({}, PARSERS, node, []);
         return owsObject ? owsObject : null;
-    };
-    return OWS;
-}(XML));
+    }
+}
 /**
  * @const
  * @type {Object<string, Object<string, import("../xml.js").Parser>>}
  */
 // @ts-ignore
-var ADDRESS_PARSERS = makeStructureNS(NAMESPACE_URIS, {
+const ADDRESS_PARSERS = makeStructureNS(NAMESPACE_URIS, {
     'DeliveryPoint': makeObjectPropertySetter(readString),
     'City': makeObjectPropertySetter(readString),
     'AdministrativeArea': makeObjectPropertySetter(readString),
@@ -76,7 +61,7 @@ var ADDRESS_PARSERS = makeStructureNS(NAMESPACE_URIS, {
  * @type {Object<string, Object<string, import("../xml.js").Parser>>}
  */
 // @ts-ignore
-var ALLOWED_VALUES_PARSERS = makeStructureNS(NAMESPACE_URIS, {
+const ALLOWED_VALUES_PARSERS = makeStructureNS(NAMESPACE_URIS, {
     'Value': makeObjectPropertyPusher(readValue)
 });
 /**
@@ -84,7 +69,7 @@ var ALLOWED_VALUES_PARSERS = makeStructureNS(NAMESPACE_URIS, {
  * @type {Object<string, Object<string, import("../xml.js").Parser>>}
  */
 // @ts-ignore
-var CONSTRAINT_PARSERS = makeStructureNS(NAMESPACE_URIS, {
+const CONSTRAINT_PARSERS = makeStructureNS(NAMESPACE_URIS, {
     'AllowedValues': makeObjectPropertySetter(readAllowedValues)
 });
 /**
@@ -92,7 +77,7 @@ var CONSTRAINT_PARSERS = makeStructureNS(NAMESPACE_URIS, {
  * @type {Object<string, Object<string, import("../xml.js").Parser>>}
  */
 // @ts-ignore
-var CONTACT_INFO_PARSERS = makeStructureNS(NAMESPACE_URIS, {
+const CONTACT_INFO_PARSERS = makeStructureNS(NAMESPACE_URIS, {
     'Phone': makeObjectPropertySetter(readPhone),
     'Address': makeObjectPropertySetter(readAddress)
 });
@@ -101,7 +86,7 @@ var CONTACT_INFO_PARSERS = makeStructureNS(NAMESPACE_URIS, {
  * @type {Object<string, Object<string, import("../xml.js").Parser>>}
  */
 // @ts-ignore
-var DCP_PARSERS = makeStructureNS(NAMESPACE_URIS, {
+const DCP_PARSERS = makeStructureNS(NAMESPACE_URIS, {
     'HTTP': makeObjectPropertySetter(readHttp)
 });
 /**
@@ -109,7 +94,7 @@ var DCP_PARSERS = makeStructureNS(NAMESPACE_URIS, {
  * @type {Object<string, Object<string, import("../xml.js").Parser>>}
  */
 // @ts-ignore
-var HTTP_PARSERS = makeStructureNS(NAMESPACE_URIS, {
+const HTTP_PARSERS = makeStructureNS(NAMESPACE_URIS, {
     'Get': makeObjectPropertyPusher(readGet),
     'Post': undefined // TODO
 });
@@ -118,7 +103,7 @@ var HTTP_PARSERS = makeStructureNS(NAMESPACE_URIS, {
  * @type {Object<string, Object<string, import("../xml.js").Parser>>}
  */
 // @ts-ignore
-var OPERATION_PARSERS = makeStructureNS(NAMESPACE_URIS, {
+const OPERATION_PARSERS = makeStructureNS(NAMESPACE_URIS, {
     'DCP': makeObjectPropertySetter(readDcp)
 });
 /**
@@ -126,7 +111,7 @@ var OPERATION_PARSERS = makeStructureNS(NAMESPACE_URIS, {
  * @type {Object<string, Object<string, import("../xml.js").Parser>>}
  */
 // @ts-ignore
-var OPERATIONS_METADATA_PARSERS = makeStructureNS(NAMESPACE_URIS, {
+const OPERATIONS_METADATA_PARSERS = makeStructureNS(NAMESPACE_URIS, {
     'Operation': readOperation
 });
 /**
@@ -134,7 +119,7 @@ var OPERATIONS_METADATA_PARSERS = makeStructureNS(NAMESPACE_URIS, {
  * @type {Object<string, Object<string, import("../xml.js").Parser>>}
  */
 // @ts-ignore
-var PHONE_PARSERS = makeStructureNS(NAMESPACE_URIS, {
+const PHONE_PARSERS = makeStructureNS(NAMESPACE_URIS, {
     'Voice': makeObjectPropertySetter(readString),
     'Facsimile': makeObjectPropertySetter(readString)
 });
@@ -143,7 +128,7 @@ var PHONE_PARSERS = makeStructureNS(NAMESPACE_URIS, {
  * @type {Object<string, Object<string, import("../xml.js").Parser>>}
  */
 // @ts-ignore
-var REQUEST_METHOD_PARSERS = makeStructureNS(NAMESPACE_URIS, {
+const REQUEST_METHOD_PARSERS = makeStructureNS(NAMESPACE_URIS, {
     'Constraint': makeObjectPropertyPusher(readConstraint)
 });
 /**
@@ -151,7 +136,7 @@ var REQUEST_METHOD_PARSERS = makeStructureNS(NAMESPACE_URIS, {
  * @type {Object<string, Object<string, import("../xml.js").Parser>>}
  */
 // @ts-ignore
-var SERVICE_CONTACT_PARSERS = makeStructureNS(NAMESPACE_URIS, {
+const SERVICE_CONTACT_PARSERS = makeStructureNS(NAMESPACE_URIS, {
     'IndividualName': makeObjectPropertySetter(readString),
     'PositionName': makeObjectPropertySetter(readString),
     'ContactInfo': makeObjectPropertySetter(readContactInfo)
@@ -161,7 +146,7 @@ var SERVICE_CONTACT_PARSERS = makeStructureNS(NAMESPACE_URIS, {
  * @type {Object<string, Object<string, import("../xml.js").Parser>>}
  */
 // @ts-ignore
-var SERVICE_IDENTIFICATION_PARSERS = makeStructureNS(NAMESPACE_URIS, {
+const SERVICE_IDENTIFICATION_PARSERS = makeStructureNS(NAMESPACE_URIS, {
     'Abstract': makeObjectPropertySetter(readString),
     'AccessConstraints': makeObjectPropertySetter(readString),
     'Fees': makeObjectPropertySetter(readString),
@@ -174,7 +159,7 @@ var SERVICE_IDENTIFICATION_PARSERS = makeStructureNS(NAMESPACE_URIS, {
  * @type {Object<string, Object<string, import("../xml.js").Parser>>}
  */
 // @ts-ignore
-var SERVICE_PROVIDER_PARSERS = makeStructureNS(NAMESPACE_URIS, {
+const SERVICE_PROVIDER_PARSERS = makeStructureNS(NAMESPACE_URIS, {
     'ProviderName': makeObjectPropertySetter(readString),
     'ProviderSite': makeObjectPropertySetter(readHref),
     'ServiceContact': makeObjectPropertySetter(readServiceContact)
@@ -201,7 +186,7 @@ function readAllowedValues(node, objectStack) {
  * @return {Object|undefined} The constraint.
  */
 function readConstraint(node, objectStack) {
-    var name = node.getAttribute('name');
+    const name = node.getAttribute('name');
     if (!name) {
         return undefined;
     }
@@ -229,7 +214,7 @@ function readDcp(node, objectStack) {
  * @return {Object|undefined} The GET object.
  */
 function readGet(node, objectStack) {
-    var href = readHref(node);
+    const href = readHref(node);
     if (!href) {
         return undefined;
     }
@@ -249,12 +234,12 @@ function readHttp(node, objectStack) {
  * @return {Object|undefined} The operation.
  */
 function readOperation(node, objectStack) {
-    var name = node.getAttribute('name');
-    var value = pushParseAndPop({}, OPERATION_PARSERS, node, objectStack);
+    const name = node.getAttribute('name');
+    const value = pushParseAndPop({}, OPERATION_PARSERS, node, objectStack);
     if (!value) {
         return undefined;
     }
-    var object = /** @type {Object} */ (objectStack[objectStack.length - 1]);
+    const object = /** @type {Object} */ (objectStack[objectStack.length - 1]);
     object[name] = value;
 }
 /**

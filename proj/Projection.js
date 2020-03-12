@@ -47,11 +47,11 @@ import { METERS_PER_UNIT } from './Units.js';
  *
  * @api
  */
-var Projection = /** @class */ (function () {
+class Projection {
     /**
      * @param {Options} options Projection options.
      */
-    function Projection(options) {
+    constructor(options) {
         /**
          * @private
          * @type {string}
@@ -117,33 +117,33 @@ var Projection = /** @class */ (function () {
     /**
      * @return {boolean} The projection is suitable for wrapping the x-axis
      */
-    Projection.prototype.canWrapX = function () {
+    canWrapX() {
         return this.canWrapX_;
-    };
+    }
     /**
      * Get the code for this projection, e.g. 'EPSG:4326'.
      * @return {string} Code.
      * @api
      */
-    Projection.prototype.getCode = function () {
+    getCode() {
         return this.code_;
-    };
+    }
     /**
      * Get the validity extent for this projection.
      * @return {import("../extent.js").Extent} Extent.
      * @api
      */
-    Projection.prototype.getExtent = function () {
+    getExtent() {
         return this.extent_;
-    };
+    }
     /**
      * Get the units of this projection.
      * @return {import("./Units.js").default} Units.
      * @api
      */
-    Projection.prototype.getUnits = function () {
+    getUnits() {
         return this.units_;
-    };
+    }
     /**
      * Get the amount of meters per unit of this projection.  If the projection is
      * not configured with `metersPerUnit` or a units identifier, the return is
@@ -151,17 +151,17 @@ var Projection = /** @class */ (function () {
      * @return {number|undefined} Meters.
      * @api
      */
-    Projection.prototype.getMetersPerUnit = function () {
+    getMetersPerUnit() {
         return this.metersPerUnit_ || METERS_PER_UNIT[this.units_];
-    };
+    }
     /**
      * Get the world extent for this projection.
      * @return {import("../extent.js").Extent} Extent.
      * @api
      */
-    Projection.prototype.getWorldExtent = function () {
+    getWorldExtent() {
         return this.worldExtent_;
-    };
+    }
     /**
      * Get the axis orientation of this projection.
      * Example values are:
@@ -173,74 +173,73 @@ var Projection = /** @class */ (function () {
      * @return {string} Axis orientation.
      * @api
      */
-    Projection.prototype.getAxisOrientation = function () {
+    getAxisOrientation() {
         return this.axisOrientation_;
-    };
+    }
     /**
      * Is this projection a global projection which spans the whole world?
      * @return {boolean} Whether the projection is global.
      * @api
      */
-    Projection.prototype.isGlobal = function () {
+    isGlobal() {
         return this.global_;
-    };
+    }
     /**
      * Set if the projection is a global projection which spans the whole world
      * @param {boolean} global Whether the projection is global.
      * @api
      */
-    Projection.prototype.setGlobal = function (global) {
+    setGlobal(global) {
         this.global_ = global;
         this.canWrapX_ = !!(global && this.extent_);
-    };
+    }
     /**
      * @return {import("../tilegrid/TileGrid.js").default} The default tile grid.
      */
-    Projection.prototype.getDefaultTileGrid = function () {
+    getDefaultTileGrid() {
         return this.defaultTileGrid_;
-    };
+    }
     /**
      * @param {import("../tilegrid/TileGrid.js").default} tileGrid The default tile grid.
      */
-    Projection.prototype.setDefaultTileGrid = function (tileGrid) {
+    setDefaultTileGrid(tileGrid) {
         this.defaultTileGrid_ = tileGrid;
-    };
+    }
     /**
      * Set the validity extent for this projection.
      * @param {import("../extent.js").Extent} extent Extent.
      * @api
      */
-    Projection.prototype.setExtent = function (extent) {
+    setExtent(extent) {
         this.extent_ = extent;
         this.canWrapX_ = !!(this.global_ && extent);
-    };
+    }
     /**
      * Set the world extent for this projection.
      * @param {import("../extent.js").Extent} worldExtent World extent
      *     [minlon, minlat, maxlon, maxlat].
      * @api
      */
-    Projection.prototype.setWorldExtent = function (worldExtent) {
+    setWorldExtent(worldExtent) {
         this.worldExtent_ = worldExtent;
-    };
+    }
     /**
      * Set the getPointResolution function (see {@link module:ol/proj~getPointResolution}
      * for this projection.
      * @param {function(number, import("../coordinate.js").Coordinate):number} func Function
      * @api
      */
-    Projection.prototype.setGetPointResolution = function (func) {
+    setGetPointResolution(func) {
         this.getPointResolutionFunc_ = func;
-    };
+    }
     /**
      * Get the custom point resolution function for this projection (if set).
      * @return {function(number, import("../coordinate.js").Coordinate):number|undefined} The custom point
      * resolution function (if set).
      */
-    Projection.prototype.getPointResolutionFunc = function () {
+    getPointResolutionFunc() {
         return this.getPointResolutionFunc_;
-    };
-    return Projection;
-}());
+    }
+}
 export default Projection;
 //# sourceMappingURL=Projection.js.map

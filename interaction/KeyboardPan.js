@@ -1,16 +1,3 @@
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 /**
  * @module ol/interaction/KeyboardPan
  */
@@ -43,22 +30,21 @@ import Interaction, { pan } from './Interaction.js';
  * See also {@link module:ol/interaction/KeyboardZoom~KeyboardZoom}.
  * @api
  */
-var KeyboardPan = /** @class */ (function (_super) {
-    __extends(KeyboardPan, _super);
+class KeyboardPan extends Interaction {
     /**
      * @param {Options=} opt_options Options.
      */
-    function KeyboardPan(opt_options) {
-        var _this = _super.call(this, {
+    constructor(opt_options) {
+        super({
             handleEvent: handleEvent
-        }) || this;
-        var options = opt_options || {};
+        });
+        const options = opt_options || {};
         /**
          * @private
          * @param {import("../MapBrowserEvent.js").default} mapBrowserEvent Browser event.
          * @return {boolean} Combined condition result.
          */
-        _this.defaultCondition_ = function (mapBrowserEvent) {
+        this.defaultCondition_ = function (mapBrowserEvent) {
             return noModifierKeys(mapBrowserEvent) &&
                 targetNotEditable(mapBrowserEvent);
         };
@@ -66,23 +52,21 @@ var KeyboardPan = /** @class */ (function (_super) {
          * @private
          * @type {import("../events/condition.js").Condition}
          */
-        _this.condition_ = options.condition !== undefined ?
-            options.condition : _this.defaultCondition_;
+        this.condition_ = options.condition !== undefined ?
+            options.condition : this.defaultCondition_;
         /**
          * @private
          * @type {number}
          */
-        _this.duration_ = options.duration !== undefined ? options.duration : 100;
+        this.duration_ = options.duration !== undefined ? options.duration : 100;
         /**
          * @private
          * @type {number}
          */
-        _this.pixelDelta_ = options.pixelDelta !== undefined ?
+        this.pixelDelta_ = options.pixelDelta !== undefined ?
             options.pixelDelta : 128;
-        return _this;
     }
-    return KeyboardPan;
-}(Interaction));
+}
 /**
  * Handles the {@link module:ol/MapBrowserEvent map browser event} if it was a
  * `KeyEvent`, and decides the direction to pan to (if an arrow key was
@@ -92,19 +76,19 @@ var KeyboardPan = /** @class */ (function (_super) {
  * @this {KeyboardPan}
  */
 function handleEvent(mapBrowserEvent) {
-    var stopEvent = false;
+    let stopEvent = false;
     if (mapBrowserEvent.type == EventType.KEYDOWN) {
-        var keyEvent = /** @type {KeyboardEvent} */ (mapBrowserEvent.originalEvent);
-        var keyCode = keyEvent.keyCode;
+        const keyEvent = /** @type {KeyboardEvent} */ (mapBrowserEvent.originalEvent);
+        const keyCode = keyEvent.keyCode;
         if (this.condition_(mapBrowserEvent) &&
             (keyCode == KeyCode.DOWN ||
                 keyCode == KeyCode.LEFT ||
                 keyCode == KeyCode.RIGHT ||
                 keyCode == KeyCode.UP)) {
-            var map = mapBrowserEvent.map;
-            var view = map.getView();
-            var mapUnitsDelta = view.getResolution() * this.pixelDelta_;
-            var deltaX = 0, deltaY = 0;
+            const map = mapBrowserEvent.map;
+            const view = map.getView();
+            const mapUnitsDelta = view.getResolution() * this.pixelDelta_;
+            let deltaX = 0, deltaY = 0;
             if (keyCode == KeyCode.DOWN) {
                 deltaY = -mapUnitsDelta;
             }
@@ -117,7 +101,7 @@ function handleEvent(mapBrowserEvent) {
             else {
                 deltaY = mapUnitsDelta;
             }
-            var delta = [deltaX, deltaY];
+            const delta = [deltaX, deltaY];
             rotateCoordinate(delta, view.getRotation());
             pan(view, delta, this.duration_);
             mapBrowserEvent.preventDefault();

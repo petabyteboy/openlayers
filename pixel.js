@@ -7,5 +7,5 @@
  * @typedef {Array<number>} Pixel
  * @api
  */
-export var nothing;
+export let nothing;
 //# sourceMappingURL=pixel.js.map

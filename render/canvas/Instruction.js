@@ -4,7 +4,7 @@
 /**
  * @enum {number}
  */
-var Instruction = {
+const Instruction = {
     BEGIN_GEOMETRY: 0,
     BEGIN_PATH: 1,
     CIRCLE: 2,
@@ -22,18 +22,18 @@ var Instruction = {
 /**
  * @type {Array<Instruction>}
  */
-export var fillInstruction = [Instruction.FILL];
+export const fillInstruction = [Instruction.FILL];
 /**
  * @type {Array<Instruction>}
  */
-export var strokeInstruction = [Instruction.STROKE];
+export const strokeInstruction = [Instruction.STROKE];
 /**
  * @type {Array<Instruction>}
  */
-export var beginPathInstruction = [Instruction.BEGIN_PATH];
+export const beginPathInstruction = [Instruction.BEGIN_PATH];
 /**
  * @type {Array<Instruction>}
  */
-export var closePathInstruction = [Instruction.CLOSE_PATH];
+export const closePathInstruction = [Instruction.CLOSE_PATH];
 export default Instruction;
 //# sourceMappingURL=Instruction.js.map

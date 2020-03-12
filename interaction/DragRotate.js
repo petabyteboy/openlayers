@@ -1,16 +1,3 @@
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 /**
  * @module ol/interaction/DragRotate
  */
@@ -35,76 +22,73 @@ import PointerInteraction from './Pointer.js';
  * This interaction is only supported for mouse devices.
  * @api
  */
-var DragRotate = /** @class */ (function (_super) {
-    __extends(DragRotate, _super);
+class DragRotate extends PointerInteraction {
     /**
      * @param {Options=} opt_options Options.
      */
-    function DragRotate(opt_options) {
-        var _this = this;
-        var options = opt_options ? opt_options : {};
-        _this = _super.call(this, {
+    constructor(opt_options) {
+        const options = opt_options ? opt_options : {};
+        super({
             stopDown: FALSE
-        }) || this;
+        });
         /**
          * @private
          * @type {import("../events/condition.js").Condition}
          */
-        _this.condition_ = options.condition ? options.condition : altShiftKeysOnly;
+        this.condition_ = options.condition ? options.condition : altShiftKeysOnly;
         /**
          * @private
          * @type {number|undefined}
          */
-        _this.lastAngle_ = undefined;
+        this.lastAngle_ = undefined;
         /**
          * @private
          * @type {number}
          */
-        _this.duration_ = options.duration !== undefined ? options.duration : 250;
-        return _this;
+        this.duration_ = options.duration !== undefined ? options.duration : 250;
     }
     /**
      * @inheritDoc
      */
-    DragRotate.prototype.handleDragEvent = function (mapBrowserEvent) {
+    handleDragEvent(mapBrowserEvent) {
         if (!mouseOnly(mapBrowserEvent)) {
             return;
         }
-        var map = mapBrowserEvent.map;
-        var view = map.getView();
+        const map = mapBrowserEvent.map;
+        const view = map.getView();
         if (view.getConstraints().rotation === disable) {
             return;
         }
-        var size = map.getSize();
-        var offset = mapBrowserEvent.pixel;
-        var theta = Math.atan2(size[1] / 2 - offset[1], offset[0] - size[0] / 2);
+        const size = map.getSize();
+        const offset = mapBrowserEvent.pixel;
+        const theta = Math.atan2(size[1] / 2 - offset[1], offset[0] - size[0] / 2);
         if (this.lastAngle_ !== undefined) {
-            var delta = theta - this.lastAngle_;
+            const delta = theta - this.lastAngle_;
             view.adjustRotationInternal(-delta);
         }
         this.lastAngle_ = theta;
-    };
+    }
     /**
      * @inheritDoc
      */
-    DragRotate.prototype.handleUpEvent = function (mapBrowserEvent) {
+    handleUpEvent(mapBrowserEvent) {
         if (!mouseOnly(mapBrowserEvent)) {
             return true;
         }
-        var map = mapBrowserEvent.map;
-        var view = map.getView();
+        const map = mapBrowserEvent.map;
+        const view = map.getView();
         view.endInteraction(this.duration_);
         return false;
-    };
+    }
     /**
      * @inheritDoc
      */
-    DragRotate.prototype.handleDownEvent = function (mapBrowserEvent) {
+    handleDownEvent(mapBrowserEvent) {
         if (!mouseOnly(mapBrowserEvent)) {
             return false;
         }
         if (mouseActionButton(mapBrowserEvent) && this.condition_(mapBrowserEvent)) {
-            var map = mapBrowserEvent.map;
+            const map = mapBrowserEvent.map;
             map.getView().beginInteraction();
             this.lastAngle_ = undefined;
             return true;
@@ -112,8 +96,7 @@ var DragRotate = /** @class */ (function (_super) {
         else {
             return false;
         }
-    };
-    return DragRotate;
-}(PointerInteraction));
+    }
+}
 export default DragRotate;
 //# sourceMappingURL=DragRotate.js.map

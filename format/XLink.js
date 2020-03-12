@@ -5,7 +5,7 @@
  * @const
  * @type {string}
  */
-var NAMESPACE_URI = 'http://www.w3.org/1999/xlink';
+const NAMESPACE_URI = 'http://www.w3.org/1999/xlink';
 /**
  * @param {Element} node Node.
  * @return {string|undefined} href.

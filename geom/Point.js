@@ -1,16 +1,3 @@
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 /**
  * @module ol/geom/Point
  */
@@ -25,16 +12,14 @@ import { squaredDistance as squaredDx } from '../math.js';
  *
  * @api
  */
-var Point = /** @class */ (function (_super) {
-    __extends(Point, _super);
+class Point extends SimpleGeometry {
     /**
      * @param {import("../coordinate.js").Coordinate} coordinates Coordinates.
      * @param {import("./GeometryLayout.js").default=} opt_layout Layout.
      */
-    function Point(coordinates, opt_layout) {
-        var _this = _super.call(this) || this;
-        _this.setCoordinates(coordinates, opt_layout);
-        return _this;
+    constructor(coordinates, opt_layout) {
+        super();
+        this.setCoordinates(coordinates, opt_layout);
     }
     /**
      * Make a complete copy of the geometry.
@@ -42,19 +27,19 @@ var Point = /** @class */ (function (_super) {
      * @override
      * @api
      */
-    Point.prototype.clone = function () {
-        var point = new Point(this.flatCoordinates.slice(), this.layout);
+    clone() {
+        const point = new Point(this.flatCoordinates.slice(), this.layout);
         return point;
-    };
+    }
     /**
      * @inheritDoc
      */
-    Point.prototype.closestPointXY = function (x, y, closestPoint, minSquaredDistance) {
-        var flatCoordinates = this.flatCoordinates;
-        var squaredDistance = squaredDx(x, y, flatCoordinates[0], flatCoordinates[1]);
+    closestPointXY(x, y, closestPoint, minSquaredDistance) {
+        const flatCoordinates = this.flatCoordinates;
+        const squaredDistance = squaredDx(x, y, flatCoordinates[0], flatCoordinates[1]);
         if (squaredDistance < minSquaredDistance) {
-            var stride = this.stride;
-            for (var i = 0; i < stride; ++i) {
+            const stride = this.stride;
+            for (let i = 0; i < stride; ++i) {
                 closestPoint[i] = flatCoordinates[i];
             }
             closestPoint.length = stride;
@@ -63,49 +48,48 @@ var Point = /** @class */ (function (_super) {
         else {
             return minSquaredDistance;
         }
-    };
+    }
     /**
      * Return the coordinate of the point.
      * @return {import("../coordinate.js").Coordinate} Coordinates.
      * @override
      * @api
      */
-    Point.prototype.getCoordinates = function () {
+    getCoordinates() {
         return !this.flatCoordinates ? [] : this.flatCoordinates.slice();
-    };
+    }
     /**
      * @inheritDoc
      */
-    Point.prototype.computeExtent = function (extent) {
+    computeExtent(extent) {
         return createOrUpdateFromCoordinate(this.flatCoordinates, extent);
-    };
+    }
     /**
      * @inheritDoc
      * @api
      */
-    Point.prototype.getType = function () {
+    getType() {
         return GeometryType.POINT;
-    };
+    }
     /**
      * @inheritDoc
      * @api
      */
-    Point.prototype.intersectsExtent = function (extent) {
+    intersectsExtent(extent) {
         return containsXY(extent, this.flatCoordinates[0], this.flatCoordinates[1]);
-    };
+    }
     /**
      * @inheritDoc
      * @api
      */
-    Point.prototype.setCoordinates = function (coordinates, opt_layout) {
+    setCoordinates(coordinates, opt_layout) {
         this.setLayout(opt_layout, coordinates, 0);
         if (!this.flatCoordinates) {
             this.flatCoordinates = [];
         }
         this.flatCoordinates.length = deflateCoordinate(this.flatCoordinates, 0, coordinates, this.stride);
         this.changed();
-    };
-    return Point;
-}(SimpleGeometry));
+    }
+}
 export default Point;
 //# sourceMappingURL=Point.js.map

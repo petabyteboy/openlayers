@@ -1,19 +1,6 @@
 /**
  * @module ol/control/MousePosition
  */
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 import 'elm-pep';
 import { listen } from '../events.js';
 import EventType from '../pointer/EventType.js';
@@ -23,11 +10,11 @@ import { getTransformFromProjections, identityTransform, get as getProjection, g
 /**
  * @type {string}
  */
-var PROJECTION = 'projection';
+const PROJECTION = 'projection';
 /**
  * @type {string}
  */
-var COORDINATE_FORMAT = 'coordinateFormat';
+const COORDINATE_FORMAT = 'coordinateFormat';
 /**
  * @typedef {Object} Options
  * @property {string} [className='ol-mouse-position'] CSS class name.
@@ -56,61 +43,58 @@ var COORDINATE_FORMAT = 'coordinateFormat';
  *
  * @api
  */
-var MousePosition = /** @class */ (function (_super) {
-    __extends(MousePosition, _super);
+class MousePosition extends Control {
     /**
      * @param {Options=} opt_options Mouse position options.
      */
-    function MousePosition(opt_options) {
-        var _this = this;
-        var options = opt_options ? opt_options : {};
-        var element = document.createElement('div');
+    constructor(opt_options) {
+        const options = opt_options ? opt_options : {};
+        const element = document.createElement('div');
         element.className = options.className !== undefined ? options.className : 'ol-mouse-position';
-        _this = _super.call(this, {
+        super({
             element: element,
             render: options.render || render,
             target: options.target
-        }) || this;
-        _this.addEventListener(getChangeEventType(PROJECTION), _this.handleProjectionChanged_);
+        });
+        this.addEventListener(getChangeEventType(PROJECTION), this.handleProjectionChanged_);
         if (options.coordinateFormat) {
-            _this.setCoordinateFormat(options.coordinateFormat);
+            this.setCoordinateFormat(options.coordinateFormat);
         }
         if (options.projection) {
-            _this.setProjection(options.projection);
+            this.setProjection(options.projection);
         }
         /**
          * @private
          * @type {string}
          */
-        _this.undefinedHTML_ = options.undefinedHTML !== undefined ? options.undefinedHTML : '&#160;';
+        this.undefinedHTML_ = options.undefinedHTML !== undefined ? options.undefinedHTML : '&#160;';
         /**
          * @private
          * @type {boolean}
          */
-        _this.renderOnMouseOut_ = !!_this.undefinedHTML_;
+        this.renderOnMouseOut_ = !!this.undefinedHTML_;
         /**
          * @private
          * @type {string}
          */
-        _this.renderedHTML_ = element.innerHTML;
+        this.renderedHTML_ = element.innerHTML;
         /**
          * @private
          * @type {?import("../proj/Projection.js").default}
          */
-        _this.mapProjection_ = null;
+        this.mapProjection_ = null;
         /**
          * @private
          * @type {?import("../proj.js").TransformFunction}
          */
-        _this.transform_ = null;
-        return _this;
+        this.transform_ = null;
     }
     /**
      * @private
      */
-    MousePosition.prototype.handleProjectionChanged_ = function () {
+    handleProjectionChanged_() {
         this.transform_ = null;
-    };
+    }
     /**
      * Return the coordinate format type used to render the current position or
      * undefined.
@@ -119,10 +103,10 @@ var MousePosition = /** @class */ (function (_super) {
      * @observable
      * @api
      */
-    MousePosition.prototype.getCoordinateFormat = function () {
+    getCoordinateFormat() {
         return (
         /** @type {import("../coordinate.js").CoordinateFormat|undefined} */ (this.get(COORDINATE_FORMAT)));
-    };
+    }
     /**
      * Return the projection that is used to report the mouse position.
      * @return {import("../proj/Projection.js").default|undefined} The projection to report mouse
@@ -130,39 +114,39 @@ var MousePosition = /** @class */ (function (_super) {
      * @observable
      * @api
      */
-    MousePosition.prototype.getProjection = function () {
+    getProjection() {
         return (
         /** @type {import("../proj/Projection.js").default|undefined} */ (this.get(PROJECTION)));
-    };
+    }
     /**
      * @param {Event} event Browser event.
      * @protected
      */
-    MousePosition.prototype.handleMouseMove = function (event) {
-        var map = this.getMap();
+    handleMouseMove(event) {
+        const map = this.getMap();
         this.updateHTML_(map.getEventPixel(event));
-    };
+    }
     /**
      * @param {Event} event Browser event.
      * @protected
      */
-    MousePosition.prototype.handleMouseOut = function (event) {
+    handleMouseOut(event) {
         this.updateHTML_(null);
-    };
+    }
     /**
      * @inheritDoc
      * @api
      */
-    MousePosition.prototype.setMap = function (map) {
-        _super.prototype.setMap.call(this, map);
+    setMap(map) {
+        super.setMap(map);
         if (map) {
-            var viewport = map.getViewport();
+            const viewport = map.getViewport();
             this.listenerKeys.push(listen(viewport, EventType.POINTERMOVE, this.handleMouseMove, this));
             if (this.renderOnMouseOut_) {
                 this.listenerKeys.push(listen(viewport, EventType.POINTEROUT, this.handleMouseOut, this));
             }
         }
-    };
+    }
     /**
      * Set the coordinate format type used to render the current position.
      * @param {import("../coordinate.js").CoordinateFormat} format The format to render the current
@@ -170,9 +154,9 @@ var MousePosition = /** @class */ (function (_super) {
      * @observable
      * @api
      */
-    MousePosition.prototype.setCoordinateFormat = function (format) {
+    setCoordinateFormat(format) {
         this.set(COORDINATE_FORMAT, format);
-    };
+    }
     /**
      * Set the projection that is used to report the mouse position.
      * @param {import("../proj.js").ProjectionLike} projection The projection to report mouse
@@ -180,18 +164,18 @@ var MousePosition = /** @class */ (function (_super) {
      * @observable
      * @api
      */
-    MousePosition.prototype.setProjection = function (projection) {
+    setProjection(projection) {
         this.set(PROJECTION, getProjection(projection));
-    };
+    }
     /**
      * @param {?import("../pixel.js").Pixel} pixel Pixel.
      * @private
      */
-    MousePosition.prototype.updateHTML_ = function (pixel) {
-        var html = this.undefinedHTML_;
+    updateHTML_(pixel) {
+        let html = this.undefinedHTML_;
         if (pixel && this.mapProjection_) {
             if (!this.transform_) {
-                var projection = this.getProjection();
+                const projection = this.getProjection();
                 if (projection) {
                     this.transform_ = getTransformFromProjections(this.mapProjection_, projection);
                 }
@@ -199,15 +183,15 @@ var MousePosition = /** @class */ (function (_super) {
                     this.transform_ = identityTransform;
                 }
             }
-            var map = this.getMap();
-            var coordinate = map.getCoordinateFromPixelInternal(pixel);
+            const map = this.getMap();
+            const coordinate = map.getCoordinateFromPixelInternal(pixel);
             if (coordinate) {
-                var userProjection = getUserProjection();
+                const userProjection = getUserProjection();
                 if (userProjection) {
                     this.transform_ = getTransformFromProjections(this.mapProjection_, userProjection);
                 }
                 this.transform_(coordinate, coordinate);
-                var coordinateFormat = this.getCoordinateFormat();
+                const coordinateFormat = this.getCoordinateFormat();
                 if (coordinateFormat) {
                     html = coordinateFormat(coordinate);
                 }
@@ -220,9 +204,8 @@ var MousePosition = /** @class */ (function (_super) {
             this.element.innerHTML = html;
             this.renderedHTML_ = html;
         }
-    };
-    return MousePosition;
-}(Control));
+    }
+}
 /**
  * Update the projection. Rendering of the coordinates is done in
  * `handleMouseMove` and `handleMouseUp`.
@@ -230,7 +213,7 @@ var MousePosition = /** @class */ (function (_super) {
  * @this {MousePosition}
  */
 export function render(mapEvent) {
-    var frameState = mapEvent.frameState;
+    const frameState = mapEvent.frameState;
     if (!frameState) {
         this.mapProjection_ = null;
     }

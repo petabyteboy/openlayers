@@ -1,16 +1,3 @@
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 /**
  * @module ol/render/canvas/TextBuilder
  */
@@ -27,7 +14,7 @@ import TextPlacement from '../../style/TextPlacement.js';
  * @const
  * @enum {number}
  */
-export var TEXT_ALIGN = {
+export const TEXT_ALIGN = {
     'left': 0,
     'end': 0,
     'center': 0.5,
@@ -40,126 +27,124 @@ export var TEXT_ALIGN = {
     'ideographic': 0.8,
     'bottom': 1
 };
-var CanvasTextBuilder = /** @class */ (function (_super) {
-    __extends(CanvasTextBuilder, _super);
+class CanvasTextBuilder extends CanvasBuilder {
     /**
      * @param {number} tolerance Tolerance.
      * @param {import("../../extent.js").Extent} maxExtent Maximum extent.
      * @param {number} resolution Resolution.
      * @param {number} pixelRatio Pixel ratio.
      */
-    function CanvasTextBuilder(tolerance, maxExtent, resolution, pixelRatio) {
-        var _this = _super.call(this, tolerance, maxExtent, resolution, pixelRatio) || this;
+    constructor(tolerance, maxExtent, resolution, pixelRatio) {
+        super(tolerance, maxExtent, resolution, pixelRatio);
         /**
          * @private
          * @type {import("../canvas.js").DeclutterGroups}
          */
-        _this.declutterGroups_;
+        this.declutterGroups_;
         /**
          * @private
          * @type {Array<HTMLCanvasElement>}
          */
-        _this.labels_ = null;
+        this.labels_ = null;
         /**
          * @private
          * @type {string}
          */
-        _this.text_ = '';
+        this.text_ = '';
         /**
          * @private
          * @type {number}
          */
-        _this.textOffsetX_ = 0;
+        this.textOffsetX_ = 0;
         /**
          * @private
          * @type {number}
          */
-        _this.textOffsetY_ = 0;
+        this.textOffsetY_ = 0;
         /**
          * @private
          * @type {boolean|undefined}
          */
-        _this.textRotateWithView_ = undefined;
+        this.textRotateWithView_ = undefined;
         /**
          * @private
          * @type {number}
          */
-        _this.textRotation_ = 0;
+        this.textRotation_ = 0;
         /**
          * @private
          * @type {?import("../canvas.js").FillState}
          */
-        _this.textFillState_ = null;
+        this.textFillState_ = null;
         /**
          * @type {!Object<string, import("../canvas.js").FillState>}
          */
-        _this.fillStates = {};
+        this.fillStates = {};
         /**
          * @private
          * @type {?import("../canvas.js").StrokeState}
          */
-        _this.textStrokeState_ = null;
+        this.textStrokeState_ = null;
         /**
          * @type {!Object<string, import("../canvas.js").StrokeState>}
          */
-        _this.strokeStates = {};
+        this.strokeStates = {};
         /**
          * @private
          * @type {import("../canvas.js").TextState}
          */
-        _this.textState_ = /** @type {import("../canvas.js").TextState} */ ({});
+        this.textState_ = /** @type {import("../canvas.js").TextState} */ ({});
         /**
          * @type {!Object<string, import("../canvas.js").TextState>}
          */
-        _this.textStates = {};
+        this.textStates = {};
         /**
          * @private
          * @type {string}
          */
-        _this.textKey_ = '';
+        this.textKey_ = '';
         /**
          * @private
          * @type {string}
          */
-        _this.fillKey_ = '';
+        this.fillKey_ = '';
         /**
          * @private
          * @type {string}
          */
-        _this.strokeKey_ = '';
-        return _this;
+        this.strokeKey_ = '';
     }
     /**
      * @inheritDoc
      */
-    CanvasTextBuilder.prototype.finish = function () {
-        var instructions = _super.prototype.finish.call(this);
+    finish() {
+        const instructions = super.finish();
         instructions.textStates = this.textStates;
         instructions.fillStates = this.fillStates;
         instructions.strokeStates = this.strokeStates;
         return instructions;
-    };
+    }
     /**
      * @inheritDoc
      */
-    CanvasTextBuilder.prototype.drawText = function (geometry, feature) {
-        var fillState = this.textFillState_;
-        var strokeState = this.textStrokeState_;
-        var textState = this.textState_;
+    drawText(geometry, feature) {
+        const fillState = this.textFillState_;
+        const strokeState = this.textStrokeState_;
+        const textState = this.textState_;
         if (this.text_ === '' || !textState || (!fillState && !strokeState)) {
             return;
         }
-        var begin = this.coordinates.length;
-        var geometryType = geometry.getType();
-        var flatCoordinates = null;
-        var end = 2;
-        var stride = 2;
-        var i, ii;
+        let begin = this.coordinates.length;
+        const geometryType = geometry.getType();
+        let flatCoordinates = null;
+        let end = 2;
+        let stride = 2;
+        let i, ii;
         if (textState.placement === TextPlacement.LINE) {
             if (!intersects(this.getBufferedMaxExtent(), geometry.getExtent())) {
                 return;
             }
-            var ends = void 0;
+            let ends;
             flatCoordinates = geometry.getFlatCoordinates();
             stride = geometry.getStride();
             if (geometryType == GeometryType.LINE_STRING) {
@@ -172,19 +157,19 @@ var CanvasTextBuilder = /** @class */ (function (_super) {
                 ends = geometry.getEnds().slice(0, 1);
             }
             else if (geometryType == GeometryType.MULTI_POLYGON) {
-                var endss = geometry.getEndss();
+                const endss = geometry.getEndss();
                 ends = [];
                 for (i = 0, ii = endss.length; i < ii; ++i) {
                     ends.push(endss[i][0]);
                 }
             }
             this.beginGeometry(geometry, feature);
-            var textAlign = textState.textAlign;
-            var flatOffset = 0;
-            var flatEnd = void 0;
-            for (var o = 0, oo = ends.length; o < oo; ++o) {
+            const textAlign = textState.textAlign;
+            let flatOffset = 0;
+            let flatEnd;
+            for (let o = 0, oo = ends.length; o < oo; ++o) {
                 if (textAlign == undefined) {
-                    var range = matchingChunk(textState.maxAngle, flatCoordinates, flatOffset, ends[o], stride);
+                    const range = matchingChunk(textState.maxAngle, flatCoordinates, flatOffset, ends[o], stride);
                     flatOffset = range[0];
                     flatEnd = range[1];
                 }
@@ -196,7 +181,7 @@ var CanvasTextBuilder = /** @class */ (function (_super) {
                 }
                 end = this.coordinates.length;
                 flatOffset = ends[o];
-                var declutterGroup = this.declutterGroups_ ?
+                const declutterGroup = this.declutterGroups_ ?
                     (o === 0 ? this.declutterGroups_[0] : [].concat(this.declutterGroups_[0])) :
                     null;
                 this.drawChars_(begin, end, declutterGroup);
@@ -205,7 +190,7 @@ var CanvasTextBuilder = /** @class */ (function (_super) {
             this.endGeometry(feature);
         }
         else {
-            var geometryWidths = null;
+            let geometryWidths = null;
             if (!textState.overflow) {
                 geometryWidths = [];
             }
@@ -233,7 +218,7 @@ var CanvasTextBuilder = /** @class */ (function (_super) {
                     stride = 3;
                     break;
                 case GeometryType.MULTI_POLYGON:
-                    var interiorPoints = /** @type {import("../../geom/MultiPolygon.js").default} */ (geometry).getFlatInteriorPoints();
+                    const interiorPoints = /** @type {import("../../geom/MultiPolygon.js").default} */ (geometry).getFlatInteriorPoints();
                     flatCoordinates = [];
                     for (i = 0, ii = interiorPoints.length; i < ii; i += 3) {
                         if (!textState.overflow) {
@@ -265,13 +250,13 @@ var CanvasTextBuilder = /** @class */ (function (_super) {
             // The image is unknown at this stage so we pass null; it will be computed at render time.
             // For clarity, we pass NaN for offsetX, offsetY, width and height, which will be computed at
             // render time.
-            var pixelRatio_1 = this.pixelRatio;
+            const pixelRatio = this.pixelRatio;
             this.instructions.push([CanvasInstruction.DRAW_IMAGE, begin, end,
                 null, NaN, NaN, this.declutterGroups_, NaN, 1, 0, 0,
                 this.textRotateWithView_, this.textRotation_, 1, NaN,
                 textState.padding == defaultPadding ?
                     defaultPadding : textState.padding.map(function (p) {
-                    return p * pixelRatio_1;
+                    return p * pixelRatio;
                 }),
                 !!textState.backgroundFill, !!textState.backgroundStroke,
                 this.text_, this.textKey_, this.strokeKey_, this.fillKey_,
@@ -287,15 +272,15 @@ var CanvasTextBuilder = /** @class */ (function (_super) {
             ]);
             this.endGeometry(feature);
         }
-    };
+    }
     /**
      * @private
      */
-    CanvasTextBuilder.prototype.saveTextStates_ = function () {
-        var strokeState = this.textStrokeState_;
-        var textState = this.textState_;
-        var fillState = this.textFillState_;
-        var strokeKey = this.strokeKey_;
+    saveTextStates_() {
+        const strokeState = this.textStrokeState_;
+        const textState = this.textState_;
+        const fillState = this.textFillState_;
+        const strokeKey = this.strokeKey_;
         if (strokeState) {
             if (!(strokeKey in this.strokeStates)) {
                 this.strokeStates[strokeKey] = {
@@ -309,7 +294,7 @@ var CanvasTextBuilder = /** @class */ (function (_super) {
                 };
             }
         }
-        var textKey = this.textKey_;
+        const textKey = this.textKey_;
         if (!(textKey in this.textStates)) {
             this.textStates[textKey] = {
                 font: textState.font,
@@ -318,7 +303,7 @@ var CanvasTextBuilder = /** @class */ (function (_super) {
                 scale: textState.scale
             };
         }
-        var fillKey = this.fillKey_;
+        const fillKey = this.fillKey_;
         if (fillState) {
             if (!(fillKey in this.fillStates)) {
                 this.fillStates[fillKey] = {
@@ -326,26 +311,26 @@ var CanvasTextBuilder = /** @class */ (function (_super) {
                 };
             }
         }
-    };
+    }
     /**
      * @private
      * @param {number} begin Begin.
      * @param {number} end End.
      * @param {import("../canvas.js").DeclutterGroup} declutterGroup Declutter group.
      */
-    CanvasTextBuilder.prototype.drawChars_ = function (begin, end, declutterGroup) {
-        var strokeState = this.textStrokeState_;
-        var textState = this.textState_;
-        var strokeKey = this.strokeKey_;
-        var textKey = this.textKey_;
-        var fillKey = this.fillKey_;
+    drawChars_(begin, end, declutterGroup) {
+        const strokeState = this.textStrokeState_;
+        const textState = this.textState_;
+        const strokeKey = this.strokeKey_;
+        const textKey = this.textKey_;
+        const fillKey = this.fillKey_;
         this.saveTextStates_();
-        var pixelRatio = this.pixelRatio;
-        var baseline = TEXT_ALIGN[textState.textBaseline];
-        var offsetY = this.textOffsetY_ * pixelRatio;
-        var text = this.text_;
-        var textScale = textState.scale;
-        var strokeWidth = strokeState ? strokeState.lineWidth * textScale / 2 : 0;
+        const pixelRatio = this.pixelRatio;
+        const baseline = TEXT_ALIGN[textState.textBaseline];
+        const offsetY = this.textOffsetY_ * pixelRatio;
+        const text = this.text_;
+        const textScale = textState.scale;
+        const strokeWidth = strokeState ? strokeState.lineWidth * textScale / 2 : 0;
         this.instructions.push([CanvasInstruction.DRAW_CHARS,
             begin, end, baseline, declutterGroup,
             textState.overflow, fillKey, textState.maxAngle,
@@ -358,18 +343,18 @@ var CanvasTextBuilder = /** @class */ (function (_super) {
             1,
             offsetY, strokeKey, strokeWidth, text, textKey, 1 / pixelRatio
         ]);
-    };
+    }
     /**
      * @inheritDoc
      */
-    CanvasTextBuilder.prototype.setTextStyle = function (textStyle, declutterGroups) {
-        var textState, fillState, strokeState;
+    setTextStyle(textStyle, declutterGroups) {
+        let textState, fillState, strokeState;
         if (!textStyle) {
             this.text_ = '';
         }
         else {
             this.declutterGroups_ = /** @type {import("../canvas.js").DeclutterGroups} */ (declutterGroups);
-            var textFillStyle = textStyle.getFill();
+            const textFillStyle = textStyle.getFill();
             if (!textFillStyle) {
                 fillState = null;
                 this.textFillState_ = fillState;
@@ -382,7 +367,7 @@ var CanvasTextBuilder = /** @class */ (function (_super) {
                 }
                 fillState.fillStyle = asColorLike(textFillStyle.getColor() || defaultFillStyle);
             }
-            var textStrokeStyle = textStyle.getStroke();
+            const textStrokeStyle = textStyle.getStroke();
             if (!textStrokeStyle) {
                 strokeState = null;
                 this.textStrokeState_ = strokeState;
@@ -393,10 +378,10 @@ var CanvasTextBuilder = /** @class */ (function (_super) {
                     strokeState = /** @type {import("../canvas.js").StrokeState} */ ({});
                     this.textStrokeState_ = strokeState;
                 }
-                var lineDash = textStrokeStyle.getLineDash();
-                var lineDashOffset = textStrokeStyle.getLineDashOffset();
-                var lineWidth = textStrokeStyle.getWidth();
-                var miterLimit = textStrokeStyle.getMiterLimit();
+                const lineDash = textStrokeStyle.getLineDash();
+                const lineDashOffset = textStrokeStyle.getLineDashOffset();
+                const lineWidth = textStrokeStyle.getWidth();
+                const miterLimit = textStrokeStyle.getMiterLimit();
                 strokeState.lineCap = textStrokeStyle.getLineCap() || defaultLineCap;
                 strokeState.lineDash = lineDash ? lineDash.slice() : defaultLineDash;
                 strokeState.lineDashOffset =
@@ -409,9 +394,9 @@ var CanvasTextBuilder = /** @class */ (function (_super) {
                 strokeState.strokeStyle = asColorLike(textStrokeStyle.getColor() || defaultStrokeStyle);
             }
             textState = this.textState_;
-            var font = textStyle.getFont() || defaultFont;
+            const font = textStyle.getFont() || defaultFont;
             registerFont(font);
-            var textScale = textStyle.getScale();
+            const textScale = textStyle.getScale();
             textState.overflow = textStyle.getOverflow();
             textState.font = font;
             textState.maxAngle = textStyle.getMaxAngle();
@@ -422,10 +407,10 @@ var CanvasTextBuilder = /** @class */ (function (_super) {
             textState.backgroundStroke = textStyle.getBackgroundStroke();
             textState.padding = textStyle.getPadding() || defaultPadding;
             textState.scale = textScale === undefined ? 1 : textScale;
-            var textOffsetX = textStyle.getOffsetX();
-            var textOffsetY = textStyle.getOffsetY();
-            var textRotateWithView = textStyle.getRotateWithView();
-            var textRotation = textStyle.getRotation();
+            const textOffsetX = textStyle.getOffsetX();
+            const textOffsetY = textStyle.getOffsetY();
+            const textRotateWithView = textStyle.getRotateWithView();
+            const textRotation = textStyle.getRotation();
             this.text_ = textStyle.getText() || '';
             this.textOffsetX_ = textOffsetX === undefined ? 0 : textOffsetX;
             this.textOffsetY_ = textOffsetY === undefined ? 0 : textOffsetY;
@@ -441,8 +426,7 @@ var CanvasTextBuilder = /** @class */ (function (_super) {
                 (typeof fillState.fillStyle == 'string' ? fillState.fillStyle : ('|' + getUid(fillState.fillStyle))) :
                 '';
         }
-    };
-    return CanvasTextBuilder;
-}(CanvasBuilder));
+    }
+}
 export default CanvasTextBuilder;
 //# sourceMappingURL=TextBuilder.js.map

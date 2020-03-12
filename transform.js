@@ -23,7 +23,7 @@ import { assert } from './asserts.js';
  * @private
  * @type {Transform}
  */
-var tmp_ = new Array(6);
+const tmp_ = new Array(6);
 /**
  * Create an identity transform.
  * @return {!Transform} Identity transform.
@@ -47,18 +47,18 @@ export function reset(transform) {
  * @return {!Transform} transform1 multiplied with transform2.
  */
 export function multiply(transform1, transform2) {
-    var a1 = transform1[0];
-    var b1 = transform1[1];
-    var c1 = transform1[2];
-    var d1 = transform1[3];
-    var e1 = transform1[4];
-    var f1 = transform1[5];
-    var a2 = transform2[0];
-    var b2 = transform2[1];
-    var c2 = transform2[2];
-    var d2 = transform2[3];
-    var e2 = transform2[4];
-    var f2 = transform2[5];
+    const a1 = transform1[0];
+    const b1 = transform1[1];
+    const c1 = transform1[2];
+    const d1 = transform1[3];
+    const e1 = transform1[4];
+    const f1 = transform1[5];
+    const a2 = transform2[0];
+    const b2 = transform2[1];
+    const c2 = transform2[2];
+    const d2 = transform2[3];
+    const e2 = transform2[4];
+    const f2 = transform2[5];
     transform1[0] = a1 * a2 + c1 * b2;
     transform1[1] = b1 * a2 + d1 * b2;
     transform1[2] = a1 * c2 + c1 * d2;
@@ -112,8 +112,8 @@ export function setFromArray(transform1, transform2) {
  *     chained together.
  */
 export function apply(transform, coordinate) {
-    var x = coordinate[0];
-    var y = coordinate[1];
+    const x = coordinate[0];
+    const y = coordinate[1];
     coordinate[0] = transform[0] * x + transform[2] * y + transform[4];
     coordinate[1] = transform[1] * x + transform[3] * y + transform[5];
     return coordinate;
@@ -125,8 +125,8 @@ export function apply(transform, coordinate) {
  * @return {!Transform} The rotated transform.
  */
 export function rotate(transform, angle) {
-    var cos = Math.cos(angle);
-    var sin = Math.sin(angle);
+    const cos = Math.cos(angle);
+    const sin = Math.sin(angle);
     return multiply(transform, set(tmp_, cos, sin, -sin, cos, 0, 0));
 }
 /**
@@ -173,8 +173,8 @@ export function translate(transform, dx, dy) {
  * @return {!Transform} The composite transform.
  */
 export function compose(transform, dx1, dy1, sx, sy, angle, dx2, dy2) {
-    var sin = Math.sin(angle);
-    var cos = Math.cos(angle);
+    const sin = Math.sin(angle);
+    const cos = Math.cos(angle);
     transform[0] = sx * cos;
     transform[1] = sy * sin;
     transform[2] = -sx * sin;
@@ -216,14 +216,14 @@ export function invert(source) {
  * @return {!Transform} The inverted (target) transform.
  */
 export function makeInverse(target, source) {
-    var det = determinant(source);
+    const det = determinant(source);
     assert(det !== 0, 32); // Transformation matrix cannot be inverted
-    var a = source[0];
-    var b = source[1];
-    var c = source[2];
-    var d = source[3];
-    var e = source[4];
-    var f = source[5];
+    const a = source[0];
+    const b = source[1];
+    const c = source[2];
+    const d = source[3];
+    const e = source[4];
+    const f = source[5];
     target[0] = d / det;
     target[1] = -b / det;
     target[2] = -c / det;

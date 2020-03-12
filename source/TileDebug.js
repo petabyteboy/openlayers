@@ -1,62 +1,47 @@
 /**
  * @module ol/source/TileDebug
  */
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 import Tile from '../Tile.js';
 import TileState from '../TileState.js';
 import { createCanvasContext2D } from '../dom.js';
 import { toSize } from '../size.js';
 import XYZ from './XYZ.js';
 import { getKeyZXY } from '../tilecoord.js';
-var LabeledTile = /** @class */ (function (_super) {
-    __extends(LabeledTile, _super);
+class LabeledTile extends Tile {
     /**
      * @param {import("../tilecoord.js").TileCoord} tileCoord Tile coordinate.
      * @param {import("../size.js").Size} tileSize Tile size.
      * @param {string} text Text.
      */
-    function LabeledTile(tileCoord, tileSize, text) {
-        var _this = _super.call(this, tileCoord, TileState.LOADED) || this;
+    constructor(tileCoord, tileSize, text) {
+        super(tileCoord, TileState.LOADED);
         /**
         * @private
         * @type {import("../size.js").Size}
         */
-        _this.tileSize_ = tileSize;
+        this.tileSize_ = tileSize;
         /**
         * @private
         * @type {string}
         */
-        _this.text_ = text;
+        this.text_ = text;
         /**
         * @private
         * @type {HTMLCanvasElement}
         */
-        _this.canvas_ = null;
-        return _this;
+        this.canvas_ = null;
     }
     /**
     * Get the image element for this tile.
     * @return {HTMLCanvasElement} Image.
     */
-    LabeledTile.prototype.getImage = function () {
+    getImage() {
         if (this.canvas_) {
             return this.canvas_;
         }
         else {
-            var tileSize = this.tileSize_;
-            var context = createCanvasContext2D(tileSize[0], tileSize[1]);
+            const tileSize = this.tileSize_;
+            const context = createCanvasContext2D(tileSize[0], tileSize[1]);
             context.strokeStyle = 'grey';
             context.strokeRect(0.5, 0.5, tileSize[0] + 0.5, tileSize[1] + 0.5);
             context.fillStyle = 'grey';
@@ -70,13 +55,12 @@ var LabeledTile = /** @class */ (function (_super) {
             this.canvas_ = context.canvas;
             return context.canvas;
         }
-    };
+    }
     /**
     * @override
     */
-    LabeledTile.prototype.load = function () { };
-    return LabeledTile;
-}(Tile));
+    load() { }
+}
 /**
  * @typedef {Object} Options
  * @property {import("../proj.js").ProjectionLike} [projection='EPSG:3857'] Optional projection.
@@ -97,51 +81,47 @@ var LabeledTile = /** @class */ (function (_super) {
  * Uses Canvas context2d, so requires Canvas support.
  * @api
  */
-var TileDebug = /** @class */ (function (_super) {
-    __extends(TileDebug, _super);
+class TileDebug extends XYZ {
     /**
      * @param {Options=} opt_options Debug tile options.
      */
-    function TileDebug(opt_options) {
-        var _this = this;
+    constructor(opt_options) {
         /**
          * @type {Options}
          */
-        var options = opt_options || {};
-        _this = _super.call(this, {
+        const options = opt_options || {};
+        super({
             opaque: false,
             projection: options.projection,
             tileGrid: options.tileGrid,
             wrapX: options.wrapX !== undefined ? options.wrapX : true,
             zDirection: options.zDirection
-        }) || this;
-        return _this;
+        });
     }
     /**
     * @inheritDoc
     */
-    TileDebug.prototype.getTile = function (z, x, y) {
-        var tileCoordKey = getKeyZXY(z, x, y);
+    getTile(z, x, y) {
+        const tileCoordKey = getKeyZXY(z, x, y);
         if (this.tileCache.containsKey(tileCoordKey)) {
             return /** @type {!LabeledTile} */ (this.tileCache.get(tileCoordKey));
         }
         else {
-            var tileSize = toSize(this.tileGrid.getTileSize(z));
-            var tileCoord = [z, x, y];
-            var textTileCoord = this.getTileCoordForTileUrlFunction(tileCoord);
-            var text = void 0;
+            const tileSize = toSize(this.tileGrid.getTileSize(z));
+            const tileCoord = [z, x, y];
+            const textTileCoord = this.getTileCoordForTileUrlFunction(tileCoord);
+            let text;
             if (textTileCoord) {
                 text = 'z:' + textTileCoord[0] + ' x:' + textTileCoord[1] + ' y:' + textTileCoord[2];
             }
             else {
                 text = 'none';
             }
-            var tile = new LabeledTile(tileCoord, tileSize, text);
+            const tile = new LabeledTile(tileCoord, tileSize, text);
             this.tileCache.set(tileCoordKey, tile);
             return tile;
         }
-    };
-    return TileDebug;
-}(XYZ));
+    }
+}
 export default TileDebug;
 //# sourceMappingURL=TileDebug.js.map

@@ -9,12 +9,12 @@
  * @return {number} Area.
  */
 export function linearRing(flatCoordinates, offset, end, stride) {
-    var twiceArea = 0;
-    var x1 = flatCoordinates[end - stride];
-    var y1 = flatCoordinates[end - stride + 1];
+    let twiceArea = 0;
+    let x1 = flatCoordinates[end - stride];
+    let y1 = flatCoordinates[end - stride + 1];
     for (; offset < end; offset += stride) {
-        var x2 = flatCoordinates[offset];
-        var y2 = flatCoordinates[offset + 1];
+        const x2 = flatCoordinates[offset];
+        const y2 = flatCoordinates[offset + 1];
         twiceArea += y1 * x2 - x1 * y2;
         x1 = x2;
         y1 = y2;
@@ -29,9 +29,9 @@ export function linearRing(flatCoordinates, offset, end, stride) {
  * @return {number} Area.
  */
 export function linearRings(flatCoordinates, offset, ends, stride) {
-    var area = 0;
-    for (var i = 0, ii = ends.length; i < ii; ++i) {
-        var end = ends[i];
+    let area = 0;
+    for (let i = 0, ii = ends.length; i < ii; ++i) {
+        const end = ends[i];
         area += linearRing(flatCoordinates, offset, end, stride);
         offset = end;
     }
@@ -45,9 +45,9 @@ export function linearRings(flatCoordinates, offset, ends, stride) {
  * @return {number} Area.
  */
 export function linearRingss(flatCoordinates, offset, endss, stride) {
-    var area = 0;
-    for (var i = 0, ii = endss.length; i < ii; ++i) {
-        var ends = endss[i];
+    let area = 0;
+    for (let i = 0, ii = endss.length; i < ii; ++i) {
+        const ends = endss[i];
         area += linearRings(flatCoordinates, offset, ends, stride);
         offset = ends[ends.length - 1];
     }

@@ -1,16 +1,3 @@
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 /**
  * @module ol/interaction/PinchZoom
  */
@@ -26,92 +13,89 @@ import PointerInteraction, { centroid as centroidFromPointers } from './Pointer.
  * on a touch screen.
  * @api
  */
-var PinchZoom = /** @class */ (function (_super) {
-    __extends(PinchZoom, _super);
+class PinchZoom extends PointerInteraction {
     /**
      * @param {Options=} opt_options Options.
      */
-    function PinchZoom(opt_options) {
-        var _this = this;
-        var options = opt_options ? opt_options : {};
-        var pointerOptions = /** @type {import("./Pointer.js").Options} */ (options);
+    constructor(opt_options) {
+        const options = opt_options ? opt_options : {};
+        const pointerOptions = /** @type {import("./Pointer.js").Options} */ (options);
         if (!pointerOptions.stopDown) {
             pointerOptions.stopDown = FALSE;
         }
-        _this = _super.call(this, pointerOptions) || this;
+        super(pointerOptions);
         /**
          * @private
          * @type {import("../coordinate.js").Coordinate}
          */
-        _this.anchor_ = null;
+        this.anchor_ = null;
         /**
          * @private
          * @type {number}
          */
-        _this.duration_ = options.duration !== undefined ? options.duration : 400;
+        this.duration_ = options.duration !== undefined ? options.duration : 400;
         /**
          * @private
          * @type {number|undefined}
          */
-        _this.lastDistance_ = undefined;
+        this.lastDistance_ = undefined;
         /**
          * @private
          * @type {number}
          */
-        _this.lastScaleDelta_ = 1;
-        return _this;
+        this.lastScaleDelta_ = 1;
     }
     /**
      * @inheritDoc
      */
-    PinchZoom.prototype.handleDragEvent = function (mapBrowserEvent) {
-        var scaleDelta = 1.0;
-        var touch0 = this.targetPointers[0];
-        var touch1 = this.targetPointers[1];
-        var dx = touch0.clientX - touch1.clientX;
-        var dy = touch0.clientY - touch1.clientY;
+    handleDragEvent(mapBrowserEvent) {
+        let scaleDelta = 1.0;
+        const touch0 = this.targetPointers[0];
+        const touch1 = this.targetPointers[1];
+        const dx = touch0.clientX - touch1.clientX;
+        const dy = touch0.clientY - touch1.clientY;
         // distance between touches
-        var distance = Math.sqrt(dx * dx + dy * dy);
+        const distance = Math.sqrt(dx * dx + dy * dy);
         if (this.lastDistance_ !== undefined) {
             scaleDelta = this.lastDistance_ / distance;
         }
         this.lastDistance_ = distance;
-        var map = mapBrowserEvent.map;
-        var view = map.getView();
+        const map = mapBrowserEvent.map;
+        const view = map.getView();
         if (scaleDelta != 1.0) {
             this.lastScaleDelta_ = scaleDelta;
         }
         // scale anchor point.
-        var viewportPosition = map.getViewport().getBoundingClientRect();
-        var centroid = centroidFromPointers(this.targetPointers);
+        const viewportPosition = map.getViewport().getBoundingClientRect();
+        const centroid = centroidFromPointers(this.targetPointers);
         centroid[0] -= viewportPosition.left;
         centroid[1] -= viewportPosition.top;
         this.anchor_ = map.getCoordinateFromPixelInternal(centroid);
         // scale, bypass the resolution constraint
         map.render();
         view.adjustResolutionInternal(scaleDelta, this.anchor_);
-    };
+    }
     /**
      * @inheritDoc
      */
-    PinchZoom.prototype.handleUpEvent = function (mapBrowserEvent) {
+    handleUpEvent(mapBrowserEvent) {
         if (this.targetPointers.length < 2) {
-            var map = mapBrowserEvent.map;
-            var view = map.getView();
-            var direction = this.lastScaleDelta_ > 1 ? 1 : -1;
+            const map = mapBrowserEvent.map;
+            const view = map.getView();
+            const direction = this.lastScaleDelta_ > 1 ? 1 : -1;
             view.endInteraction(this.duration_, direction);
             return false;
         }
         else {
             return true;
         }
-    };
+    }
     /**
      * @inheritDoc
      */
-    PinchZoom.prototype.handleDownEvent = function (mapBrowserEvent) {
+    handleDownEvent(mapBrowserEvent) {
         if (this.targetPointers.length >= 2) {
-            var map = mapBrowserEvent.map;
+            const map = mapBrowserEvent.map;
             this.anchor_ = null;
             this.lastDistance_ = undefined;
             this.lastScaleDelta_ = 1;
@@ -123,8 +107,7 @@ var PinchZoom = /** @class */ (function (_super) {
         else {
             return false;
         }
-    };
-    return PinchZoom;
-}(PointerInteraction));
+    }
+}
 export default PinchZoom;
 //# sourceMappingURL=PinchZoom.js.map

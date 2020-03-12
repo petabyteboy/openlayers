@@ -1,16 +1,3 @@
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 /**
  * @module ol/control/Rotate
  */
@@ -41,72 +28,69 @@ import EventType from '../events/EventType.js';
  *
  * @api
  */
-var Rotate = /** @class */ (function (_super) {
-    __extends(Rotate, _super);
+class Rotate extends Control {
     /**
      * @param {Options=} opt_options Rotate options.
      */
-    function Rotate(opt_options) {
-        var _this = this;
-        var options = opt_options ? opt_options : {};
-        _this = _super.call(this, {
+    constructor(opt_options) {
+        const options = opt_options ? opt_options : {};
+        super({
             element: document.createElement('div'),
             render: options.render || render,
             target: options.target
-        }) || this;
-        var className = options.className !== undefined ? options.className : 'ol-rotate';
-        var label = options.label !== undefined ? options.label : '\u21E7';
+        });
+        const className = options.className !== undefined ? options.className : 'ol-rotate';
+        const label = options.label !== undefined ? options.label : '\u21E7';
         /**
          * @type {HTMLElement}
          * @private
          */
-        _this.label_ = null;
+        this.label_ = null;
         if (typeof label === 'string') {
-            _this.label_ = document.createElement('span');
-            _this.label_.className = 'ol-compass';
-            _this.label_.textContent = label;
+            this.label_ = document.createElement('span');
+            this.label_.className = 'ol-compass';
+            this.label_.textContent = label;
         }
         else {
-            _this.label_ = label;
-            _this.label_.classList.add('ol-compass');
+            this.label_ = label;
+            this.label_.classList.add('ol-compass');
         }
-        var tipLabel = options.tipLabel ? options.tipLabel : 'Reset rotation';
-        var button = document.createElement('button');
+        const tipLabel = options.tipLabel ? options.tipLabel : 'Reset rotation';
+        const button = document.createElement('button');
         button.className = className + '-reset';
         button.setAttribute('type', 'button');
         button.title = tipLabel;
-        button.appendChild(_this.label_);
-        button.addEventListener(EventType.CLICK, _this.handleClick_.bind(_this), false);
-        var cssClasses = className + ' ' + CLASS_UNSELECTABLE + ' ' + CLASS_CONTROL;
-        var element = _this.element;
+        button.appendChild(this.label_);
+        button.addEventListener(EventType.CLICK, this.handleClick_.bind(this), false);
+        const cssClasses = className + ' ' + CLASS_UNSELECTABLE + ' ' + CLASS_CONTROL;
+        const element = this.element;
         element.className = cssClasses;
         element.appendChild(button);
-        _this.callResetNorth_ = options.resetNorth ? options.resetNorth : undefined;
+        this.callResetNorth_ = options.resetNorth ? options.resetNorth : undefined;
         /**
          * @type {number}
          * @private
          */
-        _this.duration_ = options.duration !== undefined ? options.duration : 250;
+        this.duration_ = options.duration !== undefined ? options.duration : 250;
         /**
          * @type {boolean}
          * @private
          */
-        _this.autoHide_ = options.autoHide !== undefined ? options.autoHide : true;
+        this.autoHide_ = options.autoHide !== undefined ? options.autoHide : true;
         /**
          * @private
          * @type {number|undefined}
          */
-        _this.rotation_ = undefined;
-        if (_this.autoHide_) {
-            _this.element.classList.add(CLASS_HIDDEN);
+        this.rotation_ = undefined;
+        if (this.autoHide_) {
+            this.element.classList.add(CLASS_HIDDEN);
         }
-        return _this;
     }
     /**
      * @param {MouseEvent} event The event to handle
      * @private
      */
-    Rotate.prototype.handleClick_ = function (event) {
+    handleClick_(event) {
         event.preventDefault();
         if (this.callResetNorth_ !== undefined) {
             this.callResetNorth_();
@@ -114,19 +98,19 @@ var Rotate = /** @class */ (function (_super) {
         else {
             this.resetNorth_();
         }
-    };
+    }
     /**
      * @private
      */
-    Rotate.prototype.resetNorth_ = function () {
-        var map = this.getMap();
-        var view = map.getView();
+    resetNorth_() {
+        const map = this.getMap();
+        const view = map.getView();
         if (!view) {
             // the map does not have a view, so we can't act
             // upon it
             return;
         }
-        var rotation = view.getRotation();
+        const rotation = view.getRotation();
         if (rotation !== undefined) {
             if (this.duration_ > 0 && rotation % (2 * Math.PI) !== 0) {
                 view.animate({
@@ -139,24 +123,23 @@ var Rotate = /** @class */ (function (_super) {
                 view.setRotation(0);
             }
         }
-    };
-    return Rotate;
-}(Control));
+    }
+}
 /**
  * Update the rotate control element.
  * @param {import("../MapEvent.js").default} mapEvent Map event.
  * @this {Rotate}
  */
 export function render(mapEvent) {
-    var frameState = mapEvent.frameState;
+    const frameState = mapEvent.frameState;
     if (!frameState) {
         return;
     }
-    var rotation = frameState.viewState.rotation;
+    const rotation = frameState.viewState.rotation;
     if (rotation != this.rotation_) {
-        var transform = 'rotate(' + rotation + 'rad)';
+        const transform = 'rotate(' + rotation + 'rad)';
         if (this.autoHide_) {
-            var contains = this.element.classList.contains(CLASS_HIDDEN);
+            const contains = this.element.classList.contains(CLASS_HIDDEN);
             if (!contains && rotation === 0) {
                 this.element.classList.add(CLASS_HIDDEN);
             }

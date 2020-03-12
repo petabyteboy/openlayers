@@ -1,16 +1,3 @@
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 /**
  * @module ol/layer/VectorTile
  */
@@ -91,19 +78,17 @@ import { assign } from '../obj.js';
  * @extends {BaseVectorLayer<import("../source/VectorTile.js").default>}
  * @api
  */
-var VectorTileLayer = /** @class */ (function (_super) {
-    __extends(VectorTileLayer, _super);
+class VectorTileLayer extends BaseVectorLayer {
     /**
      * @param {Options=} opt_options Options.
      */
-    function VectorTileLayer(opt_options) {
-        var _this = this;
-        var options = opt_options ? opt_options : {};
-        var baseOptions = /** @type {Object} */ (assign({}, options));
+    constructor(opt_options) {
+        const options = opt_options ? opt_options : {};
+        const baseOptions = /** @type {Object} */ (assign({}, options));
         delete baseOptions.preload;
         delete baseOptions.useInterimTilesOnError;
-        _this = _super.call(this, /** @type {import("./BaseVector.js").Options} */ (baseOptions)) || this;
-        var renderMode = options.renderMode || VectorTileRenderType.HYBRID;
+        super(/** @type {import("./BaseVector.js").Options} */ (baseOptions));
+        const renderMode = options.renderMode || VectorTileRenderType.HYBRID;
         assert(renderMode == undefined ||
             renderMode == VectorTileRenderType.IMAGE ||
             renderMode == VectorTileRenderType.HYBRID ||
@@ -112,20 +97,19 @@ var VectorTileLayer = /** @class */ (function (_super) {
          * @private
          * @type {VectorTileRenderType}
          */
-        _this.renderMode_ = renderMode;
-        _this.setPreload(options.preload ? options.preload : 0);
-        _this.setUseInterimTilesOnError(options.useInterimTilesOnError !== undefined ?
+        this.renderMode_ = renderMode;
+        this.setPreload(options.preload ? options.preload : 0);
+        this.setUseInterimTilesOnError(options.useInterimTilesOnError !== undefined ?
             options.useInterimTilesOnError : true);
-        return _this;
     }
     /**
      * Create a renderer for this layer.
      * @return {import("../renderer/Layer.js").default} A layer renderer.
      * @protected
      */
-    VectorTileLayer.prototype.createRenderer = function () {
+    createRenderer() {
         return new CanvasVectorTileLayerRenderer(this);
-    };
+    }
     /**
      * Get the topmost feature that intersects the given pixel on the viewport. Returns a promise
      * that resolves with an array of features. The array will either contain the topmost feature
@@ -140,52 +124,51 @@ var VectorTileLayer = /** @class */ (function (_super) {
      * @return {Promise<Array<import("../Feature").default>>} Promise that resolves with an array of features.
      * @api
      */
-    VectorTileLayer.prototype.getFeatures = function (pixel) {
-        return _super.prototype.getFeatures.call(this, pixel);
-    };
+    getFeatures(pixel) {
+        return super.getFeatures(pixel);
+    }
     /**
      * @return {VectorTileRenderType} The render mode.
      */
-    VectorTileLayer.prototype.getRenderMode = function () {
+    getRenderMode() {
         return this.renderMode_;
-    };
+    }
     /**
      * Return the level as number to which we will preload tiles up to.
      * @return {number} The level to preload tiles up to.
      * @observable
      * @api
      */
-    VectorTileLayer.prototype.getPreload = function () {
+    getPreload() {
         return /** @type {number} */ (this.get(TileProperty.PRELOAD));
-    };
+    }
     /**
      * Whether we use interim tiles on error.
      * @return {boolean} Use interim tiles on error.
      * @observable
      * @api
      */
-    VectorTileLayer.prototype.getUseInterimTilesOnError = function () {
+    getUseInterimTilesOnError() {
         return /** @type {boolean} */ (this.get(TileProperty.USE_INTERIM_TILES_ON_ERROR));
-    };
+    }
     /**
      * Set the level as number to which we will preload tiles up to.
      * @param {number} preload The level to preload tiles up to.
      * @observable
      * @api
      */
-    VectorTileLayer.prototype.setPreload = function (preload) {
+    setPreload(preload) {
         this.set(TileProperty.PRELOAD, preload);
-    };
+    }
     /**
      * Set whether we use interim tiles on error.
      * @param {boolean} useInterimTilesOnError Use interim tiles on error.
      * @observable
      * @api
      */
-    VectorTileLayer.prototype.setUseInterimTilesOnError = function (useInterimTilesOnError) {
+    setUseInterimTilesOnError(useInterimTilesOnError) {
         this.set(TileProperty.USE_INTERIM_TILES_ON_ERROR, useInterimTilesOnError);
-    };
-    return VectorTileLayer;
-}(BaseVectorLayer));
+    }
+}
 export default VectorTileLayer;
 //# sourceMappingURL=VectorTile.js.map

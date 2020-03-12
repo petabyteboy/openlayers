@@ -1,16 +1,3 @@
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 /**
  * @module ol/geom/Geometry
  */
@@ -25,7 +12,7 @@ import { memoizeOne } from '../functions.js';
 /**
  * @type {import("../transform.js").Transform}
  */
-var tmpTransform = createTransform();
+const tmpTransform = createTransform();
 /**
  * @classdesc
  * Abstract base class; normally only used for creating subclasses and not
@@ -38,30 +25,29 @@ var tmpTransform = createTransform();
  * @abstract
  * @api
  */
-var Geometry = /** @class */ (function (_super) {
-    __extends(Geometry, _super);
-    function Geometry() {
-        var _this = _super.call(this) || this;
+class Geometry extends BaseObject {
+    constructor() {
+        super();
         /**
          * @private
          * @type {import("../extent.js").Extent}
          */
-        _this.extent_ = createEmpty();
+        this.extent_ = createEmpty();
         /**
          * @private
          * @type {number}
          */
-        _this.extentRevision_ = -1;
+        this.extentRevision_ = -1;
         /**
          * @protected
          * @type {number}
          */
-        _this.simplifiedGeometryMaxMinSquaredTolerance = 0;
+        this.simplifiedGeometryMaxMinSquaredTolerance = 0;
         /**
          * @protected
          * @type {number}
          */
-        _this.simplifiedGeometryRevision = 0;
+        this.simplifiedGeometryRevision = 0;
         /**
          * Get a transformed and simplified version of the geometry.
          * @abstract
@@ -70,15 +56,14 @@ var Geometry = /** @class */ (function (_super) {
          * @param {import("../proj.js").TransformFunction} [opt_transform] Optional transform function.
          * @return {Geometry} Simplified geometry.
          */
-        _this.simplifyTransformedInternal = memoizeOne(function (revision, squaredTolerance, opt_transform) {
+        this.simplifyTransformedInternal = memoizeOne(function (revision, squaredTolerance, opt_transform) {
             if (!opt_transform) {
                 return this.getSimplifiedGeometry(squaredTolerance);
             }
-            var clone = this.clone();
+            const clone = this.clone();
             clone.applyTransform(opt_transform);
             return clone.getSimplifiedGeometry(squaredTolerance);
         });
-        return _this;
     }
     /**
      * Get a transformed and simplified version of the geometry.
@@ -87,17 +72,17 @@ var Geometry = /** @class */ (function (_super) {
      * @param {import("../proj.js").TransformFunction} [opt_transform] Optional transform function.
      * @return {Geometry} Simplified geometry.
      */
-    Geometry.prototype.simplifyTransformed = function (squaredTolerance, opt_transform) {
+    simplifyTransformed(squaredTolerance, opt_transform) {
         return this.simplifyTransformedInternal(this.getRevision(), squaredTolerance, opt_transform);
-    };
+    }
     /**
      * Make a complete copy of the geometry.
      * @abstract
      * @return {!Geometry} Clone.
      */
-    Geometry.prototype.clone = function () {
+    clone() {
         return abstract();
-    };
+    }
     /**
      * @abstract
      * @param {number} x X.
@@ -106,18 +91,18 @@ var Geometry = /** @class */ (function (_super) {
      * @param {number} minSquaredDistance Minimum squared distance.
      * @return {number} Minimum squared distance.
      */
-    Geometry.prototype.closestPointXY = function (x, y, closestPoint, minSquaredDistance) {
+    closestPointXY(x, y, closestPoint, minSquaredDistance) {
         return abstract();
-    };
+    }
     /**
      * @param {number} x X.
      * @param {number} y Y.
      * @return {boolean} Contains (x, y).
      */
-    Geometry.prototype.containsXY = function (x, y) {
-        var coord = this.getClosestPoint([x, y]);
+    containsXY(x, y) {
+        const coord = this.getClosestPoint([x, y]);
         return coord[0] === x && coord[1] === y;
-    };
+    }
     /**
      * Return the closest point of the geometry to the passed point as
      * {@link module:ol/coordinate~Coordinate coordinate}.
@@ -126,11 +111,11 @@ var Geometry = /** @class */ (function (_super) {
      * @return {import("../coordinate.js").Coordinate} Closest point.
      * @api
      */
-    Geometry.prototype.getClosestPoint = function (point, opt_closestPoint) {
-        var closestPoint = opt_closestPoint ? opt_closestPoint : [NaN, NaN];
+    getClosestPoint(point, opt_closestPoint) {
+        const closestPoint = opt_closestPoint ? opt_closestPoint : [NaN, NaN];
         this.closestPointXY(point[0], point[1], closestPoint, Infinity);
         return closestPoint;
-    };
+    }
     /**
      * Returns true if this geometry includes the specified coordinate. If the
      * coordinate is on the boundary of the geometry, returns false.
@@ -138,31 +123,31 @@ var Geometry = /** @class */ (function (_super) {
      * @return {boolean} Contains coordinate.
      * @api
      */
-    Geometry.prototype.intersectsCoordinate = function (coordinate) {
+    intersectsCoordinate(coordinate) {
         return this.containsXY(coordinate[0], coordinate[1]);
-    };
+    }
     /**
      * @abstract
      * @param {import("../extent.js").Extent} extent Extent.
      * @protected
      * @return {import("../extent.js").Extent} extent Extent.
      */
-    Geometry.prototype.computeExtent = function (extent) {
+    computeExtent(extent) {
         return abstract();
-    };
+    }
     /**
      * Get the extent of the geometry.
      * @param {import("../extent.js").Extent=} opt_extent Extent.
      * @return {import("../extent.js").Extent} extent Extent.
      * @api
      */
-    Geometry.prototype.getExtent = function (opt_extent) {
+    getExtent(opt_extent) {
         if (this.extentRevision_ != this.getRevision()) {
             this.extent_ = this.computeExtent(this.extent_);
             this.extentRevision_ = this.getRevision();
         }
         return returnOrUpdate(this.extent_, opt_extent);
-    };
+    }
     /**
      * Rotate the geometry around a given coordinate. This modifies the geometry
      * coordinates in place.
@@ -171,9 +156,9 @@ var Geometry = /** @class */ (function (_super) {
      * @param {import("../coordinate.js").Coordinate} anchor The rotation center.
      * @api
      */
-    Geometry.prototype.rotate = function (angle, anchor) {
+    rotate(angle, anchor) {
         abstract();
-    };
+    }
     /**
      * Scale the geometry (with an optional origin).  This modifies the geometry
      * coordinates in place.
@@ -185,9 +170,9 @@ var Geometry = /** @class */ (function (_super) {
      *     of the geometry extent).
      * @api
      */
-    Geometry.prototype.scale = function (sx, opt_sy, opt_anchor) {
+    scale(sx, opt_sy, opt_anchor) {
         abstract();
-    };
+    }
     /**
      * Create a simplified version of this geometry.  For linestrings, this uses
      * the [Douglas Peucker](https://en.wikipedia.org/wiki/Ramer-Douglas-Peucker_algorithm)
@@ -197,9 +182,9 @@ var Geometry = /** @class */ (function (_super) {
      * @return {Geometry} A new, simplified version of the original geometry.
      * @api
      */
-    Geometry.prototype.simplify = function (tolerance) {
+    simplify(tolerance) {
         return this.getSimplifiedGeometry(tolerance * tolerance);
-    };
+    }
     /**
      * Create a simplified version of this geometry using the Douglas Peucker
      * algorithm.
@@ -208,17 +193,17 @@ var Geometry = /** @class */ (function (_super) {
      * @param {number} squaredTolerance Squared tolerance.
      * @return {Geometry} Simplified geometry.
      */
-    Geometry.prototype.getSimplifiedGeometry = function (squaredTolerance) {
+    getSimplifiedGeometry(squaredTolerance) {
         return abstract();
-    };
+    }
     /**
      * Get the type of this geometry.
      * @abstract
      * @return {import("./GeometryType.js").default} Geometry type.
      */
-    Geometry.prototype.getType = function () {
+    getType() {
         return abstract();
-    };
+    }
     /**
      * Apply a transform function to the coordinates of the geometry.
      * The geometry is modified in place.
@@ -228,18 +213,18 @@ var Geometry = /** @class */ (function (_super) {
      * @param {import("../proj.js").TransformFunction} transformFn Transform function.
      * Called with a flat array of geometry coordinates.
      */
-    Geometry.prototype.applyTransform = function (transformFn) {
+    applyTransform(transformFn) {
         abstract();
-    };
+    }
     /**
      * Test if the geometry and the passed extent intersect.
      * @abstract
      * @param {import("../extent.js").Extent} extent Extent.
      * @return {boolean} `true` if the geometry and the extent intersect.
      */
-    Geometry.prototype.intersectsExtent = function (extent) {
+    intersectsExtent(extent) {
         return abstract();
-    };
+    }
     /**
      * Translate the geometry.  This modifies the geometry coordinates in place.  If
      * instead you want a new geometry, first `clone()` this geometry.
@@ -248,9 +233,9 @@ var Geometry = /** @class */ (function (_super) {
      * @param {number} deltaY Delta Y.
      * @api
      */
-    Geometry.prototype.translate = function (deltaX, deltaY) {
+    translate(deltaX, deltaY) {
         abstract();
-    };
+    }
     /**
      * Transform each coordinate of the geometry from one coordinate reference
      * system to another. The geometry is modified in place.
@@ -266,14 +251,14 @@ var Geometry = /** @class */ (function (_super) {
      *     modified in place.
      * @api
      */
-    Geometry.prototype.transform = function (source, destination) {
+    transform(source, destination) {
         /** @type {import("../proj/Projection.js").default} */
-        var sourceProj = getProjection(source);
-        var transformFn = sourceProj.getUnits() == Units.TILE_PIXELS ?
+        const sourceProj = getProjection(source);
+        const transformFn = sourceProj.getUnits() == Units.TILE_PIXELS ?
             function (inCoordinates, outCoordinates, stride) {
-                var pixelExtent = sourceProj.getExtent();
-                var projectedExtent = sourceProj.getWorldExtent();
-                var scale = getHeight(projectedExtent) / getHeight(pixelExtent);
+                const pixelExtent = sourceProj.getExtent();
+                const projectedExtent = sourceProj.getWorldExtent();
+                const scale = getHeight(projectedExtent) / getHeight(pixelExtent);
                 composeTransform(tmpTransform, projectedExtent[0], projectedExtent[3], scale, -scale, 0, 0, 0);
                 transform2D(inCoordinates, 0, inCoordinates.length, stride, tmpTransform, outCoordinates);
                 return getTransform(sourceProj, destination)(inCoordinates, outCoordinates, stride);
@@ -281,8 +266,7 @@ var Geometry = /** @class */ (function (_super) {
             getTransform(sourceProj, destination);
         this.applyTransform(transformFn);
         return this;
-    };
-    return Geometry;
-}(BaseObject));
+    }
+}
 export default Geometry;
 //# sourceMappingURL=Geometry.js.map

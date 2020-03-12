@@ -1,16 +1,3 @@
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 /**
  * @module ol/Geolocation
  */
@@ -23,7 +10,7 @@ import { get as getProjection, getTransformFromProjections, identityTransform } 
 /**
  * @enum {string}
  */
-var Property = {
+const Property = {
     ACCURACY: 'accuracy',
     ACCURACY_GEOMETRY: 'accuracyGeometry',
     ALTITUDE: 'altitude',
@@ -39,25 +26,22 @@ var Property = {
  * @classdesc
  * Events emitted on Geolocation error.
  */
-var GeolocationError = /** @class */ (function (_super) {
-    __extends(GeolocationError, _super);
+class GeolocationError extends BaseEvent {
     /**
      * @param {PositionError} error error object.
      */
-    function GeolocationError(error) {
-        var _this = _super.call(this, EventType.ERROR) || this;
+    constructor(error) {
+        super(EventType.ERROR);
         /**
          * @type {number}
          */
-        _this.code = error.code;
+        this.code = error.code;
         /**
          * @type {string}
          */
-        _this.message = error.message;
-        return _this;
+        this.message = error.message;
     }
-    return GeolocationError;
-}(BaseEvent));
+}
 /**
  * @typedef {Object} Options
  * @property {boolean} [tracking=false] Start Tracking right after
@@ -90,66 +74,64 @@ var GeolocationError = /** @class */ (function (_super) {
  * @fires module:ol/events/Event~BaseEvent#event:error
  * @api
  */
-var Geolocation = /** @class */ (function (_super) {
-    __extends(Geolocation, _super);
+class Geolocation extends BaseObject {
     /**
      * @param {Options=} opt_options Options.
      */
-    function Geolocation(opt_options) {
-        var _this = _super.call(this) || this;
-        var options = opt_options || {};
+    constructor(opt_options) {
+        super();
+        const options = opt_options || {};
         /**
          * The unprojected (EPSG:4326) device position.
          * @private
          * @type {?import("./coordinate.js").Coordinate}
          */
-        _this.position_ = null;
+        this.position_ = null;
         /**
          * @private
          * @type {import("./proj.js").TransformFunction}
          */
-        _this.transform_ = identityTransform;
+        this.transform_ = identityTransform;
         /**
          * @private
          * @type {number|undefined}
          */
-        _this.watchId_ = undefined;
-        _this.addEventListener(getChangeEventType(Property.PROJECTION), _this.handleProjectionChanged_);
-        _this.addEventListener(getChangeEventType(Property.TRACKING), _this.handleTrackingChanged_);
+        this.watchId_ = undefined;
+        this.addEventListener(getChangeEventType(Property.PROJECTION), this.handleProjectionChanged_);
+        this.addEventListener(getChangeEventType(Property.TRACKING), this.handleTrackingChanged_);
         if (options.projection !== undefined) {
-            _this.setProjection(options.projection);
+            this.setProjection(options.projection);
         }
         if (options.trackingOptions !== undefined) {
-            _this.setTrackingOptions(options.trackingOptions);
+            this.setTrackingOptions(options.trackingOptions);
         }
-        _this.setTracking(options.tracking !== undefined ? options.tracking : false);
-        return _this;
+        this.setTracking(options.tracking !== undefined ? options.tracking : false);
     }
     /**
      * @inheritDoc
      */
-    Geolocation.prototype.disposeInternal = function () {
+    disposeInternal() {
         this.setTracking(false);
-        _super.prototype.disposeInternal.call(this);
-    };
+        super.disposeInternal();
+    }
     /**
      * @private
      */
-    Geolocation.prototype.handleProjectionChanged_ = function () {
-        var projection = this.getProjection();
+    handleProjectionChanged_() {
+        const projection = this.getProjection();
         if (projection) {
             this.transform_ = getTransformFromProjections(getProjection('EPSG:4326'), projection);
             if (this.position_) {
                 this.set(Property.POSITION, this.transform_(this.position_));
             }
         }
-    };
+    }
     /**
      * @private
      */
-    Geolocation.prototype.handleTrackingChanged_ = function () {
+    handleTrackingChanged_() {
         if ('geolocation' in navigator) {
-            var tracking = this.getTracking();
+            const tracking = this.getTracking();
             if (tracking && this.watchId_ === undefined) {
                 this.watchId_ = navigator.geolocation.watchPosition(this.positionChange_.bind(this), this.positionError_.bind(this), this.getTrackingOptions());
             }
@@ -158,13 +140,13 @@ var Geolocation = /** @class */ (function (_super) {
                 this.watchId_ = undefined;
             }
         }
-    };
+    }
     /**
      * @private
      * @param {Position} position position event.
      */
-    Geolocation.prototype.positionChange_ = function (position) {
-        var coords = position.coords;
+    positionChange_(position) {
+        const coords = position.coords;
         this.set(Property.ACCURACY, coords.accuracy);
         this.set(Property.ALTITUDE, coords.altitude === null ? undefined : coords.altitude);
         this.set(Property.ALTITUDE_ACCURACY, coords.altitudeAccuracy === null ?
@@ -178,22 +160,22 @@ var Geolocation = /** @class */ (function (_super) {
             this.position_[0] = coords.longitude;
             this.position_[1] = coords.latitude;
         }
-        var projectedPosition = this.transform_(this.position_);
+        const projectedPosition = this.transform_(this.position_);
         this.set(Property.POSITION, projectedPosition);
         this.set(Property.SPEED, coords.speed === null ? undefined : coords.speed);
-        var geometry = circularPolygon(this.position_, coords.accuracy);
+        const geometry = circularPolygon(this.position_, coords.accuracy);
         geometry.applyTransform(this.transform_);
         this.set(Property.ACCURACY_GEOMETRY, geometry);
         this.changed();
-    };
+    }
     /**
      * @private
      * @param {PositionError} error error object.
      */
-    Geolocation.prototype.positionError_ = function (error) {
+    positionError_(error) {
         this.setTracking(false);
         this.dispatchEvent(new GeolocationError(error));
-    };
+    }
     /**
      * Get the accuracy of the position in meters.
      * @return {number|undefined} The accuracy of the position measurement in
@@ -201,19 +183,19 @@ var Geolocation = /** @class */ (function (_super) {
      * @observable
      * @api
      */
-    Geolocation.prototype.getAccuracy = function () {
+    getAccuracy() {
         return /** @type {number|undefined} */ (this.get(Property.ACCURACY));
-    };
+    }
     /**
      * Get a geometry of the position accuracy.
      * @return {?import("./geom/Polygon.js").default} A geometry of the position accuracy.
      * @observable
      * @api
      */
-    Geolocation.prototype.getAccuracyGeometry = function () {
+    getAccuracyGeometry() {
         return (
         /** @type {?import("./geom/Polygon.js").default} */ (this.get(Property.ACCURACY_GEOMETRY) || null));
-    };
+    }
     /**
      * Get the altitude associated with the position.
      * @return {number|undefined} The altitude of the position in meters above mean
@@ -221,9 +203,9 @@ var Geolocation = /** @class */ (function (_super) {
      * @observable
      * @api
      */
-    Geolocation.prototype.getAltitude = function () {
+    getAltitude() {
         return /** @type {number|undefined} */ (this.get(Property.ALTITUDE));
-    };
+    }
     /**
      * Get the altitude accuracy of the position.
      * @return {number|undefined} The accuracy of the altitude measurement in
@@ -231,9 +213,9 @@ var Geolocation = /** @class */ (function (_super) {
      * @observable
      * @api
      */
-    Geolocation.prototype.getAltitudeAccuracy = function () {
+    getAltitudeAccuracy() {
         return /** @type {number|undefined} */ (this.get(Property.ALTITUDE_ACCURACY));
-    };
+    }
     /**
      * Get the heading as radians clockwise from North.
      * Note: depending on the browser, the heading is only defined if the `enableHighAccuracy`
@@ -242,9 +224,9 @@ var Geolocation = /** @class */ (function (_super) {
      * @observable
      * @api
      */
-    Geolocation.prototype.getHeading = function () {
+    getHeading() {
         return /** @type {number|undefined} */ (this.get(Property.HEADING));
-    };
+    }
     /**
      * Get the position of the device.
      * @return {import("./coordinate.js").Coordinate|undefined} The current position of the device reported
@@ -252,10 +234,10 @@ var Geolocation = /** @class */ (function (_super) {
      * @observable
      * @api
      */
-    Geolocation.prototype.getPosition = function () {
+    getPosition() {
         return (
         /** @type {import("./coordinate.js").Coordinate|undefined} */ (this.get(Property.POSITION)));
-    };
+    }
     /**
      * Get the projection associated with the position.
      * @return {import("./proj/Projection.js").default|undefined} The projection the position is
@@ -263,10 +245,10 @@ var Geolocation = /** @class */ (function (_super) {
      * @observable
      * @api
      */
-    Geolocation.prototype.getProjection = function () {
+    getProjection() {
         return (
         /** @type {import("./proj/Projection.js").default|undefined} */ (this.get(Property.PROJECTION)));
-    };
+    }
     /**
      * Get the speed in meters per second.
      * @return {number|undefined} The instantaneous speed of the device in meters
@@ -274,18 +256,18 @@ var Geolocation = /** @class */ (function (_super) {
      * @observable
      * @api
      */
-    Geolocation.prototype.getSpeed = function () {
+    getSpeed() {
         return /** @type {number|undefined} */ (this.get(Property.SPEED));
-    };
+    }
     /**
      * Determine if the device location is being tracked.
      * @return {boolean} The device location is being tracked.
      * @observable
      * @api
      */
-    Geolocation.prototype.getTracking = function () {
+    getTracking() {
         return /** @type {boolean} */ (this.get(Property.TRACKING));
-    };
+    }
     /**
      * Get the tracking options.
      * See http://www.w3.org/TR/geolocation-API/#position-options.
@@ -295,9 +277,9 @@ var Geolocation = /** @class */ (function (_super) {
      * @observable
      * @api
      */
-    Geolocation.prototype.getTrackingOptions = function () {
+    getTrackingOptions() {
         return /** @type {PositionOptions|undefined} */ (this.get(Property.TRACKING_OPTIONS));
-    };
+    }
     /**
      * Set the projection to use for transforming the coordinates.
      * @param {import("./proj.js").ProjectionLike} projection The projection the position is
@@ -305,18 +287,18 @@ var Geolocation = /** @class */ (function (_super) {
      * @observable
      * @api
      */
-    Geolocation.prototype.setProjection = function (projection) {
+    setProjection(projection) {
         this.set(Property.PROJECTION, getProjection(projection));
-    };
+    }
     /**
      * Enable or disable tracking.
      * @param {boolean} tracking Enable tracking.
      * @observable
      * @api
      */
-    Geolocation.prototype.setTracking = function (tracking) {
+    setTracking(tracking) {
         this.set(Property.TRACKING, tracking);
-    };
+    }
     /**
      * Set the tracking options.
      * See http://www.w3.org/TR/geolocation-API/#position-options.
@@ -326,10 +308,9 @@ var Geolocation = /** @class */ (function (_super) {
      * @observable
      * @api
      */
-    Geolocation.prototype.setTrackingOptions = function (options) {
+    setTrackingOptions(options) {
         this.set(Property.TRACKING_OPTIONS, options);
-    };
-    return Geolocation;
-}(BaseObject));
+    }
+}
 export default Geolocation;
 //# sourceMappingURL=Geolocation.js.map

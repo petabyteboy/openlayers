@@ -86,9 +86,9 @@ export { Projection };
  *     values).
  */
 export function cloneTransform(input, opt_output, opt_dimension) {
-    var output;
+    let output;
     if (opt_output !== undefined) {
-        for (var i = 0, ii = input.length; i < ii; ++i) {
+        for (let i = 0, ii = input.length; i < ii; ++i) {
             opt_output[i] = input[i];
         }
         output = opt_output;
@@ -106,7 +106,7 @@ export function cloneTransform(input, opt_output, opt_dimension) {
  */
 export function identityTransform(input, opt_output, opt_dimension) {
     if (opt_output !== undefined && input !== opt_output) {
-        for (var i = 0, ii = input.length; i < ii; ++i) {
+        for (let i = 0, ii = input.length; i < ii; ++i) {
             opt_output[i] = input[i];
         }
         input = opt_output;
@@ -166,19 +166,19 @@ export function get(projectionLike) {
  */
 export function getPointResolution(projection, resolution, point, opt_units) {
     projection = get(projection);
-    var pointResolution;
-    var getter = projection.getPointResolutionFunc();
+    let pointResolution;
+    const getter = projection.getPointResolutionFunc();
     if (getter) {
         pointResolution = getter(resolution, point);
         if (opt_units && opt_units !== projection.getUnits()) {
-            var metersPerUnit = projection.getMetersPerUnit();
+            const metersPerUnit = projection.getMetersPerUnit();
             if (metersPerUnit) {
                 pointResolution = pointResolution * metersPerUnit / METERS_PER_UNIT[opt_units];
             }
         }
     }
     else {
-        var units = projection.getUnits();
+        const units = projection.getUnits();
         if (units == Units.DEGREES && !opt_units || opt_units == Units.DEGREES) {
             pointResolution = resolution;
         }
@@ -186,18 +186,18 @@ export function getPointResolution(projection, resolution, point, opt_units) {
             // Estimate point resolution by transforming the center pixel to EPSG:4326,
             // measuring its width and height on the normal sphere, and taking the
             // average of the width and height.
-            var toEPSG4326_1 = getTransformFromProjections(projection, get('EPSG:4326'));
-            var vertices = [
+            const toEPSG4326 = getTransformFromProjections(projection, get('EPSG:4326'));
+            let vertices = [
                 point[0] - resolution / 2, point[1],
                 point[0] + resolution / 2, point[1],
                 point[0], point[1] - resolution / 2,
                 point[0], point[1] + resolution / 2
             ];
-            vertices = toEPSG4326_1(vertices, vertices, 2);
-            var width = getDistance(vertices.slice(0, 2), vertices.slice(2, 4));
-            var height = getDistance(vertices.slice(4, 6), vertices.slice(6, 8));
+            vertices = toEPSG4326(vertices, vertices, 2);
+            const width = getDistance(vertices.slice(0, 2), vertices.slice(2, 4));
+            const height = getDistance(vertices.slice(4, 6), vertices.slice(6, 8));
             pointResolution = (width + height) / 2;
-            var metersPerUnit = opt_units ?
+            const metersPerUnit = opt_units ?
                 METERS_PER_UNIT[opt_units] :
                 projection.getMetersPerUnit();
             if (metersPerUnit !== undefined) {
@@ -285,14 +285,14 @@ export function createTransformFromCoordinateTransform(coordTransform) {
      * @return {Array<number>} Output.
      */
     function (input, opt_output, opt_dimension) {
-        var length = input.length;
-        var dimension = opt_dimension !== undefined ? opt_dimension : 2;
-        var output = opt_output !== undefined ? opt_output : new Array(length);
-        for (var i = 0; i < length; i += dimension) {
-            var point = coordTransform([input[i], input[i + 1]]);
+        const length = input.length;
+        const dimension = opt_dimension !== undefined ? opt_dimension : 2;
+        const output = opt_output !== undefined ? opt_output : new Array(length);
+        for (let i = 0; i < length; i += dimension) {
+            const point = coordTransform([input[i], input[i + 1]]);
             output[i] = point[0];
             output[i + 1] = point[1];
-            for (var j = dimension - 1; j >= 2; --j) {
+            for (let j = dimension - 1; j >= 2; --j) {
                 output[i + j] = input[i + j];
             }
         }
@@ -319,8 +319,8 @@ export function createTransformFromCoordinateTransform(coordTransform) {
  * @api
  */
 export function addCoordinateTransforms(source, destination, forward, inverse) {
-    var sourceProj = get(source);
-    var destProj = get(destination);
+    const sourceProj = get(source);
+    const destProj = get(destination);
     addTransformFunc(sourceProj, destProj, createTransformFromCoordinateTransform(forward));
     addTransformFunc(destProj, sourceProj, createTransformFromCoordinateTransform(inverse));
 }
@@ -346,8 +346,8 @@ export function fromLonLat(coordinate, opt_projection) {
  * @api
  */
 export function toLonLat(coordinate, opt_projection) {
-    var lonLat = transform(coordinate, opt_projection !== undefined ? opt_projection : 'EPSG:3857', 'EPSG:4326');
-    var lon = lonLat[0];
+    const lonLat = transform(coordinate, opt_projection !== undefined ? opt_projection : 'EPSG:3857', 'EPSG:4326');
+    const lon = lonLat[0];
     if (lon < -180 || lon > 180) {
         lonLat[0] = modulo(lon + 180, 360) - 180;
     }
@@ -367,12 +367,12 @@ export function equivalent(projection1, projection2) {
     if (projection1 === projection2) {
         return true;
     }
-    var equalUnits = projection1.getUnits() === projection2.getUnits();
+    const equalUnits = projection1.getUnits() === projection2.getUnits();
     if (projection1.getCode() === projection2.getCode()) {
         return equalUnits;
     }
     else {
-        var transformFunc = getTransformFromProjections(projection1, projection2);
+        const transformFunc = getTransformFromProjections(projection1, projection2);
         return transformFunc === cloneTransform && equalUnits;
     }
 }
@@ -386,9 +386,9 @@ export function equivalent(projection1, projection2) {
  * @return {TransformFunction} Transform function.
  */
 export function getTransformFromProjections(sourceProjection, destinationProjection) {
-    var sourceCode = sourceProjection.getCode();
-    var destinationCode = destinationProjection.getCode();
-    var transformFunc = getTransformFunc(sourceCode, destinationCode);
+    const sourceCode = sourceProjection.getCode();
+    const destinationCode = destinationProjection.getCode();
+    let transformFunc = getTransformFunc(sourceCode, destinationCode);
     if (!transformFunc) {
         transformFunc = identityTransform;
     }
@@ -405,8 +405,8 @@ export function getTransformFromProjections(sourceProjection, destinationProject
  * @api
  */
 export function getTransform(source, destination) {
-    var sourceProjection = get(source);
-    var destinationProjection = get(destination);
+    const sourceProjection = get(source);
+    const destinationProjection = get(destination);
     return getTransformFromProjections(sourceProjection, destinationProjection);
 }
 /**
@@ -424,7 +424,7 @@ export function getTransform(source, destination) {
  * @api
  */
 export function transform(coordinate, source, destination) {
-    var transformFunc = getTransform(source, destination);
+    const transformFunc = getTransform(source, destination);
     return transformFunc(coordinate, undefined, coordinate.length);
 }
 /**
@@ -440,7 +440,7 @@ export function transform(coordinate, source, destination) {
  * @api
  */
 export function transformExtent(extent, source, destination, opt_stops) {
-    var transformFunc = getTransform(source, destination);
+    const transformFunc = getTransform(source, destination);
     return applyTransform(extent, transformFunc, undefined, opt_stops);
 }
 /**
@@ -452,13 +452,13 @@ export function transformExtent(extent, source, destination, opt_stops) {
  * @return {import("./coordinate.js").Coordinate} Point.
  */
 export function transformWithProjections(point, sourceProjection, destinationProjection) {
-    var transformFunc = getTransformFromProjections(sourceProjection, destinationProjection);
+    const transformFunc = getTransformFromProjections(sourceProjection, destinationProjection);
     return transformFunc(point);
 }
 /**
  * @type {?Projection}
  */
-var userProjection = null;
+let userProjection = null;
 /**
  * Set the projection for coordinates supplied from and returned by API methods.
  * Note that this method is not yet a part of the stable API.  Support for user

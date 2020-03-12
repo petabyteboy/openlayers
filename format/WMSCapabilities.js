@@ -1,16 +1,3 @@
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 /**
  * @module ol/format/WMSCapabilities
  */
@@ -22,7 +9,7 @@ import { makeArrayPusher, makeObjectPropertyPusher, makeObjectPropertySetter, ma
  * @const
  * @type {Array<null|string>}
  */
-var NAMESPACE_URIS = [
+const NAMESPACE_URIS = [
     null,
     'http://www.opengis.net/wms'
 ];
@@ -31,7 +18,7 @@ var NAMESPACE_URIS = [
  * @type {Object<string, Object<string, import("../xml.js").Parser>>}
  */
 // @ts-ignore
-var PARSERS = makeStructureNS(NAMESPACE_URIS, {
+const PARSERS = makeStructureNS(NAMESPACE_URIS, {
     'Service': makeObjectPropertySetter(readService),
     'Capability': makeObjectPropertySetter(readCapability)
 });
@@ -40,7 +27,7 @@ var PARSERS = makeStructureNS(NAMESPACE_URIS, {
  * @type {Object<string, Object<string, import("../xml.js").Parser>>}
  */
 // @ts-ignore
-var CAPABILITY_PARSERS = makeStructureNS(NAMESPACE_URIS, {
+const CAPABILITY_PARSERS = makeStructureNS(NAMESPACE_URIS, {
     'Request': makeObjectPropertySetter(readRequest),
     'Exception': makeObjectPropertySetter(readException),
     'Layer': makeObjectPropertySetter(readCapabilityLayer)
@@ -51,45 +38,42 @@ var CAPABILITY_PARSERS = makeStructureNS(NAMESPACE_URIS, {
  *
  * @api
  */
-var WMSCapabilities = /** @class */ (function (_super) {
-    __extends(WMSCapabilities, _super);
-    function WMSCapabilities() {
-        var _this = _super.call(this) || this;
+class WMSCapabilities extends XML {
+    constructor() {
+        super();
         /**
          * @type {string|undefined}
          */
-        _this.version = undefined;
-        return _this;
+        this.version = undefined;
     }
     /**
      * @inheritDoc
      */
-    WMSCapabilities.prototype.readFromDocument = function (doc) {
-        for (var n = doc.firstChild; n; n = n.nextSibling) {
+    readFromDocument(doc) {
+        for (let n = doc.firstChild; n; n = n.nextSibling) {
             if (n.nodeType == Node.ELEMENT_NODE) {
                 return this.readFromNode(n);
             }
         }
         return null;
-    };
+    }
     /**
      * @inheritDoc
      */
-    WMSCapabilities.prototype.readFromNode = function (node) {
+    readFromNode(node) {
         this.version = node.getAttribute('version').trim();
-        var wmsCapabilityObject = pushParseAndPop({
+        const wmsCapabilityObject = pushParseAndPop({
             'version': this.version
         }, PARSERS, node, []);
         return wmsCapabilityObject ? wmsCapabilityObject : null;
-    };
-    return WMSCapabilities;
-}(XML));
+    }
+}
 /**
  * @const
  * @type {Object<string, Object<string, import("../xml.js").Parser>>}
  */
 // @ts-ignore
-var SERVICE_PARSERS = makeStructureNS(NAMESPACE_URIS, {
+const SERVICE_PARSERS = makeStructureNS(NAMESPACE_URIS, {
     'Name': makeObjectPropertySetter(readString),
     'Title': makeObjectPropertySetter(readString),
     'Abstract': makeObjectPropertySetter(readString),
@@ -107,7 +91,7 @@ var SERVICE_PARSERS = makeStructureNS(NAMESPACE_URIS, {
  * @type {Object<string, Object<string, import("../xml.js").Parser>>}
  */
 // @ts-ignore
-var CONTACT_INFORMATION_PARSERS = makeStructureNS(NAMESPACE_URIS, {
+const CONTACT_INFORMATION_PARSERS = makeStructureNS(NAMESPACE_URIS, {
     'ContactPersonPrimary': makeObjectPropertySetter(readContactPersonPrimary),
     'ContactPosition': makeObjectPropertySetter(readString),
     'ContactAddress': makeObjectPropertySetter(readContactAddress),
@@ -120,7 +104,7 @@ var CONTACT_INFORMATION_PARSERS = makeStructureNS(NAMESPACE_URIS, {
  * @type {Object<string, Object<string, import("../xml.js").Parser>>}
  */
 // @ts-ignore
-var CONTACT_PERSON_PARSERS = makeStructureNS(NAMESPACE_URIS, {
+const CONTACT_PERSON_PARSERS = makeStructureNS(NAMESPACE_URIS, {
     'ContactPerson': makeObjectPropertySetter(readString),
     'ContactOrganization': makeObjectPropertySetter(readString)
 });
@@ -129,7 +113,7 @@ var CONTACT_PERSON_PARSERS = makeStructureNS(NAMESPACE_URIS, {
  * @type {Object<string, Object<string, import("../xml.js").Parser>>}
  */
 // @ts-ignore
-var CONTACT_ADDRESS_PARSERS = makeStructureNS(NAMESPACE_URIS, {
+const CONTACT_ADDRESS_PARSERS = makeStructureNS(NAMESPACE_URIS, {
     'AddressType': makeObjectPropertySetter(readString),
     'Address': makeObjectPropertySetter(readString),
     'City': makeObjectPropertySetter(readString),
@@ -142,7 +126,7 @@ var CONTACT_ADDRESS_PARSERS = makeStructureNS(NAMESPACE_URIS, {
  * @type {Object<string, Object<string, import("../xml.js").Parser>>}
  */
 // @ts-ignore
-var EXCEPTION_PARSERS = makeStructureNS(NAMESPACE_URIS, {
+const EXCEPTION_PARSERS = makeStructureNS(NAMESPACE_URIS, {
     'Format': makeArrayPusher(readString)
 });
 /**
@@ -150,7 +134,7 @@ var EXCEPTION_PARSERS = makeStructureNS(NAMESPACE_URIS, {
  * @type {Object<string, Object<string, import("../xml.js").Parser>>}
  */
 // @ts-ignore
-var LAYER_PARSERS = makeStructureNS(NAMESPACE_URIS, {
+const LAYER_PARSERS = makeStructureNS(NAMESPACE_URIS, {
     'Name': makeObjectPropertySetter(readString),
     'Title': makeObjectPropertySetter(readString),
     'Abstract': makeObjectPropertySetter(readString),
@@ -175,7 +159,7 @@ var LAYER_PARSERS = makeStructureNS(NAMESPACE_URIS, {
  * @type {Object<string, Object<string, import("../xml.js").Parser>>}
  */
 // @ts-ignore
-var ATTRIBUTION_PARSERS = makeStructureNS(NAMESPACE_URIS, {
+const ATTRIBUTION_PARSERS = makeStructureNS(NAMESPACE_URIS, {
     'Title': makeObjectPropertySetter(readString),
     'OnlineResource': makeObjectPropertySetter(readHref),
     'LogoURL': makeObjectPropertySetter(readSizedFormatOnlineresource)
@@ -185,7 +169,7 @@ var ATTRIBUTION_PARSERS = makeStructureNS(NAMESPACE_URIS, {
  * @type {Object<string, Object<string, import("../xml.js").Parser>>}
  */
 // @ts-ignore
-var EX_GEOGRAPHIC_BOUNDING_BOX_PARSERS = makeStructureNS(NAMESPACE_URIS, {
+const EX_GEOGRAPHIC_BOUNDING_BOX_PARSERS = makeStructureNS(NAMESPACE_URIS, {
     'westBoundLongitude': makeObjectPropertySetter(readDecimal),
     'eastBoundLongitude': makeObjectPropertySetter(readDecimal),
     'southBoundLatitude': makeObjectPropertySetter(readDecimal),
@@ -196,7 +180,7 @@ var EX_GEOGRAPHIC_BOUNDING_BOX_PARSERS = makeStructureNS(NAMESPACE_URIS, {
  * @type {Object<string, Object<string, import("../xml.js").Parser>>}
  */
 // @ts-ignore
-var REQUEST_PARSERS = makeStructureNS(NAMESPACE_URIS, {
+const REQUEST_PARSERS = makeStructureNS(NAMESPACE_URIS, {
     'GetCapabilities': makeObjectPropertySetter(readOperationType),
     'GetMap': makeObjectPropertySetter(readOperationType),
     'GetFeatureInfo': makeObjectPropertySetter(readOperationType)
@@ -206,7 +190,7 @@ var REQUEST_PARSERS = makeStructureNS(NAMESPACE_URIS, {
  * @type {Object<string, Object<string, import("../xml.js").Parser>>}
  */
 // @ts-ignore
-var OPERATIONTYPE_PARSERS = makeStructureNS(NAMESPACE_URIS, {
+const OPERATIONTYPE_PARSERS = makeStructureNS(NAMESPACE_URIS, {
     'Format': makeObjectPropertyPusher(readString),
     'DCPType': makeObjectPropertyPusher(readDCPType)
 });
@@ -215,7 +199,7 @@ var OPERATIONTYPE_PARSERS = makeStructureNS(NAMESPACE_URIS, {
  * @type {Object<string, Object<string, import("../xml.js").Parser>>}
  */
 // @ts-ignore
-var DCPTYPE_PARSERS = makeStructureNS(NAMESPACE_URIS, {
+const DCPTYPE_PARSERS = makeStructureNS(NAMESPACE_URIS, {
     'HTTP': makeObjectPropertySetter(readHTTP)
 });
 /**
@@ -223,7 +207,7 @@ var DCPTYPE_PARSERS = makeStructureNS(NAMESPACE_URIS, {
  * @type {Object<string, Object<string, import("../xml.js").Parser>>}
  */
 // @ts-ignore
-var HTTP_PARSERS = makeStructureNS(NAMESPACE_URIS, {
+const HTTP_PARSERS = makeStructureNS(NAMESPACE_URIS, {
     'Get': makeObjectPropertySetter(readFormatOnlineresource),
     'Post': makeObjectPropertySetter(readFormatOnlineresource)
 });
@@ -232,7 +216,7 @@ var HTTP_PARSERS = makeStructureNS(NAMESPACE_URIS, {
  * @type {Object<string, Object<string, import("../xml.js").Parser>>}
  */
 // @ts-ignore
-var STYLE_PARSERS = makeStructureNS(NAMESPACE_URIS, {
+const STYLE_PARSERS = makeStructureNS(NAMESPACE_URIS, {
     'Name': makeObjectPropertySetter(readString),
     'Title': makeObjectPropertySetter(readString),
     'Abstract': makeObjectPropertySetter(readString),
@@ -245,7 +229,7 @@ var STYLE_PARSERS = makeStructureNS(NAMESPACE_URIS, {
  * @type {Object<string, Object<string, import("../xml.js").Parser>>}
  */
 // @ts-ignore
-var FORMAT_ONLINERESOURCE_PARSERS = makeStructureNS(NAMESPACE_URIS, {
+const FORMAT_ONLINERESOURCE_PARSERS = makeStructureNS(NAMESPACE_URIS, {
     'Format': makeObjectPropertySetter(readString),
     'OnlineResource': makeObjectPropertySetter(readHref)
 });
@@ -254,7 +238,7 @@ var FORMAT_ONLINERESOURCE_PARSERS = makeStructureNS(NAMESPACE_URIS, {
  * @type {Object<string, Object<string, import("../xml.js").Parser>>}
  */
 // @ts-ignore
-var KEYWORDLIST_PARSERS = makeStructureNS(NAMESPACE_URIS, {
+const KEYWORDLIST_PARSERS = makeStructureNS(NAMESPACE_URIS, {
     'Keyword': makeArrayPusher(readString)
 });
 /**
@@ -271,13 +255,13 @@ function readAttribution(node, objectStack) {
  * @return {Object} Bounding box object.
  */
 function readBoundingBox(node, objectStack) {
-    var extent = [
+    const extent = [
         readDecimalString(node.getAttribute('minx')),
         readDecimalString(node.getAttribute('miny')),
         readDecimalString(node.getAttribute('maxx')),
         readDecimalString(node.getAttribute('maxy'))
     ];
-    var resolutions = [
+    const resolutions = [
         readDecimalString(node.getAttribute('resx')),
         readDecimalString(node.getAttribute('resy'))
     ];
@@ -293,14 +277,14 @@ function readBoundingBox(node, objectStack) {
  * @return {import("../extent.js").Extent|undefined} Bounding box object.
  */
 function readEXGeographicBoundingBox(node, objectStack) {
-    var geographicBoundingBox = pushParseAndPop({}, EX_GEOGRAPHIC_BOUNDING_BOX_PARSERS, node, objectStack);
+    const geographicBoundingBox = pushParseAndPop({}, EX_GEOGRAPHIC_BOUNDING_BOX_PARSERS, node, objectStack);
     if (!geographicBoundingBox) {
         return undefined;
     }
-    var westBoundLongitude = /** @type {number|undefined} */ (geographicBoundingBox['westBoundLongitude']);
-    var southBoundLatitude = /** @type {number|undefined} */ (geographicBoundingBox['southBoundLatitude']);
-    var eastBoundLongitude = /** @type {number|undefined} */ (geographicBoundingBox['eastBoundLongitude']);
-    var northBoundLatitude = /** @type {number|undefined} */ (geographicBoundingBox['northBoundLatitude']);
+    const westBoundLongitude = /** @type {number|undefined} */ (geographicBoundingBox['westBoundLongitude']);
+    const southBoundLatitude = /** @type {number|undefined} */ (geographicBoundingBox['southBoundLatitude']);
+    const eastBoundLongitude = /** @type {number|undefined} */ (geographicBoundingBox['eastBoundLongitude']);
+    const northBoundLatitude = /** @type {number|undefined} */ (geographicBoundingBox['northBoundLatitude']);
     if (westBoundLongitude === undefined || southBoundLatitude === undefined ||
         eastBoundLongitude === undefined || northBoundLatitude === undefined) {
         return undefined;
@@ -372,54 +356,54 @@ function readCapabilityLayer(node, objectStack) {
  * @return {Object|undefined} Layer object.
  */
 function readLayer(node, objectStack) {
-    var parentLayerObject = /**  @type {!Object<string,*>} */ (objectStack[objectStack.length - 1]);
-    var layerObject = pushParseAndPop({}, LAYER_PARSERS, node, objectStack);
+    const parentLayerObject = /**  @type {!Object<string,*>} */ (objectStack[objectStack.length - 1]);
+    const layerObject = pushParseAndPop({}, LAYER_PARSERS, node, objectStack);
     if (!layerObject) {
         return undefined;
     }
-    var queryable = readBooleanString(node.getAttribute('queryable'));
+    let queryable = readBooleanString(node.getAttribute('queryable'));
     if (queryable === undefined) {
         queryable = parentLayerObject['queryable'];
     }
     layerObject['queryable'] = queryable !== undefined ? queryable : false;
-    var cascaded = readNonNegativeIntegerString(node.getAttribute('cascaded'));
+    let cascaded = readNonNegativeIntegerString(node.getAttribute('cascaded'));
     if (cascaded === undefined) {
         cascaded = parentLayerObject['cascaded'];
     }
     layerObject['cascaded'] = cascaded;
-    var opaque = readBooleanString(node.getAttribute('opaque'));
+    let opaque = readBooleanString(node.getAttribute('opaque'));
     if (opaque === undefined) {
         opaque = parentLayerObject['opaque'];
     }
     layerObject['opaque'] = opaque !== undefined ? opaque : false;
-    var noSubsets = readBooleanString(node.getAttribute('noSubsets'));
+    let noSubsets = readBooleanString(node.getAttribute('noSubsets'));
     if (noSubsets === undefined) {
         noSubsets = parentLayerObject['noSubsets'];
     }
     layerObject['noSubsets'] = noSubsets !== undefined ? noSubsets : false;
-    var fixedWidth = readDecimalString(node.getAttribute('fixedWidth'));
+    let fixedWidth = readDecimalString(node.getAttribute('fixedWidth'));
     if (!fixedWidth) {
         fixedWidth = parentLayerObject['fixedWidth'];
     }
     layerObject['fixedWidth'] = fixedWidth;
-    var fixedHeight = readDecimalString(node.getAttribute('fixedHeight'));
+    let fixedHeight = readDecimalString(node.getAttribute('fixedHeight'));
     if (!fixedHeight) {
         fixedHeight = parentLayerObject['fixedHeight'];
     }
     layerObject['fixedHeight'] = fixedHeight;
     // See 7.2.4.8
-    var addKeys = ['Style', 'CRS', 'AuthorityURL'];
+    const addKeys = ['Style', 'CRS', 'AuthorityURL'];
     addKeys.forEach(function (key) {
         if (key in parentLayerObject) {
-            var childValue = layerObject[key] || [];
+            const childValue = layerObject[key] || [];
             layerObject[key] = childValue.concat(parentLayerObject[key]);
         }
     });
-    var replaceKeys = ['EX_GeographicBoundingBox', 'BoundingBox', 'Dimension',
+    const replaceKeys = ['EX_GeographicBoundingBox', 'BoundingBox', 'Dimension',
         'Attribution', 'MinScaleDenominator', 'MaxScaleDenominator'];
     replaceKeys.forEach(function (key) {
         if (!(key in layerObject)) {
-            var parentValue = parentLayerObject[key];
+            const parentValue = parentLayerObject[key];
             layerObject[key] = parentValue;
         }
     });
@@ -431,7 +415,7 @@ function readLayer(node, objectStack) {
  * @return {Object} Dimension object.
  */
 function readDimension(node, objectStack) {
-    var dimensionObject = {
+    const dimensionObject = {
         'name': node.getAttribute('name'),
         'units': node.getAttribute('units'),
         'unitSymbol': node.getAttribute('unitSymbol'),
@@ -489,9 +473,9 @@ function readOperationType(node, objectStack) {
  * @return {Object|undefined} Online resource object.
  */
 function readSizedFormatOnlineresource(node, objectStack) {
-    var formatOnlineresource = readFormatOnlineresource(node, objectStack);
+    const formatOnlineresource = readFormatOnlineresource(node, objectStack);
     if (formatOnlineresource) {
-        var size = [
+        const size = [
             readNonNegativeIntegerString(node.getAttribute('width')),
             readNonNegativeIntegerString(node.getAttribute('height'))
         ];
@@ -506,7 +490,7 @@ function readSizedFormatOnlineresource(node, objectStack) {
  * @return {Object|undefined} Authority URL object.
  */
 function readAuthorityURL(node, objectStack) {
-    var authorityObject = readFormatOnlineresource(node, objectStack);
+    const authorityObject = readFormatOnlineresource(node, objectStack);
     if (authorityObject) {
         authorityObject['name'] = node.getAttribute('name');
         return authorityObject;
@@ -519,7 +503,7 @@ function readAuthorityURL(node, objectStack) {
  * @return {Object|undefined} Metadata URL object.
  */
 function readMetadataURL(node, objectStack) {
-    var metadataObject = readFormatOnlineresource(node, objectStack);
+    const metadataObject = readFormatOnlineresource(node, objectStack);
     if (metadataObject) {
         metadataObject['type'] = node.getAttribute('type');
         return metadataObject;

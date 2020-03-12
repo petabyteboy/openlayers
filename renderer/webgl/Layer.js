@@ -1,16 +1,3 @@
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 /**
  * @module ol/renderer/webgl/Layer
  */
@@ -19,7 +6,7 @@ import WebGLHelper from '../../webgl/Helper.js';
 /**
  * @enum {string}
  */
-export var WebGLWorkerMessageType = {
+export const WebGLWorkerMessageType = {
     GENERATE_BUFFERS: 'GENERATE_BUFFERS'
 };
 /**
@@ -53,44 +40,41 @@ export var WebGLWorkerMessageType = {
  * Holds all logic related to data manipulation & some common rendering logic
  * @template {import("../../layer/Layer.js").default} LayerType
  */
-var WebGLLayerRenderer = /** @class */ (function (_super) {
-    __extends(WebGLLayerRenderer, _super);
+class WebGLLayerRenderer extends LayerRenderer {
     /**
      * @param {LayerType} layer Layer.
      * @param {Options=} [opt_options] Options.
      */
-    function WebGLLayerRenderer(layer, opt_options) {
-        var _this = _super.call(this, layer) || this;
-        var options = opt_options || {};
+    constructor(layer, opt_options) {
+        super(layer);
+        const options = opt_options || {};
         /**
          * @type {WebGLHelper}
          * @protected
          */
-        _this.helper = new WebGLHelper({
+        this.helper = new WebGLHelper({
             postProcesses: options.postProcesses,
             uniforms: options.uniforms
         });
-        return _this;
     }
     /**
      * @inheritDoc
      */
-    WebGLLayerRenderer.prototype.disposeInternal = function () {
+    disposeInternal() {
         this.helper.dispose();
-        _super.prototype.disposeInternal.call(this);
-    };
+        super.disposeInternal();
+    }
     /**
      * Will return the last shader compilation errors. If no error happened, will return null;
      * @return {string|null} Errors, or null if last compilation was successful
      * @api
      */
-    WebGLLayerRenderer.prototype.getShaderCompileErrors = function () {
+    getShaderCompileErrors() {
         return this.helper.getShaderCompileErrors();
-    };
-    return WebGLLayerRenderer;
-}(LayerRenderer));
-var tmpArray_ = [];
-var bufferPositions_ = { vertexPosition: 0, indexPosition: 0 };
+    }
+}
+const tmpArray_ = [];
+const bufferPositions_ = { vertexPosition: 0, indexPosition: 0 };
 function writePointVertex(buffer, pos, x, y, index) {
     buffer[pos + 0] = x;
     buffer[pos + 1] = y;
@@ -117,20 +101,20 @@ function writePointVertex(buffer, pos, x, y, index) {
  */
 export function writePointFeatureToBuffers(instructions, elementIndex, vertexBuffer, indexBuffer, customAttributesCount, bufferPositions) {
     // This is for x, y and index
-    var baseVertexAttrsCount = 3;
-    var baseInstructionsCount = 2;
-    var stride = baseVertexAttrsCount + customAttributesCount;
-    var x = instructions[elementIndex + 0];
-    var y = instructions[elementIndex + 1];
+    const baseVertexAttrsCount = 3;
+    const baseInstructionsCount = 2;
+    const stride = baseVertexAttrsCount + customAttributesCount;
+    const x = instructions[elementIndex + 0];
+    const y = instructions[elementIndex + 1];
     // read custom numerical attributes on the feature
-    var customAttrs = tmpArray_;
+    const customAttrs = tmpArray_;
     customAttrs.length = customAttributesCount;
-    for (var i = 0; i < customAttrs.length; i++) {
+    for (let i = 0; i < customAttrs.length; i++) {
         customAttrs[i] = instructions[elementIndex + baseInstructionsCount + i];
     }
-    var vPos = bufferPositions ? bufferPositions.vertexPosition : 0;
-    var iPos = bufferPositions ? bufferPositions.indexPosition : 0;
-    var baseIndex = vPos / stride;
+    let vPos = bufferPositions ? bufferPositions.vertexPosition : 0;
+    let iPos = bufferPositions ? bufferPositions.indexPosition : 0;
+    const baseIndex = vPos / stride;
     // push vertices for each of the four quad corners (first standard then custom attributes)
     writePointVertex(vertexBuffer, vPos, x, y, 0);
     customAttrs.length && vertexBuffer.set(customAttrs, vPos + baseVertexAttrsCount);
@@ -160,8 +144,8 @@ export function writePointFeatureToBuffers(instructions, elementIndex, vertexBuf
  * @return {ImageData} Image data.
  */
 export function getBlankImageData() {
-    var canvas = document.createElement('canvas');
-    var image = canvas.getContext('2d').createImageData(1, 1);
+    const canvas = document.createElement('canvas');
+    const image = canvas.getContext('2d').createImageData(1, 1);
     image.data[0] = 255;
     image.data[1] = 255;
     image.data[2] = 255;
@@ -176,9 +160,9 @@ export function getBlankImageData() {
  * @return {Array<number>} Color array containing the encoded id
  */
 export function colorEncodeId(id, opt_array) {
-    var array = opt_array || [];
-    var radix = 256;
-    var divide = radix - 1;
+    const array = opt_array || [];
+    const radix = 256;
+    const divide = radix - 1;
     array[0] = Math.floor(id / radix / radix / radix) / divide;
     array[1] = (Math.floor(id / radix / radix) % radix) / divide;
     array[2] = (Math.floor(id / radix) % radix) / divide;
@@ -192,9 +176,9 @@ export function colorEncodeId(id, opt_array) {
  * @return {number} Decoded id
  */
 export function colorDecodeId(color) {
-    var id = 0;
-    var radix = 256;
-    var mult = radix - 1;
+    let id = 0;
+    const radix = 256;
+    const mult = radix - 1;
     id += Math.round(color[0] * radix * radix * radix * mult);
     id += Math.round(color[1] * radix * radix * mult);
     id += Math.round(color[2] * radix * mult);

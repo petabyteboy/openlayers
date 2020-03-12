@@ -6,7 +6,7 @@
  * `'us-ft'`.
  * @enum {string}
  */
-var Units = {
+const Units = {
     DEGREES: 'degrees',
     FEET: 'ft',
     METERS: 'm',
@@ -20,7 +20,7 @@ var Units = {
  * @type {Object<Units, number>}
  * @api
  */
-export var METERS_PER_UNIT = {};
+export const METERS_PER_UNIT = {};
 // use the radius of the Normal sphere
 METERS_PER_UNIT[Units.DEGREES] = 2 * Math.PI * 6370997 / 360;
 METERS_PER_UNIT[Units.FEET] = 0.3048;

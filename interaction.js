@@ -80,15 +80,15 @@ export { default as Translate } from './interaction/Translate.js';
  * @api
  */
 export function defaults(opt_options) {
-    var options = opt_options ? opt_options : {};
-    var interactions = new Collection();
-    var kinetic = new Kinetic(-0.005, 0.05, 100);
-    var altShiftDragRotate = options.altShiftDragRotate !== undefined ?
+    const options = opt_options ? opt_options : {};
+    const interactions = new Collection();
+    const kinetic = new Kinetic(-0.005, 0.05, 100);
+    const altShiftDragRotate = options.altShiftDragRotate !== undefined ?
         options.altShiftDragRotate : true;
     if (altShiftDragRotate) {
         interactions.push(new DragRotate());
     }
-    var doubleClickZoom = options.doubleClickZoom !== undefined ?
+    const doubleClickZoom = options.doubleClickZoom !== undefined ?
         options.doubleClickZoom : true;
     if (doubleClickZoom) {
         interactions.push(new DoubleClickZoom({
@@ -96,25 +96,25 @@ export function defaults(opt_options) {
             duration: options.zoomDuration
         }));
     }
-    var dragPan = options.dragPan !== undefined ? options.dragPan : true;
+    const dragPan = options.dragPan !== undefined ? options.dragPan : true;
     if (dragPan) {
         interactions.push(new DragPan({
             condition: options.onFocusOnly ? focus : undefined,
             kinetic: kinetic
         }));
     }
-    var pinchRotate = options.pinchRotate !== undefined ? options.pinchRotate :
+    const pinchRotate = options.pinchRotate !== undefined ? options.pinchRotate :
         true;
     if (pinchRotate) {
         interactions.push(new PinchRotate());
     }
-    var pinchZoom = options.pinchZoom !== undefined ? options.pinchZoom : true;
+    const pinchZoom = options.pinchZoom !== undefined ? options.pinchZoom : true;
     if (pinchZoom) {
         interactions.push(new PinchZoom({
             duration: options.zoomDuration
         }));
     }
-    var keyboard = options.keyboard !== undefined ? options.keyboard : true;
+    const keyboard = options.keyboard !== undefined ? options.keyboard : true;
     if (keyboard) {
         interactions.push(new KeyboardPan());
         interactions.push(new KeyboardZoom({
@@ -122,7 +122,7 @@ export function defaults(opt_options) {
             duration: options.zoomDuration
         }));
     }
-    var mouseWheelZoom = options.mouseWheelZoom !== undefined ?
+    const mouseWheelZoom = options.mouseWheelZoom !== undefined ?
         options.mouseWheelZoom : true;
     if (mouseWheelZoom) {
         interactions.push(new MouseWheelZoom({
@@ -130,7 +130,7 @@ export function defaults(opt_options) {
             duration: options.zoomDuration
         }));
     }
-    var shiftDragZoom = options.shiftDragZoom !== undefined ?
+    const shiftDragZoom = options.shiftDragZoom !== undefined ?
         options.shiftDragZoom : true;
     if (shiftDragZoom) {
         interactions.push(new DragZoom({

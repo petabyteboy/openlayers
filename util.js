@@ -14,7 +14,7 @@ export function abstract() {
  * @type {number}
  * @private
  */
-var uidCounter_ = 0;
+let uidCounter_ = 0;
 /**
  * Gets a unique ID for an object. This mutates the object so that further calls
  * with the same object as a parameter returns the same value. Unique IDs are generated
@@ -31,5 +31,5 @@ export function getUid(obj) {
  * OpenLayers version.
  * @type {string}
  */
-export var VERSION = '6.2.2';
+export const VERSION = 'latest';
 //# sourceMappingURL=util.js.map

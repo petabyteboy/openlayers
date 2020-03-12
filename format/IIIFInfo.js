@@ -1,13 +1,6 @@
 /**
  * @module ol/format/IIIFInfo
  */
-var __spreadArrays = (this && this.__spreadArrays) || function () {
-    for (var s = 0, i = 0, il = arguments.length; i < il; i++) s += arguments[i].length;
-    for (var r = Array(s), k = 0, i = 0; i < il; i++)
-        for (var a = arguments[i], j = 0, jl = a.length; j < jl; j++, k++)
-            r[k] = a[j];
-    return r;
-};
 import { assert } from '../asserts.js';
 /**
  * @typedef {Object} PreferredOptions
@@ -47,7 +40,7 @@ import { assert } from '../asserts.js';
  * Enum representing the major IIIF Image API versions
  * @enum {string}
  */
-var Versions = {
+const Versions = {
     VERSION1: 'version1',
     VERSION2: 'version2',
     VERSION3: 'version3'
@@ -58,7 +51,7 @@ var Versions = {
  * @const
  * @type {Object<string, Object<string, SupportedFeatures>>}
  */
-var IIIF_PROFILE_VALUES = {};
+const IIIF_PROFILE_VALUES = {};
 IIIF_PROFILE_VALUES[Versions.VERSION1] = {
     'level0': {
         supports: [],
@@ -120,11 +113,11 @@ IIIF_PROFILE_VALUES['none'] = {
         qualities: []
     }
 };
-var COMPLIANCE_VERSION1 = new RegExp('^https?\:\/\/library\.stanford\.edu\/iiif\/image-api\/(1\.1\/)?compliance\.html#level[0-2]$');
-var COMPLIANCE_VERSION2 = new RegExp('^https?\:\/\/iiif\.io\/api\/image\/2\/level[0-2](\.json)?$');
-var COMPLIANCE_VERSION3 = new RegExp('(^https?\:\/\/iiif\.io\/api\/image\/3\/level[0-2](\.json)?$)|(^level[0-2]$)');
+const COMPLIANCE_VERSION1 = new RegExp('^https?\:\/\/library\.stanford\.edu\/iiif\/image-api\/(1\.1\/)?compliance\.html#level[0-2]$');
+const COMPLIANCE_VERSION2 = new RegExp('^https?\:\/\/iiif\.io\/api\/image\/2\/level[0-2](\.json)?$');
+const COMPLIANCE_VERSION3 = new RegExp('(^https?\:\/\/iiif\.io\/api\/image\/3\/level[0-2](\.json)?$)|(^level[0-2]$)');
 function generateVersion1Options(iiifInfo) {
-    var levelProfile = iiifInfo.getComplianceLevelSupportedFeatures();
+    let levelProfile = iiifInfo.getComplianceLevelSupportedFeatures();
     // Version 1.0 and 1.1 do not require a profile.
     if (levelProfile === undefined) {
         levelProfile = IIIF_PROFILE_VALUES[Versions.VERSION1]['level0'];
@@ -132,10 +125,12 @@ function generateVersion1Options(iiifInfo) {
     return {
         url: iiifInfo.imageInfo['@id'] === undefined ? undefined : iiifInfo.imageInfo['@id'].replace(/\/?(info.json)?$/g, ''),
         supports: levelProfile.supports,
-        formats: __spreadArrays(levelProfile.formats, [iiifInfo.imageInfo.formats === undefined ?
-                [] : iiifInfo.imageInfo.formats]),
-        qualities: __spreadArrays(levelProfile.qualities, [iiifInfo.imageInfo.qualities === undefined ?
-                [] : iiifInfo.imageInfo.qualities]),
+        formats: [...levelProfile.formats, iiifInfo.imageInfo.formats === undefined ?
+                [] : iiifInfo.imageInfo.formats
+        ],
+        qualities: [...levelProfile.qualities, iiifInfo.imageInfo.qualities === undefined ?
+                [] : iiifInfo.imageInfo.qualities
+        ],
         resolutions: iiifInfo.imageInfo.scale_factors,
         tileSize: iiifInfo.imageInfo.tile_width !== undefined ? (iiifInfo.imageInfo.tile_height !== undefined ?
             [iiifInfo.imageInfo.tile_width, iiifInfo.imageInfo.tile_height] : [iiifInfo.imageInfo.tile_width, iiifInfo.imageInfo.tile_width]) :
@@ -143,7 +138,7 @@ function generateVersion1Options(iiifInfo) {
     };
 }
 function generateVersion2Options(iiifInfo) {
-    var levelProfile = iiifInfo.getComplianceLevelSupportedFeatures(), additionalProfile = Array.isArray(iiifInfo.imageInfo.profile) && iiifInfo.imageInfo.profile.length > 1, profileSupports = additionalProfile && iiifInfo.imageInfo.profile[1].supports ? iiifInfo.imageInfo.profile[1].supports : [], profileFormats = additionalProfile && iiifInfo.imageInfo.profile[1].formats ? iiifInfo.imageInfo.profile[1].formats : [], profileQualities = additionalProfile && iiifInfo.imageInfo.profile[1].qualities ? iiifInfo.imageInfo.profile[1].qualities : [];
+    const levelProfile = iiifInfo.getComplianceLevelSupportedFeatures(), additionalProfile = Array.isArray(iiifInfo.imageInfo.profile) && iiifInfo.imageInfo.profile.length > 1, profileSupports = additionalProfile && iiifInfo.imageInfo.profile[1].supports ? iiifInfo.imageInfo.profile[1].supports : [], profileFormats = additionalProfile && iiifInfo.imageInfo.profile[1].formats ? iiifInfo.imageInfo.profile[1].formats : [], profileQualities = additionalProfile && iiifInfo.imageInfo.profile[1].qualities ? iiifInfo.imageInfo.profile[1].qualities : [];
     return {
         url: iiifInfo.imageInfo['@id'].replace(/\/?(info.json)?$/g, ''),
         sizes: iiifInfo.imageInfo.sizes === undefined ? undefined : iiifInfo.imageInfo.sizes.map(function (size) {
@@ -161,13 +156,14 @@ function generateVersion2Options(iiifInfo) {
             iiifInfo.imageInfo.tiles.map(function (tile) {
                 return tile.scaleFactors;
             })[0],
-        supports: __spreadArrays(levelProfile.supports, profileSupports),
-        formats: __spreadArrays(levelProfile.formats, profileFormats),
-        qualities: __spreadArrays(levelProfile.qualities, profileQualities)
+        supports: [...levelProfile.supports, ...profileSupports],
+        formats: [...levelProfile.formats, ...profileFormats],
+        qualities: [...levelProfile.qualities, ...profileQualities]
     };
 }
 function generateVersion3Options(iiifInfo) {
-    var levelProfile = iiifInfo.getComplianceLevelSupportedFeatures(), formats = iiifInfo.imageInfo.extraFormats === undefined ? levelProfile.formats : __spreadArrays(levelProfile.formats, iiifInfo.imageInfo.extraFormats), preferredFormat = iiifInfo.imageInfo.preferredFormats !== undefined && Array.isArray(iiifInfo.imageInfo.preferredFormats) &&
+    const levelProfile = iiifInfo.getComplianceLevelSupportedFeatures(), formats = iiifInfo.imageInfo.extraFormats === undefined ? levelProfile.formats :
+        [...levelProfile.formats, ...iiifInfo.imageInfo.extraFormats], preferredFormat = iiifInfo.imageInfo.preferredFormats !== undefined && Array.isArray(iiifInfo.imageInfo.preferredFormats) &&
         iiifInfo.imageInfo.preferredFormats.length > 0 ?
         iiifInfo.imageInfo.preferredFormats.filter(function (format) {
             return ['jpg', 'png', 'gif'].includes(format);
@@ -191,13 +187,15 @@ function generateVersion3Options(iiifInfo) {
             iiifInfo.imageInfo.tiles.map(function (tile) {
                 return tile.scaleFactors;
             })[0],
-        supports: iiifInfo.imageInfo.extraFeatures === undefined ? levelProfile.supports : __spreadArrays(levelProfile.supports, iiifInfo.imageInfo.extraFeatures),
+        supports: iiifInfo.imageInfo.extraFeatures === undefined ? levelProfile.supports :
+            [...levelProfile.supports, ...iiifInfo.imageInfo.extraFeatures],
         formats: formats,
-        qualities: iiifInfo.imageInfo.extraQualities === undefined ? levelProfile.qualities : __spreadArrays(levelProfile.qualities, iiifInfo.imageInfo.extraQualities),
+        qualities: iiifInfo.imageInfo.extraQualities === undefined ? levelProfile.qualities :
+            [...levelProfile.qualities, ...iiifInfo.imageInfo.extraQualities],
         preferredFormat: preferredFormat
     };
 }
-var versionFunctions = {};
+const versionFunctions = {};
 versionFunctions[Versions.VERSION1] = generateVersion1Options;
 versionFunctions[Versions.VERSION2] = generateVersion2Options;
 versionFunctions[Versions.VERSION3] = generateVersion3Options;
@@ -208,12 +206,12 @@ versionFunctions[Versions.VERSION3] = generateVersion3Options;
  *
  * @api
  */
-var IIIFInfo = /** @class */ (function () {
+class IIIFInfo {
     /**
      * @param {string|ImageInformationResponse} imageInfo
      * Deserialized image information JSON response object or JSON response as string
      */
-    function IIIFInfo(imageInfo) {
+    constructor(imageInfo) {
         this.setImageInfo(imageInfo);
     }
     /**
@@ -221,27 +219,27 @@ var IIIFInfo = /** @class */ (function () {
      * Deserialized image information JSON response object or JSON response as string
      * @api
      */
-    IIIFInfo.prototype.setImageInfo = function (imageInfo) {
+    setImageInfo(imageInfo) {
         if (typeof imageInfo == 'string') {
             this.imageInfo = JSON.parse(imageInfo);
         }
         else {
             this.imageInfo = imageInfo;
         }
-    };
+    }
     /**
      * @returns {Versions} Major IIIF version.
      * @api
      */
-    IIIFInfo.prototype.getImageApiVersion = function () {
+    getImageApiVersion() {
         if (this.imageInfo === undefined) {
             return;
         }
-        var context = this.imageInfo['@context'] || 'ol-no-context';
+        let context = this.imageInfo['@context'] || 'ol-no-context';
         if (typeof context == 'string') {
             context = [context];
         }
-        for (var i = 0; i < context.length; i++) {
+        for (let i = 0; i < context.length; i++) {
             switch (context[i]) {
                 case 'http://library.stanford.edu/iiif/image-api/1.1/context.json':
                 case 'http://iiif.io/api/image/1/context.json':
@@ -260,13 +258,13 @@ var IIIFInfo = /** @class */ (function () {
             }
         }
         assert(false, 61);
-    };
+    }
     /**
      * @param {Versions} version Optional IIIF image API version
      * @returns {string} Compliance level as it appears in the IIIF image information
      * response.
      */
-    IIIFInfo.prototype.getComplianceLevelEntryFromProfile = function (version) {
+    getComplianceLevelEntryFromProfile(version) {
         if (this.imageInfo === undefined || this.imageInfo.profile === undefined) {
             return;
         }
@@ -295,45 +293,45 @@ var IIIFInfo = /** @class */ (function () {
                 break;
             default:
         }
-    };
+    }
     /**
      * @param {Versions} version Optional IIIF image API version
      * @returns {string} Compliance level, on of 'level0', 'level1' or 'level2' or undefined
      */
-    IIIFInfo.prototype.getComplianceLevelFromProfile = function (version) {
-        var complianceLevel = this.getComplianceLevelEntryFromProfile(version);
+    getComplianceLevelFromProfile(version) {
+        const complianceLevel = this.getComplianceLevelEntryFromProfile(version);
         if (complianceLevel === undefined) {
             return undefined;
         }
-        var level = complianceLevel.match(/level[0-2](\.json)?$/g);
+        const level = complianceLevel.match(/level[0-2](\.json)?$/g);
         return Array.isArray(level) ? level[0].replace('.json', '') : undefined;
-    };
+    }
     /**
      * @returns {SupportedFeatures} Image formats, qualities and region / size calculation
      * methods that are supported by the IIIF service.
      */
-    IIIFInfo.prototype.getComplianceLevelSupportedFeatures = function () {
+    getComplianceLevelSupportedFeatures() {
         if (this.imageInfo === undefined) {
             return;
         }
-        var version = this.getImageApiVersion();
-        var level = this.getComplianceLevelFromProfile(version);
+        const version = this.getImageApiVersion();
+        const level = this.getComplianceLevelFromProfile(version);
         if (level === undefined) {
             return IIIF_PROFILE_VALUES['none']['none'];
         }
         return IIIF_PROFILE_VALUES[version][level];
-    };
+    }
     /**
      * @param {PreferredOptions=} opt_preferredOptions Optional options for preferred format and quality.
      * @returns {import("../source/IIIF.js").Options} IIIF tile source ready constructor options.
      * @api
      */
-    IIIFInfo.prototype.getTileSourceOptions = function (opt_preferredOptions) {
-        var options = opt_preferredOptions || {}, version = this.getImageApiVersion();
+    getTileSourceOptions(opt_preferredOptions) {
+        const options = opt_preferredOptions || {}, version = this.getImageApiVersion();
         if (version === undefined) {
             return;
         }
-        var imageOptions = version === undefined ? undefined : versionFunctions[version](this);
+        const imageOptions = version === undefined ? undefined : versionFunctions[version](this);
         if (imageOptions === undefined) {
             return;
         }
@@ -352,9 +350,8 @@ var IIIFInfo = /** @class */ (function () {
             }) : undefined,
             tileSize: imageOptions.tileSize
         };
-    };
-    return IIIFInfo;
-}());
+    }
+}
 export default IIIFInfo;
 export { Versions };
 //# sourceMappingURL=IIIFInfo.js.map

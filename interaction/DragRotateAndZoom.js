@@ -1,16 +1,3 @@
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 /**
  * @module ol/interaction/DragRotateAndZoom
  */
@@ -35,59 +22,56 @@ import PointerInteraction from './Pointer.js';
  * And this interaction is not included in the default interactions.
  * @api
  */
-var DragRotateAndZoom = /** @class */ (function (_super) {
-    __extends(DragRotateAndZoom, _super);
+class DragRotateAndZoom extends PointerInteraction {
     /**
      * @param {Options=} opt_options Options.
      */
-    function DragRotateAndZoom(opt_options) {
-        var _this = this;
-        var options = opt_options ? opt_options : {};
-        _this = _super.call(this, /** @type {import("./Pointer.js").Options} */ (options)) || this;
+    constructor(opt_options) {
+        const options = opt_options ? opt_options : {};
+        super(/** @type {import("./Pointer.js").Options} */ (options));
         /**
          * @private
          * @type {import("../events/condition.js").Condition}
          */
-        _this.condition_ = options.condition ? options.condition : shiftKeyOnly;
+        this.condition_ = options.condition ? options.condition : shiftKeyOnly;
         /**
          * @private
          * @type {number|undefined}
          */
-        _this.lastAngle_ = undefined;
+        this.lastAngle_ = undefined;
         /**
          * @private
          * @type {number|undefined}
          */
-        _this.lastMagnitude_ = undefined;
+        this.lastMagnitude_ = undefined;
         /**
          * @private
          * @type {number}
          */
-        _this.lastScaleDelta_ = 0;
+        this.lastScaleDelta_ = 0;
         /**
          * @private
          * @type {number}
          */
-        _this.duration_ = options.duration !== undefined ? options.duration : 400;
-        return _this;
+        this.duration_ = options.duration !== undefined ? options.duration : 400;
     }
     /**
      * @inheritDoc
      */
-    DragRotateAndZoom.prototype.handleDragEvent = function (mapBrowserEvent) {
+    handleDragEvent(mapBrowserEvent) {
         if (!mouseOnly(mapBrowserEvent)) {
             return;
         }
-        var map = mapBrowserEvent.map;
-        var size = map.getSize();
-        var offset = mapBrowserEvent.pixel;
-        var deltaX = offset[0] - size[0] / 2;
-        var deltaY = size[1] / 2 - offset[1];
-        var theta = Math.atan2(deltaY, deltaX);
-        var magnitude = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-        var view = map.getView();
+        const map = mapBrowserEvent.map;
+        const size = map.getSize();
+        const offset = mapBrowserEvent.pixel;
+        const deltaX = offset[0] - size[0] / 2;
+        const deltaY = size[1] / 2 - offset[1];
+        const theta = Math.atan2(deltaY, deltaX);
+        const magnitude = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+        const view = map.getView();
         if (this.lastAngle_ !== undefined) {
-            var angleDelta = this.lastAngle_ - theta;
+            const angleDelta = this.lastAngle_ - theta;
             view.adjustRotationInternal(angleDelta);
         }
         this.lastAngle_ = theta;
@@ -98,25 +82,25 @@ var DragRotateAndZoom = /** @class */ (function (_super) {
             this.lastScaleDelta_ = this.lastMagnitude_ / magnitude;
         }
         this.lastMagnitude_ = magnitude;
-    };
+    }
     /**
      * @inheritDoc
      */
-    DragRotateAndZoom.prototype.handleUpEvent = function (mapBrowserEvent) {
+    handleUpEvent(mapBrowserEvent) {
         if (!mouseOnly(mapBrowserEvent)) {
             return true;
         }
-        var map = mapBrowserEvent.map;
-        var view = map.getView();
-        var direction = this.lastScaleDelta_ > 1 ? 1 : -1;
+        const map = mapBrowserEvent.map;
+        const view = map.getView();
+        const direction = this.lastScaleDelta_ > 1 ? 1 : -1;
         view.endInteraction(this.duration_, direction);
         this.lastScaleDelta_ = 0;
         return false;
-    };
+    }
     /**
      * @inheritDoc
      */
-    DragRotateAndZoom.prototype.handleDownEvent = function (mapBrowserEvent) {
+    handleDownEvent(mapBrowserEvent) {
         if (!mouseOnly(mapBrowserEvent)) {
             return false;
         }
@@ -129,8 +113,7 @@ var DragRotateAndZoom = /** @class */ (function (_super) {
         else {
             return false;
         }
-    };
-    return DragRotateAndZoom;
-}(PointerInteraction));
+    }
+}
 export default DragRotateAndZoom;
 //# sourceMappingURL=DragRotateAndZoom.js.map

@@ -13,7 +13,7 @@ import { forEach as forEachSegment } from './segments.js';
  * @return {boolean} True if the geometry and the extent intersect.
  */
 export function intersectsLineString(flatCoordinates, offset, end, stride, extent) {
-    var coordinatesExtent = extendFlatCoordinates(createEmpty(), flatCoordinates, offset, end, stride);
+    const coordinatesExtent = extendFlatCoordinates(createEmpty(), flatCoordinates, offset, end, stride);
     if (!intersects(extent, coordinatesExtent)) {
         return false;
     }
@@ -48,7 +48,7 @@ export function intersectsLineString(flatCoordinates, offset, end, stride, exten
  * @return {boolean} True if the geometry and the extent intersect.
  */
 export function intersectsLineStringArray(flatCoordinates, offset, ends, stride, extent) {
-    for (var i = 0, ii = ends.length; i < ii; ++i) {
+    for (let i = 0, ii = ends.length; i < ii; ++i) {
         if (intersectsLineString(flatCoordinates, offset, ends[i], stride, extent)) {
             return true;
         }
@@ -97,7 +97,7 @@ export function intersectsLinearRingArray(flatCoordinates, offset, ends, stride,
     if (ends.length === 1) {
         return true;
     }
-    for (var i = 1, ii = ends.length; i < ii; ++i) {
+    for (let i = 1, ii = ends.length; i < ii; ++i) {
         if (linearRingContainsExtent(flatCoordinates, ends[i - 1], ends[i], stride, extent)) {
             if (!intersectsLineString(flatCoordinates, ends[i - 1], ends[i], stride, extent)) {
                 return false;
@@ -115,8 +115,8 @@ export function intersectsLinearRingArray(flatCoordinates, offset, ends, stride,
  * @return {boolean} True if the geometry and the extent intersect.
  */
 export function intersectsLinearRingMultiArray(flatCoordinates, offset, endss, stride, extent) {
-    for (var i = 0, ii = endss.length; i < ii; ++i) {
-        var ends = endss[i];
+    for (let i = 0, ii = endss.length; i < ii; ++i) {
+        const ends = endss[i];
         if (intersectsLinearRingArray(flatCoordinates, offset, ends, stride, extent)) {
             return true;
         }

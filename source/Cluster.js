@@ -1,19 +1,6 @@
 /**
  * @module ol/source/Cluster
  */
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 import { getUid } from '../util.js';
 import { assert } from '../asserts.js';
 import Feature from '../Feature.js';
@@ -54,72 +41,70 @@ import VectorSource from './Vector.js';
  * from the wrapped source.
  * @api
  */
-var Cluster = /** @class */ (function (_super) {
-    __extends(Cluster, _super);
+class Cluster extends VectorSource {
     /**
      * @param {Options} options Cluster options.
      */
-    function Cluster(options) {
-        var _this = _super.call(this, {
+    constructor(options) {
+        super({
             attributions: options.attributions,
             wrapX: options.wrapX
-        }) || this;
+        });
         /**
          * @type {number|undefined}
          * @protected
          */
-        _this.resolution = undefined;
+        this.resolution = undefined;
         /**
          * @type {number}
          * @protected
          */
-        _this.distance = options.distance !== undefined ? options.distance : 20;
+        this.distance = options.distance !== undefined ? options.distance : 20;
         /**
          * @type {Array<Feature>}
          * @protected
          */
-        _this.features = [];
+        this.features = [];
         /**
          * @param {Feature} feature Feature.
          * @return {Point} Cluster calculation point.
          * @protected
          */
-        _this.geometryFunction = options.geometryFunction || function (feature) {
-            var geometry = feature.getGeometry();
+        this.geometryFunction = options.geometryFunction || function (feature) {
+            const geometry = feature.getGeometry();
             assert(geometry.getType() == GeometryType.POINT, 10); // The default `geometryFunction` can only handle `Point` geometries
             return geometry;
         };
-        _this.boundRefresh_ = _this.refresh.bind(_this);
-        _this.setSource(options.source || null);
-        return _this;
+        this.boundRefresh_ = this.refresh.bind(this);
+        this.setSource(options.source || null);
     }
     /**
      * @override
      */
-    Cluster.prototype.clear = function (opt_fast) {
+    clear(opt_fast) {
         this.features.length = 0;
-        _super.prototype.clear.call(this, opt_fast);
-    };
+        super.clear(opt_fast);
+    }
     /**
      * Get the distance in pixels between clusters.
      * @return {number} Distance.
      * @api
      */
-    Cluster.prototype.getDistance = function () {
+    getDistance() {
         return this.distance;
-    };
+    }
     /**
      * Get a reference to the wrapped source.
      * @return {VectorSource} Source.
      * @api
      */
-    Cluster.prototype.getSource = function () {
+    getSource() {
         return this.source;
-    };
+    }
     /**
      * @inheritDoc
      */
-    Cluster.prototype.loadFeatures = function (extent, resolution, projection) {
+    loadFeatures(extent, resolution, projection) {
         this.source.loadFeatures(extent, resolution, projection);
         if (resolution !== this.resolution) {
             this.clear();
@@ -127,22 +112,22 @@ var Cluster = /** @class */ (function (_super) {
             this.cluster();
             this.addFeatures(this.features);
         }
-    };
+    }
     /**
      * Set the distance in pixels between clusters.
      * @param {number} distance The distance in pixels.
      * @api
      */
-    Cluster.prototype.setDistance = function (distance) {
+    setDistance(distance) {
         this.distance = distance;
         this.refresh();
-    };
+    }
     /**
      * Replace the wrapped source.
      * @param {VectorSource} source The new source for this instance.
      * @api
      */
-    Cluster.prototype.setSource = function (source) {
+    setSource(source) {
         if (this.source) {
             this.source.removeEventListener(EventType.CHANGE, this.boundRefresh_);
         }
@@ -151,41 +136,41 @@ var Cluster = /** @class */ (function (_super) {
             source.addEventListener(EventType.CHANGE, this.boundRefresh_);
         }
         this.refresh();
-    };
+    }
     /**
      * Handle the source changing.
      * @override
      */
-    Cluster.prototype.refresh = function () {
+    refresh() {
         this.clear();
         this.cluster();
         this.addFeatures(this.features);
-    };
+    }
     /**
      * @protected
      */
-    Cluster.prototype.cluster = function () {
+    cluster() {
         if (this.resolution === undefined || !this.source) {
             return;
         }
-        var extent = createEmpty();
-        var mapDistance = this.distance * this.resolution;
-        var features = this.source.getFeatures();
+        const extent = createEmpty();
+        const mapDistance = this.distance * this.resolution;
+        const features = this.source.getFeatures();
         /**
          * @type {!Object<string, boolean>}
          */
-        var clustered = {};
-        for (var i = 0, ii = features.length; i < ii; i++) {
-            var feature = features[i];
+        const clustered = {};
+        for (let i = 0, ii = features.length; i < ii; i++) {
+            const feature = features[i];
             if (!(getUid(feature) in clustered)) {
-                var geometry = this.geometryFunction(feature);
+                const geometry = this.geometryFunction(feature);
                 if (geometry) {
-                    var coordinates = geometry.getCoordinates();
+                    const coordinates = geometry.getCoordinates();
                     createOrUpdateFromCoordinate(coordinates, extent);
                     buffer(extent, mapDistance, extent);
-                    var neighbors = this.source.getFeaturesInExtent(extent);
+                    let neighbors = this.source.getFeaturesInExtent(extent);
                     neighbors = neighbors.filter(function (neighbor) {
-                        var uid = getUid(neighbor);
+                        const uid = getUid(neighbor);
                         if (!(uid in clustered)) {
                             clustered[uid] = true;
                             return true;
@@ -198,16 +183,16 @@ var Cluster = /** @class */ (function (_super) {
                 }
             }
         }
-    };
+    }
     /**
      * @param {Array<Feature>} features Features
      * @return {Feature} The cluster feature.
      * @protected
      */
-    Cluster.prototype.createCluster = function (features) {
-        var centroid = [0, 0];
-        for (var i = features.length - 1; i >= 0; --i) {
-            var geometry = this.geometryFunction(features[i]);
+    createCluster(features) {
+        const centroid = [0, 0];
+        for (let i = features.length - 1; i >= 0; --i) {
+            const geometry = this.geometryFunction(features[i]);
             if (geometry) {
                 addCoordinate(centroid, geometry.getCoordinates());
             }
@@ -216,11 +201,10 @@ var Cluster = /** @class */ (function (_super) {
             }
         }
         scaleCoordinate(centroid, 1 / features.length);
-        var cluster = new Feature(new Point(centroid));
+        const cluster = new Feature(new Point(centroid));
         cluster.set('features', features);
         return cluster;
-    };
-    return Cluster;
-}(VectorSource));
+    }
+}
 export default Cluster;
 //# sourceMappingURL=Cluster.js.map

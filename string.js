@@ -8,8 +8,8 @@
  * @returns {string} Formatted string
  */
 export function padNumber(number, width, opt_precision) {
-    var numberString = opt_precision !== undefined ? number.toFixed(opt_precision) : '' + number;
-    var decimal = numberString.indexOf('.');
+    const numberString = opt_precision !== undefined ? number.toFixed(opt_precision) : '' + number;
+    let decimal = numberString.indexOf('.');
     decimal = decimal === -1 ? numberString.length : decimal;
     return decimal > width ? numberString : new Array(1 + width - decimal).join('0') + numberString;
 }
@@ -20,11 +20,11 @@ export function padNumber(number, width, opt_precision) {
  * @returns {number} Value
  */
 export function compareVersions(v1, v2) {
-    var s1 = ('' + v1).split('.');
-    var s2 = ('' + v2).split('.');
-    for (var i = 0; i < Math.max(s1.length, s2.length); i++) {
-        var n1 = parseInt(s1[i] || '0', 10);
-        var n2 = parseInt(s2[i] || '0', 10);
+    const s1 = ('' + v1).split('.');
+    const s2 = ('' + v2).split('.');
+    for (let i = 0; i < Math.max(s1.length, s2.length); i++) {
+        const n1 = parseInt(s1[i] || '0', 10);
+        const n2 = parseInt(s2[i] || '0', 10);
         if (n1 > n2) {
             return 1;
         }

@@ -12,12 +12,12 @@
  * Set fill style for vector features.
  * @api
  */
-var Fill = /** @class */ (function () {
+class Fill {
     /**
      * @param {Options=} opt_options Options.
      */
-    function Fill(opt_options) {
-        var options = opt_options || {};
+    constructor(opt_options) {
+        const options = opt_options || {};
         /**
          * @private
          * @type {import("../color.js").Color|import("../colorlike.js").ColorLike}
@@ -29,30 +29,29 @@ var Fill = /** @class */ (function () {
      * @return {Fill} The cloned style.
      * @api
      */
-    Fill.prototype.clone = function () {
-        var color = this.getColor();
+    clone() {
+        const color = this.getColor();
         return new Fill({
             color: Array.isArray(color) ? color.slice() : color || undefined
         });
-    };
+    }
     /**
      * Get the fill color.
      * @return {import("../color.js").Color|import("../colorlike.js").ColorLike} Color.
      * @api
      */
-    Fill.prototype.getColor = function () {
+    getColor() {
         return this.color_;
-    };
+    }
     /**
      * Set the color.
      *
      * @param {import("../color.js").Color|import("../colorlike.js").ColorLike} color Color.
      * @api
      */
-    Fill.prototype.setColor = function (color) {
+    setColor(color) {
         this.color_ = color;
-    };
-    return Fill;
-}());
+    }
+}
 export default Fill;
 //# sourceMappingURL=Fill.js.map

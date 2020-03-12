@@ -39,7 +39,7 @@ import { squaredSegmentDistance, squaredDistance } from '../../math.js';
  * @return {Array<number>} Simplified line string.
  */
 export function simplifyLineString(flatCoordinates, offset, end, stride, squaredTolerance, highQuality, opt_simplifiedFlatCoordinates) {
-    var simplifiedFlatCoordinates = opt_simplifiedFlatCoordinates !== undefined ?
+    const simplifiedFlatCoordinates = opt_simplifiedFlatCoordinates !== undefined ?
         opt_simplifiedFlatCoordinates : [];
     if (!highQuality) {
         end = radialDistance(flatCoordinates, offset, end, stride, squaredTolerance, simplifiedFlatCoordinates, 0);
@@ -62,7 +62,7 @@ export function simplifyLineString(flatCoordinates, offset, end, stride, squared
  * @return {number} Simplified offset.
  */
 export function douglasPeucker(flatCoordinates, offset, end, stride, squaredTolerance, simplifiedFlatCoordinates, simplifiedOffset) {
-    var n = (end - offset) / stride;
+    const n = (end - offset) / stride;
     if (n < 3) {
         for (; offset < end; offset += stride) {
             simplifiedFlatCoordinates[simplifiedOffset++] =
@@ -73,27 +73,27 @@ export function douglasPeucker(flatCoordinates, offset, end, stride, squaredTole
         return simplifiedOffset;
     }
     /** @type {Array<number>} */
-    var markers = new Array(n);
+    const markers = new Array(n);
     markers[0] = 1;
     markers[n - 1] = 1;
     /** @type {Array<number>} */
-    var stack = [offset, end - stride];
-    var index = 0;
+    const stack = [offset, end - stride];
+    let index = 0;
     while (stack.length > 0) {
-        var last = stack.pop();
-        var first = stack.pop();
-        var maxSquaredDistance = 0;
-        var x1 = flatCoordinates[first];
-        var y1 = flatCoordinates[first + 1];
-        var x2 = flatCoordinates[last];
-        var y2 = flatCoordinates[last + 1];
-        for (var i = first + stride; i < last; i += stride) {
-            var x = flatCoordinates[i];
-            var y = flatCoordinates[i + 1];
-            var squaredDistance_1 = squaredSegmentDistance(x, y, x1, y1, x2, y2);
-            if (squaredDistance_1 > maxSquaredDistance) {
+        const last = stack.pop();
+        const first = stack.pop();
+        let maxSquaredDistance = 0;
+        const x1 = flatCoordinates[first];
+        const y1 = flatCoordinates[first + 1];
+        const x2 = flatCoordinates[last];
+        const y2 = flatCoordinates[last + 1];
+        for (let i = first + stride; i < last; i += stride) {
+            const x = flatCoordinates[i];
+            const y = flatCoordinates[i + 1];
+            const squaredDistance = squaredSegmentDistance(x, y, x1, y1, x2, y2);
+            if (squaredDistance > maxSquaredDistance) {
                 index = i;
-                maxSquaredDistance = squaredDistance_1;
+                maxSquaredDistance = squaredDistance;
             }
         }
         if (maxSquaredDistance > squaredTolerance) {
@@ -106,7 +106,7 @@ export function douglasPeucker(flatCoordinates, offset, end, stride, squaredTole
             }
         }
     }
-    for (var i = 0; i < n; ++i) {
+    for (let i = 0; i < n; ++i) {
         if (markers[i]) {
             simplifiedFlatCoordinates[simplifiedOffset++] =
                 flatCoordinates[offset + i * stride];
@@ -129,8 +129,8 @@ export function douglasPeucker(flatCoordinates, offset, end, stride, squaredTole
  * @return {number} Simplified offset.
  */
 export function douglasPeuckerArray(flatCoordinates, offset, ends, stride, squaredTolerance, simplifiedFlatCoordinates, simplifiedOffset, simplifiedEnds) {
-    for (var i = 0, ii = ends.length; i < ii; ++i) {
-        var end = ends[i];
+    for (let i = 0, ii = ends.length; i < ii; ++i) {
+        const end = ends[i];
         simplifiedOffset = douglasPeucker(flatCoordinates, offset, end, stride, squaredTolerance, simplifiedFlatCoordinates, simplifiedOffset);
         simplifiedEnds.push(simplifiedOffset);
         offset = end;
@@ -150,9 +150,9 @@ export function douglasPeuckerArray(flatCoordinates, offset, ends, stride, squar
  * @return {number} Simplified offset.
  */
 export function douglasPeuckerMultiArray(flatCoordinates, offset, endss, stride, squaredTolerance, simplifiedFlatCoordinates, simplifiedOffset, simplifiedEndss) {
-    for (var i = 0, ii = endss.length; i < ii; ++i) {
-        var ends = endss[i];
-        var simplifiedEnds = [];
+    for (let i = 0, ii = endss.length; i < ii; ++i) {
+        const ends = endss[i];
+        const simplifiedEnds = [];
         simplifiedOffset = douglasPeuckerArray(flatCoordinates, offset, ends, stride, squaredTolerance, simplifiedFlatCoordinates, simplifiedOffset, simplifiedEnds);
         simplifiedEndss.push(simplifiedEnds);
         offset = ends[ends.length - 1];
@@ -180,13 +180,13 @@ export function radialDistance(flatCoordinates, offset, end, stride, squaredTole
         }
         return simplifiedOffset;
     }
-    var x1 = flatCoordinates[offset];
-    var y1 = flatCoordinates[offset + 1];
+    let x1 = flatCoordinates[offset];
+    let y1 = flatCoordinates[offset + 1];
     // copy first point
     simplifiedFlatCoordinates[simplifiedOffset++] = x1;
     simplifiedFlatCoordinates[simplifiedOffset++] = y1;
-    var x2 = x1;
-    var y2 = y1;
+    let x2 = x1;
+    let y2 = y1;
     for (offset += stride; offset < end; offset += stride) {
         x2 = flatCoordinates[offset];
         y2 = flatCoordinates[offset + 1];
@@ -238,15 +238,15 @@ export function quantize(flatCoordinates, offset, end, stride, tolerance, simpli
         return simplifiedOffset;
     }
     // snap the first coordinate (P1)
-    var x1 = snap(flatCoordinates[offset], tolerance);
-    var y1 = snap(flatCoordinates[offset + 1], tolerance);
+    let x1 = snap(flatCoordinates[offset], tolerance);
+    let y1 = snap(flatCoordinates[offset + 1], tolerance);
     offset += stride;
     // add the first coordinate to the output
     simplifiedFlatCoordinates[simplifiedOffset++] = x1;
     simplifiedFlatCoordinates[simplifiedOffset++] = y1;
     // find the next coordinate that does not snap to the same value as the first
     // coordinate (P2)
-    var x2, y2;
+    let x2, y2;
     do {
         x2 = snap(flatCoordinates[offset], tolerance);
         y2 = snap(flatCoordinates[offset + 1], tolerance);
@@ -263,19 +263,19 @@ export function quantize(flatCoordinates, offset, end, stride, tolerance, simpli
     } while (x2 == x1 && y2 == y1);
     while (offset < end) {
         // snap the next coordinate (P3)
-        var x3 = snap(flatCoordinates[offset], tolerance);
-        var y3 = snap(flatCoordinates[offset + 1], tolerance);
+        const x3 = snap(flatCoordinates[offset], tolerance);
+        const y3 = snap(flatCoordinates[offset + 1], tolerance);
         offset += stride;
         // skip P3 if it is equal to P2
         if (x3 == x2 && y3 == y2) {
             continue;
         }
         // calculate the delta between P1 and P2
-        var dx1 = x2 - x1;
-        var dy1 = y2 - y1;
+        const dx1 = x2 - x1;
+        const dy1 = y2 - y1;
         // calculate the delta between P3 and P1
-        var dx2 = x3 - x1;
-        var dy2 = y3 - y1;
+        const dx2 = x3 - x1;
+        const dy2 = y3 - y1;
         // if P1, P2, and P3 are colinear and P3 is further from P1 than P2 is from
         // P1 in the same direction then P2 is on the straight line between P1 and
         // P3
@@ -315,8 +315,8 @@ export function quantize(flatCoordinates, offset, end, stride, tolerance, simpli
  * @return {number} Simplified offset.
  */
 export function quantizeArray(flatCoordinates, offset, ends, stride, tolerance, simplifiedFlatCoordinates, simplifiedOffset, simplifiedEnds) {
-    for (var i = 0, ii = ends.length; i < ii; ++i) {
-        var end = ends[i];
+    for (let i = 0, ii = ends.length; i < ii; ++i) {
+        const end = ends[i];
         simplifiedOffset = quantize(flatCoordinates, offset, end, stride, tolerance, simplifiedFlatCoordinates, simplifiedOffset);
         simplifiedEnds.push(simplifiedOffset);
         offset = end;
@@ -336,9 +336,9 @@ export function quantizeArray(flatCoordinates, offset, ends, stride, tolerance, 
  * @return {number} Simplified offset.
  */
 export function quantizeMultiArray(flatCoordinates, offset, endss, stride, tolerance, simplifiedFlatCoordinates, simplifiedOffset, simplifiedEndss) {
-    for (var i = 0, ii = endss.length; i < ii; ++i) {
-        var ends = endss[i];
-        var simplifiedEnds = [];
+    for (let i = 0, ii = endss.length; i < ii; ++i) {
+        const ends = endss[i];
+        const simplifiedEnds = [];
         simplifiedOffset = quantizeArray(flatCoordinates, offset, ends, stride, tolerance, simplifiedFlatCoordinates, simplifiedOffset, simplifiedEnds);
         simplifiedEndss.push(simplifiedEnds);
         offset = ends[ends.length - 1];

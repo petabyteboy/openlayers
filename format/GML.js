@@ -12,7 +12,7 @@ import GML3 from './GML3.js';
  *     Optional configuration object.
  * @api
  */
-var GML = GML3;
+const GML = GML3;
 /**
  * Encode an array of features in GML 3.1.1 Simple Features.
  *

@@ -63,14 +63,14 @@ export function hash(tileCoord) {
  * @return {boolean} Tile coordinate is within extent and zoom level range.
  */
 export function withinExtentAndZ(tileCoord, tileGrid) {
-    var z = tileCoord[0];
-    var x = tileCoord[1];
-    var y = tileCoord[2];
+    const z = tileCoord[0];
+    const x = tileCoord[1];
+    const y = tileCoord[2];
     if (tileGrid.getMinZoom() > z || z > tileGrid.getMaxZoom()) {
         return false;
     }
-    var extent = tileGrid.getExtent();
-    var tileRange;
+    const extent = tileGrid.getExtent();
+    let tileRange;
     if (!extent) {
         tileRange = tileGrid.getFullTileRange(z);
     }

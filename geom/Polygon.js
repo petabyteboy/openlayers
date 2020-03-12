@@ -1,16 +1,3 @@
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 /**
  * @module ol/geom/Polygon
  */
@@ -38,8 +25,7 @@ import { modulo } from '../math.js';
  *
  * @api
  */
-var Polygon = /** @class */ (function (_super) {
-    __extends(Polygon, _super);
+class Polygon extends SimpleGeometry {
     /**
      * @param {!Array<Array<import("../coordinate.js").Coordinate>>|!Array<number>} coordinates
      *     Array of linear rings that define the polygon. The first linear ring of the
@@ -51,58 +37,57 @@ var Polygon = /** @class */ (function (_super) {
      * @param {GeometryLayout=} opt_layout Layout.
      * @param {Array<number>=} opt_ends Ends (for internal use with flat coordinates).
      */
-    function Polygon(coordinates, opt_layout, opt_ends) {
-        var _this = _super.call(this) || this;
+    constructor(coordinates, opt_layout, opt_ends) {
+        super();
         /**
          * @type {Array<number>}
          * @private
          */
-        _this.ends_ = [];
+        this.ends_ = [];
         /**
          * @private
          * @type {number}
          */
-        _this.flatInteriorPointRevision_ = -1;
+        this.flatInteriorPointRevision_ = -1;
         /**
          * @private
          * @type {import("../coordinate.js").Coordinate}
          */
-        _this.flatInteriorPoint_ = null;
+        this.flatInteriorPoint_ = null;
         /**
          * @private
          * @type {number}
          */
-        _this.maxDelta_ = -1;
+        this.maxDelta_ = -1;
         /**
          * @private
          * @type {number}
          */
-        _this.maxDeltaRevision_ = -1;
+        this.maxDeltaRevision_ = -1;
         /**
          * @private
          * @type {number}
          */
-        _this.orientedRevision_ = -1;
+        this.orientedRevision_ = -1;
         /**
          * @private
          * @type {Array<number>}
          */
-        _this.orientedFlatCoordinates_ = null;
+        this.orientedFlatCoordinates_ = null;
         if (opt_layout !== undefined && opt_ends) {
-            _this.setFlatCoordinates(opt_layout, /** @type {Array<number>} */ (coordinates));
-            _this.ends_ = opt_ends;
+            this.setFlatCoordinates(opt_layout, /** @type {Array<number>} */ (coordinates));
+            this.ends_ = opt_ends;
         }
         else {
-            _this.setCoordinates(/** @type {Array<Array<import("../coordinate.js").Coordinate>>} */ (coordinates), opt_layout);
+            this.setCoordinates(/** @type {Array<Array<import("../coordinate.js").Coordinate>>} */ (coordinates), opt_layout);
         }
-        return _this;
     }
     /**
      * Append the passed linear ring to this polygon.
      * @param {LinearRing} linearRing Linear ring.
      * @api
      */
-    Polygon.prototype.appendLinearRing = function (linearRing) {
+    appendLinearRing(linearRing) {
         if (!this.flatCoordinates) {
             this.flatCoordinates = linearRing.getFlatCoordinates().slice();
         }
@@ -111,20 +96,20 @@ var Polygon = /** @class */ (function (_super) {
         }
         this.ends_.push(this.flatCoordinates.length);
         this.changed();
-    };
+    }
     /**
      * Make a complete copy of the geometry.
      * @return {!Polygon} Clone.
      * @override
      * @api
      */
-    Polygon.prototype.clone = function () {
+    clone() {
         return new Polygon(this.flatCoordinates.slice(), this.layout, this.ends_.slice());
-    };
+    }
     /**
      * @inheritDoc
      */
-    Polygon.prototype.closestPointXY = function (x, y, closestPoint, minSquaredDistance) {
+    closestPointXY(x, y, closestPoint, minSquaredDistance) {
         if (minSquaredDistance < closestSquaredDistanceXY(this.getExtent(), x, y)) {
             return minSquaredDistance;
         }
@@ -133,21 +118,21 @@ var Polygon = /** @class */ (function (_super) {
             this.maxDeltaRevision_ = this.getRevision();
         }
         return assignClosestArrayPoint(this.flatCoordinates, 0, this.ends_, this.stride, this.maxDelta_, true, x, y, closestPoint, minSquaredDistance);
-    };
+    }
     /**
      * @inheritDoc
      */
-    Polygon.prototype.containsXY = function (x, y) {
+    containsXY(x, y) {
         return linearRingsContainsXY(this.getOrientedFlatCoordinates(), 0, this.ends_, this.stride, x, y);
-    };
+    }
     /**
      * Return the area of the polygon on projected plane.
      * @return {number} Area (on projected plane).
      * @api
      */
-    Polygon.prototype.getArea = function () {
+    getArea() {
         return linearRingsArea(this.getOrientedFlatCoordinates(), 0, this.ends_, this.stride);
-    };
+    }
     /**
      * Get the coordinate array for this geometry.  This array has the structure
      * of a GeoJSON coordinate array for polygons.
@@ -162,8 +147,8 @@ var Polygon = /** @class */ (function (_super) {
      * @override
      * @api
      */
-    Polygon.prototype.getCoordinates = function (opt_right) {
-        var flatCoordinates;
+    getCoordinates(opt_right) {
+        let flatCoordinates;
         if (opt_right !== undefined) {
             flatCoordinates = this.getOrientedFlatCoordinates().slice();
             orientLinearRings(flatCoordinates, 0, this.ends_, this.stride, opt_right);
@@ -172,33 +157,33 @@ var Polygon = /** @class */ (function (_super) {
             flatCoordinates = this.flatCoordinates;
         }
         return inflateCoordinatesArray(flatCoordinates, 0, this.ends_, this.stride);
-    };
+    }
     /**
      * @return {Array<number>} Ends.
      */
-    Polygon.prototype.getEnds = function () {
+    getEnds() {
         return this.ends_;
-    };
+    }
     /**
      * @return {Array<number>} Interior point.
      */
-    Polygon.prototype.getFlatInteriorPoint = function () {
+    getFlatInteriorPoint() {
         if (this.flatInteriorPointRevision_ != this.getRevision()) {
-            var flatCenter = getCenter(this.getExtent());
+            const flatCenter = getCenter(this.getExtent());
             this.flatInteriorPoint_ = getInteriorPointOfArray(this.getOrientedFlatCoordinates(), 0, this.ends_, this.stride, flatCenter, 0);
             this.flatInteriorPointRevision_ = this.getRevision();
         }
         return this.flatInteriorPoint_;
-    };
+    }
     /**
      * Return an interior point of the polygon.
      * @return {Point} Interior point as XYM coordinate, where M is the
      * length of the horizontal intersection that the point belongs to.
      * @api
      */
-    Polygon.prototype.getInteriorPoint = function () {
+    getInteriorPoint() {
         return new Point(this.getFlatInteriorPoint(), GeometryLayout.XYM);
-    };
+    }
     /**
      * Return the number of rings of the polygon,  this includes the exterior
      * ring and any interior rings.
@@ -206,9 +191,9 @@ var Polygon = /** @class */ (function (_super) {
      * @return {number} Number of rings.
      * @api
      */
-    Polygon.prototype.getLinearRingCount = function () {
+    getLinearRingCount() {
         return this.ends_.length;
-    };
+    }
     /**
      * Return the Nth linear ring of the polygon geometry. Return `null` if the
      * given index is out of range.
@@ -219,37 +204,37 @@ var Polygon = /** @class */ (function (_super) {
      * @return {LinearRing} Linear ring.
      * @api
      */
-    Polygon.prototype.getLinearRing = function (index) {
+    getLinearRing(index) {
         if (index < 0 || this.ends_.length <= index) {
             return null;
         }
         return new LinearRing(this.flatCoordinates.slice(index === 0 ? 0 : this.ends_[index - 1], this.ends_[index]), this.layout);
-    };
+    }
     /**
      * Return the linear rings of the polygon.
      * @return {Array<LinearRing>} Linear rings.
      * @api
      */
-    Polygon.prototype.getLinearRings = function () {
-        var layout = this.layout;
-        var flatCoordinates = this.flatCoordinates;
-        var ends = this.ends_;
-        var linearRings = [];
-        var offset = 0;
-        for (var i = 0, ii = ends.length; i < ii; ++i) {
-            var end = ends[i];
-            var linearRing = new LinearRing(flatCoordinates.slice(offset, end), layout);
+    getLinearRings() {
+        const layout = this.layout;
+        const flatCoordinates = this.flatCoordinates;
+        const ends = this.ends_;
+        const linearRings = [];
+        let offset = 0;
+        for (let i = 0, ii = ends.length; i < ii; ++i) {
+            const end = ends[i];
+            const linearRing = new LinearRing(flatCoordinates.slice(offset, end), layout);
             linearRings.push(linearRing);
             offset = end;
         }
         return linearRings;
-    };
+    }
     /**
      * @return {Array<number>} Oriented flat coordinates.
      */
-    Polygon.prototype.getOrientedFlatCoordinates = function () {
+    getOrientedFlatCoordinates() {
         if (this.orientedRevision_ != this.getRevision()) {
-            var flatCoordinates = this.flatCoordinates;
+            const flatCoordinates = this.flatCoordinates;
             if (linearRingsAreOriented(flatCoordinates, 0, this.ends_, this.stride)) {
                 this.orientedFlatCoordinates_ = flatCoordinates;
             }
@@ -261,30 +246,30 @@ var Polygon = /** @class */ (function (_super) {
             this.orientedRevision_ = this.getRevision();
         }
         return this.orientedFlatCoordinates_;
-    };
+    }
     /**
      * @inheritDoc
      */
-    Polygon.prototype.getSimplifiedGeometryInternal = function (squaredTolerance) {
-        var simplifiedFlatCoordinates = [];
-        var simplifiedEnds = [];
+    getSimplifiedGeometryInternal(squaredTolerance) {
+        const simplifiedFlatCoordinates = [];
+        const simplifiedEnds = [];
         simplifiedFlatCoordinates.length = quantizeArray(this.flatCoordinates, 0, this.ends_, this.stride, Math.sqrt(squaredTolerance), simplifiedFlatCoordinates, 0, simplifiedEnds);
         return new Polygon(simplifiedFlatCoordinates, GeometryLayout.XY, simplifiedEnds);
-    };
+    }
     /**
      * @inheritDoc
      * @api
      */
-    Polygon.prototype.getType = function () {
+    getType() {
         return GeometryType.POLYGON;
-    };
+    }
     /**
      * @inheritDoc
      * @api
      */
-    Polygon.prototype.intersectsExtent = function (extent) {
+    intersectsExtent(extent) {
         return intersectsLinearRingArray(this.getOrientedFlatCoordinates(), 0, this.ends_, this.stride, extent);
-    };
+    }
     /**
      * Set the coordinates of the polygon.
      * @param {!Array<Array<import("../coordinate.js").Coordinate>>} coordinates Coordinates.
@@ -292,17 +277,16 @@ var Polygon = /** @class */ (function (_super) {
      * @override
      * @api
      */
-    Polygon.prototype.setCoordinates = function (coordinates, opt_layout) {
+    setCoordinates(coordinates, opt_layout) {
         this.setLayout(opt_layout, coordinates, 2);
         if (!this.flatCoordinates) {
             this.flatCoordinates = [];
         }
-        var ends = deflateCoordinatesArray(this.flatCoordinates, 0, coordinates, this.stride, this.ends_);
+        const ends = deflateCoordinatesArray(this.flatCoordinates, 0, coordinates, this.stride, this.ends_);
         this.flatCoordinates.length = ends.length === 0 ? 0 : ends[ends.length - 1];
         this.changed();
-    };
-    return Polygon;
-}(SimpleGeometry));
+    }
+}
 export default Polygon;
 /**
  * Create an approximation of a circle on the surface of a sphere.
@@ -317,10 +301,10 @@ export default Polygon;
  * @api
  */
 export function circular(center, radius, opt_n, opt_sphereRadius) {
-    var n = opt_n ? opt_n : 32;
+    const n = opt_n ? opt_n : 32;
     /** @type {Array<number>} */
-    var flatCoordinates = [];
-    for (var i = 0; i < n; ++i) {
+    const flatCoordinates = [];
+    for (let i = 0; i < n; ++i) {
         extend(flatCoordinates, sphereOffset(center, radius, 2 * Math.PI * i / n, opt_sphereRadius));
     }
     flatCoordinates.push(flatCoordinates[0], flatCoordinates[1]);
@@ -333,11 +317,11 @@ export function circular(center, radius, opt_n, opt_sphereRadius) {
  * @api
  */
 export function fromExtent(extent) {
-    var minX = extent[0];
-    var minY = extent[1];
-    var maxX = extent[2];
-    var maxY = extent[3];
-    var flatCoordinates = [minX, minY, minX, maxY, maxX, maxY, maxX, minY, minX, minY];
+    const minX = extent[0];
+    const minY = extent[1];
+    const maxX = extent[2];
+    const maxY = extent[3];
+    const flatCoordinates = [minX, minY, minX, maxY, maxX, maxY, maxX, minY, minX, minY];
     return new Polygon(flatCoordinates, GeometryLayout.XY, [flatCoordinates.length]);
 }
 /**
@@ -350,21 +334,21 @@ export function fromExtent(extent) {
  * @api
  */
 export function fromCircle(circle, opt_sides, opt_angle) {
-    var sides = opt_sides ? opt_sides : 32;
-    var stride = circle.getStride();
-    var layout = circle.getLayout();
-    var center = circle.getCenter();
-    var arrayLength = stride * (sides + 1);
-    var flatCoordinates = new Array(arrayLength);
-    for (var i = 0; i < arrayLength; i += stride) {
+    const sides = opt_sides ? opt_sides : 32;
+    const stride = circle.getStride();
+    const layout = circle.getLayout();
+    const center = circle.getCenter();
+    const arrayLength = stride * (sides + 1);
+    const flatCoordinates = new Array(arrayLength);
+    for (let i = 0; i < arrayLength; i += stride) {
         flatCoordinates[i] = 0;
         flatCoordinates[i + 1] = 0;
-        for (var j = 2; j < stride; j++) {
+        for (let j = 2; j < stride; j++) {
             flatCoordinates[i + j] = center[j];
         }
     }
-    var ends = [flatCoordinates.length];
-    var polygon = new Polygon(flatCoordinates, layout, ends);
+    const ends = [flatCoordinates.length];
+    const polygon = new Polygon(flatCoordinates, layout, ends);
     makeRegular(polygon, center, circle.getRadius(), opt_angle);
     return polygon;
 }
@@ -377,13 +361,13 @@ export function fromCircle(circle, opt_sides, opt_angle) {
  *     radians. Default is 0.
  */
 export function makeRegular(polygon, center, radius, opt_angle) {
-    var flatCoordinates = polygon.getFlatCoordinates();
-    var stride = polygon.getStride();
-    var sides = flatCoordinates.length / stride - 1;
-    var startAngle = opt_angle ? opt_angle : 0;
-    for (var i = 0; i <= sides; ++i) {
-        var offset = i * stride;
-        var angle = startAngle + (modulo(i, sides) * 2 * Math.PI / sides);
+    const flatCoordinates = polygon.getFlatCoordinates();
+    const stride = polygon.getStride();
+    const sides = flatCoordinates.length / stride - 1;
+    const startAngle = opt_angle ? opt_angle : 0;
+    for (let i = 0; i <= sides; ++i) {
+        const offset = i * stride;
+        const angle = startAngle + (modulo(i, sides) * 2 * Math.PI / sides);
         flatCoordinates[offset] = center[0] + (radius * Math.cos(angle));
         flatCoordinates[offset + 1] = center[1] + (radius * Math.sin(angle));
     }

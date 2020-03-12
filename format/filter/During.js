@@ -1,16 +1,3 @@
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 /**
  * @module ol/format/filter/During
  */
@@ -20,26 +7,23 @@ import Comparison from './Comparison.js';
  * Represents a `<During>` comparison operator.
  * @api
  */
-var During = /** @class */ (function (_super) {
-    __extends(During, _super);
+class During extends Comparison {
     /**
      * @param {!string} propertyName Name of the context property to compare.
      * @param {!string} begin The begin date in ISO-8601 format.
      * @param {!string} end The end date in ISO-8601 format.
      */
-    function During(propertyName, begin, end) {
-        var _this = _super.call(this, 'During', propertyName) || this;
+    constructor(propertyName, begin, end) {
+        super('During', propertyName);
         /**
          * @type {!string}
          */
-        _this.begin = begin;
+        this.begin = begin;
         /**
          * @type {!string}
          */
-        _this.end = end;
-        return _this;
+        this.end = end;
     }
-    return During;
-}(Comparison));
+}
 export default During;
 //# sourceMappingURL=During.js.map

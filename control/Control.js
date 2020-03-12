@@ -1,16 +1,3 @@
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 /**
  * @module ol/control/Control
  */
@@ -54,58 +41,56 @@ import { listen, unlistenByKey } from '../events.js';
  *
  * @api
  */
-var Control = /** @class */ (function (_super) {
-    __extends(Control, _super);
+class Control extends BaseObject {
     /**
      * @param {Options} options Control options.
      */
-    function Control(options) {
-        var _this = _super.call(this) || this;
+    constructor(options) {
+        super();
         /**
          * @protected
          * @type {HTMLElement}
          */
-        _this.element = options.element ? options.element : null;
+        this.element = options.element ? options.element : null;
         /**
          * @private
          * @type {HTMLElement}
          */
-        _this.target_ = null;
+        this.target_ = null;
         /**
          * @private
          * @type {import("../PluggableMap.js").default}
          */
-        _this.map_ = null;
+        this.map_ = null;
         /**
          * @protected
          * @type {!Array<import("../events.js").EventsKey>}
          */
-        _this.listenerKeys = [];
+        this.listenerKeys = [];
         /**
          * @private
          * @type {function(import("../MapEvent.js").default): void}
          */
-        _this.render_ = options.render ? options.render : VOID;
+        this.render_ = options.render ? options.render : VOID;
         if (options.target) {
-            _this.setTarget(options.target);
+            this.setTarget(options.target);
         }
-        return _this;
     }
     /**
      * @inheritDoc
      */
-    Control.prototype.disposeInternal = function () {
+    disposeInternal() {
         removeNode(this.element);
-        _super.prototype.disposeInternal.call(this);
-    };
+        super.disposeInternal();
+    }
     /**
      * Get the map associated with this control.
      * @return {import("../PluggableMap.js").default} Map.
      * @api
      */
-    Control.prototype.getMap = function () {
+    getMap() {
         return this.map_;
-    };
+    }
     /**
      * Remove the control from its current map and attach it to the new map.
      * Subclasses may set up event handlers to get notified about changes to
@@ -113,17 +98,17 @@ var Control = /** @class */ (function (_super) {
      * @param {import("../PluggableMap.js").default} map Map.
      * @api
      */
-    Control.prototype.setMap = function (map) {
+    setMap(map) {
         if (this.map_) {
             removeNode(this.element);
         }
-        for (var i = 0, ii = this.listenerKeys.length; i < ii; ++i) {
+        for (let i = 0, ii = this.listenerKeys.length; i < ii; ++i) {
             unlistenByKey(this.listenerKeys[i]);
         }
         this.listenerKeys.length = 0;
         this.map_ = map;
         if (this.map_) {
-            var target = this.target_ ?
+            const target = this.target_ ?
                 this.target_ : map.getOverlayContainerStopEvent();
             target.appendChild(this.element);
             if (this.render !== VOID) {
@@ -131,16 +116,16 @@ var Control = /** @class */ (function (_super) {
             }
             map.render();
         }
-    };
+    }
     /**
      * Update the projection. Rendering of the coordinates is done in
      * `handleMouseMove` and `handleMouseUp`.
      * @param {import("../MapEvent.js").default} mapEvent Map event.
      * @api
      */
-    Control.prototype.render = function (mapEvent) {
+    render(mapEvent) {
         this.render_.call(this, mapEvent);
-    };
+    }
     /**
      * This function is used to set a target element for the control. It has no
      * effect if it is called after the control has been added to the map (i.e.
@@ -150,12 +135,11 @@ var Control = /** @class */ (function (_super) {
      * @param {HTMLElement|string} target Target.
      * @api
      */
-    Control.prototype.setTarget = function (target) {
+    setTarget(target) {
         this.target_ = typeof target === 'string' ?
             document.getElementById(target) :
             target;
-    };
-    return Control;
-}(BaseObject));
+    }
+}
 export default Control;
 //# sourceMappingURL=Control.js.map

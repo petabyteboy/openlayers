@@ -1,16 +1,3 @@
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 /**
  * @module ol/format/WKT
  */
@@ -30,7 +17,7 @@ import Polygon from '../geom/Polygon.js';
  * Geometry constructors
  * @enum {function (new:import("../geom/Geometry.js").default, Array, GeometryLayout)}
  */
-var GeometryConstructor = {
+const GeometryConstructor = {
     'POINT': Point,
     'LINESTRING': LineString,
     'POLYGON': Polygon,
@@ -53,27 +40,27 @@ var GeometryConstructor = {
  * @const
  * @type {string}
  */
-var EMPTY = 'EMPTY';
+const EMPTY = 'EMPTY';
 /**
  * @const
  * @type {string}
  */
-var Z = 'Z';
+const Z = 'Z';
 /**
  * @const
  * @type {string}
  */
-var M = 'M';
+const M = 'M';
 /**
  * @const
  * @type {string}
  */
-var ZM = 'ZM';
+const ZM = 'ZM';
 /**
  * @const
  * @enum {number}
  */
-var TokenType = {
+const TokenType = {
     TEXT: 1,
     LEFT_PAREN: 2,
     RIGHT_PAREN: 3,
@@ -85,18 +72,18 @@ var TokenType = {
  * @const
  * @type {Object<string, string>}
  */
-var WKTGeometryType = {};
-for (var type in GeometryType) {
+const WKTGeometryType = {};
+for (const type in GeometryType) {
     WKTGeometryType[type] = GeometryType[type].toUpperCase();
 }
 /**
  * Class to tokenize a WKT string.
  */
-var Lexer = /** @class */ (function () {
+class Lexer {
     /**
      * @param {string} wkt WKT string.
      */
-    function Lexer(wkt) {
+    constructor(wkt) {
         /**
          * @type {string}
          */
@@ -112,9 +99,9 @@ var Lexer = /** @class */ (function () {
      * @return {boolean} Whether the character is alphabetic.
      * @private
      */
-    Lexer.prototype.isAlpha_ = function (c) {
+    isAlpha_(c) {
         return c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z';
-    };
+    }
     /**
      * @param {string} c Character.
      * @param {boolean=} opt_decimal Whether the string number
@@ -122,35 +109,35 @@ var Lexer = /** @class */ (function () {
      * @return {boolean} Whether the character is numeric.
      * @private
      */
-    Lexer.prototype.isNumeric_ = function (c, opt_decimal) {
-        var decimal = opt_decimal !== undefined ? opt_decimal : false;
+    isNumeric_(c, opt_decimal) {
+        const decimal = opt_decimal !== undefined ? opt_decimal : false;
         return c >= '0' && c <= '9' || c == '.' && !decimal;
-    };
+    }
     /**
      * @param {string} c Character.
      * @return {boolean} Whether the character is whitespace.
      * @private
      */
-    Lexer.prototype.isWhiteSpace_ = function (c) {
+    isWhiteSpace_(c) {
         return c == ' ' || c == '\t' || c == '\r' || c == '\n';
-    };
+    }
     /**
      * @return {string} Next string character.
      * @private
      */
-    Lexer.prototype.nextChar_ = function () {
+    nextChar_() {
         return this.wkt.charAt(++this.index_);
-    };
+    }
     /**
      * Fetch and return the next token.
      * @return {!Token} Next string token.
      */
-    Lexer.prototype.nextToken = function () {
-        var c = this.nextChar_();
-        var position = this.index_;
+    nextToken() {
+        const c = this.nextChar_();
+        const position = this.index_;
         /** @type {number|string} */
-        var value = c;
-        var type;
+        let value = c;
+        let type;
         if (c == '(') {
             type = TokenType.LEFT_PAREN;
         }
@@ -178,16 +165,16 @@ var Lexer = /** @class */ (function () {
             throw new Error('Unexpected character: ' + c);
         }
         return { position: position, value: value, type: type };
-    };
+    }
     /**
      * @return {number} Numeric token value.
      * @private
      */
-    Lexer.prototype.readNumber_ = function () {
-        var c;
-        var index = this.index_;
-        var decimal = false;
-        var scientificNotation = false;
+    readNumber_() {
+        let c;
+        const index = this.index_;
+        let decimal = false;
+        let scientificNotation = false;
         do {
             if (c == '.') {
                 decimal = true;
@@ -204,29 +191,28 @@ var Lexer = /** @class */ (function () {
             // are allowed
             scientificNotation && (c == '-' || c == '+'));
         return parseFloat(this.wkt.substring(index, this.index_--));
-    };
+    }
     /**
      * @return {string} String token value.
      * @private
      */
-    Lexer.prototype.readText_ = function () {
-        var c;
-        var index = this.index_;
+    readText_() {
+        let c;
+        const index = this.index_;
         do {
             c = this.nextChar_();
         } while (this.isAlpha_(c));
         return this.wkt.substring(index, this.index_--).toUpperCase();
-    };
-    return Lexer;
-}());
+    }
+}
 /**
  * Class to parse the tokens from the WKT string.
  */
-var Parser = /** @class */ (function () {
+class Parser {
     /**
      * @param {Lexer} lexer The lexer.
      */
-    function Parser(lexer) {
+    constructor(lexer) {
         /**
          * @type {Lexer}
          * @private
@@ -247,49 +233,49 @@ var Parser = /** @class */ (function () {
      * Fetch the next token form the lexer and replace the active token.
      * @private
      */
-    Parser.prototype.consume_ = function () {
+    consume_() {
         this.token_ = this.lexer_.nextToken();
-    };
+    }
     /**
      * Tests if the given type matches the type of the current token.
      * @param {TokenType} type Token type.
      * @return {boolean} Whether the token matches the given type.
      */
-    Parser.prototype.isTokenType = function (type) {
-        var isMatch = this.token_.type == type;
+    isTokenType(type) {
+        const isMatch = this.token_.type == type;
         return isMatch;
-    };
+    }
     /**
      * If the given type matches the current token, consume it.
      * @param {TokenType} type Token type.
      * @return {boolean} Whether the token matches the given type.
      */
-    Parser.prototype.match = function (type) {
-        var isMatch = this.isTokenType(type);
+    match(type) {
+        const isMatch = this.isTokenType(type);
         if (isMatch) {
             this.consume_();
         }
         return isMatch;
-    };
+    }
     /**
      * Try to parse the tokens provided by the lexer.
      * @return {import("../geom/Geometry.js").default} The geometry.
      */
-    Parser.prototype.parse = function () {
+    parse() {
         this.consume_();
-        var geometry = this.parseGeometry_();
+        const geometry = this.parseGeometry_();
         return geometry;
-    };
+    }
     /**
      * Try to parse the dimensional info.
      * @return {GeometryLayout} The layout.
      * @private
      */
-    Parser.prototype.parseGeometryLayout_ = function () {
-        var layout = GeometryLayout.XY;
-        var dimToken = this.token_;
+    parseGeometryLayout_() {
+        let layout = GeometryLayout.XY;
+        const dimToken = this.token_;
         if (this.isTokenType(TokenType.TEXT)) {
-            var dimInfo = dimToken.value;
+            const dimInfo = dimToken.value;
             if (dimInfo === Z) {
                 layout = GeometryLayout.XYZ;
             }
@@ -304,14 +290,14 @@ var Parser = /** @class */ (function () {
             }
         }
         return layout;
-    };
+    }
     /**
      * @return {!Array<import("../geom/Geometry.js").default>} A collection of geometries.
      * @private
      */
-    Parser.prototype.parseGeometryCollectionText_ = function () {
+    parseGeometryCollectionText_() {
         if (this.match(TokenType.LEFT_PAREN)) {
-            var geometries = [];
+            const geometries = [];
             do {
                 geometries.push(this.parseGeometry_());
             } while (this.match(TokenType.COMMA));
@@ -323,14 +309,14 @@ var Parser = /** @class */ (function () {
             return [];
         }
         throw new Error(this.formatErrorMessage_());
-    };
+    }
     /**
      * @return {Array<number>} All values in a point.
      * @private
      */
-    Parser.prototype.parsePointText_ = function () {
+    parsePointText_() {
         if (this.match(TokenType.LEFT_PAREN)) {
-            var coordinates = this.parsePoint_();
+            const coordinates = this.parsePoint_();
             if (this.match(TokenType.RIGHT_PAREN)) {
                 return coordinates;
             }
@@ -339,14 +325,14 @@ var Parser = /** @class */ (function () {
             return null;
         }
         throw new Error(this.formatErrorMessage_());
-    };
+    }
     /**
      * @return {!Array<!Array<number>>} All points in a linestring.
      * @private
      */
-    Parser.prototype.parseLineStringText_ = function () {
+    parseLineStringText_() {
         if (this.match(TokenType.LEFT_PAREN)) {
-            var coordinates = this.parsePointList_();
+            const coordinates = this.parsePointList_();
             if (this.match(TokenType.RIGHT_PAREN)) {
                 return coordinates;
             }
@@ -355,14 +341,14 @@ var Parser = /** @class */ (function () {
             return [];
         }
         throw new Error(this.formatErrorMessage_());
-    };
+    }
     /**
      * @return {!Array<!Array<!Array<number>>>} All points in a polygon.
      * @private
      */
-    Parser.prototype.parsePolygonText_ = function () {
+    parsePolygonText_() {
         if (this.match(TokenType.LEFT_PAREN)) {
-            var coordinates = this.parseLineStringTextList_();
+            const coordinates = this.parseLineStringTextList_();
             if (this.match(TokenType.RIGHT_PAREN)) {
                 return coordinates;
             }
@@ -371,14 +357,14 @@ var Parser = /** @class */ (function () {
             return [];
         }
         throw new Error(this.formatErrorMessage_());
-    };
+    }
     /**
      * @return {!Array<!Array<number>>} All points in a multipoint.
      * @private
      */
-    Parser.prototype.parseMultiPointText_ = function () {
+    parseMultiPointText_() {
         if (this.match(TokenType.LEFT_PAREN)) {
-            var coordinates = void 0;
+            let coordinates;
             if (this.token_.type == TokenType.LEFT_PAREN) {
                 coordinates = this.parsePointTextList_();
             }
@@ -393,15 +379,15 @@ var Parser = /** @class */ (function () {
             return [];
         }
         throw new Error(this.formatErrorMessage_());
-    };
+    }
     /**
      * @return {!Array<!Array<!Array<number>>>} All linestring points
      *                                          in a multilinestring.
      * @private
      */
-    Parser.prototype.parseMultiLineStringText_ = function () {
+    parseMultiLineStringText_() {
         if (this.match(TokenType.LEFT_PAREN)) {
-            var coordinates = this.parseLineStringTextList_();
+            const coordinates = this.parseLineStringTextList_();
             if (this.match(TokenType.RIGHT_PAREN)) {
                 return coordinates;
             }
@@ -410,14 +396,14 @@ var Parser = /** @class */ (function () {
             return [];
         }
         throw new Error(this.formatErrorMessage_());
-    };
+    }
     /**
      * @return {!Array<!Array<!Array<!Array<number>>>>} All polygon points in a multipolygon.
      * @private
      */
-    Parser.prototype.parseMultiPolygonText_ = function () {
+    parseMultiPolygonText_() {
         if (this.match(TokenType.LEFT_PAREN)) {
-            var coordinates = this.parsePolygonTextList_();
+            const coordinates = this.parsePolygonTextList_();
             if (this.match(TokenType.RIGHT_PAREN)) {
                 return coordinates;
             }
@@ -426,16 +412,16 @@ var Parser = /** @class */ (function () {
             return [];
         }
         throw new Error(this.formatErrorMessage_());
-    };
+    }
     /**
      * @return {!Array<number>} A point.
      * @private
      */
-    Parser.prototype.parsePoint_ = function () {
-        var coordinates = [];
-        var dimensions = this.layout_.length;
-        for (var i = 0; i < dimensions; ++i) {
-            var token = this.token_;
+    parsePoint_() {
+        const coordinates = [];
+        const dimensions = this.layout_.length;
+        for (let i = 0; i < dimensions; ++i) {
+            const token = this.token_;
             if (this.match(TokenType.NUMBER)) {
                 coordinates.push(/** @type {number} */ (token.value));
             }
@@ -447,91 +433,91 @@ var Parser = /** @class */ (function () {
             return coordinates;
         }
         throw new Error(this.formatErrorMessage_());
-    };
+    }
     /**
      * @return {!Array<!Array<number>>} An array of points.
      * @private
      */
-    Parser.prototype.parsePointList_ = function () {
-        var coordinates = [this.parsePoint_()];
+    parsePointList_() {
+        const coordinates = [this.parsePoint_()];
         while (this.match(TokenType.COMMA)) {
             coordinates.push(this.parsePoint_());
         }
         return coordinates;
-    };
+    }
     /**
      * @return {!Array<!Array<number>>} An array of points.
      * @private
      */
-    Parser.prototype.parsePointTextList_ = function () {
-        var coordinates = [this.parsePointText_()];
+    parsePointTextList_() {
+        const coordinates = [this.parsePointText_()];
         while (this.match(TokenType.COMMA)) {
             coordinates.push(this.parsePointText_());
         }
         return coordinates;
-    };
+    }
     /**
      * @return {!Array<!Array<!Array<number>>>} An array of points.
      * @private
      */
-    Parser.prototype.parseLineStringTextList_ = function () {
-        var coordinates = [this.parseLineStringText_()];
+    parseLineStringTextList_() {
+        const coordinates = [this.parseLineStringText_()];
         while (this.match(TokenType.COMMA)) {
             coordinates.push(this.parseLineStringText_());
         }
         return coordinates;
-    };
+    }
     /**
      * @return {!Array<!Array<!Array<!Array<number>>>>} An array of points.
      * @private
      */
-    Parser.prototype.parsePolygonTextList_ = function () {
-        var coordinates = [this.parsePolygonText_()];
+    parsePolygonTextList_() {
+        const coordinates = [this.parsePolygonText_()];
         while (this.match(TokenType.COMMA)) {
             coordinates.push(this.parsePolygonText_());
         }
         return coordinates;
-    };
+    }
     /**
      * @return {boolean} Whether the token implies an empty geometry.
      * @private
      */
-    Parser.prototype.isEmptyGeometry_ = function () {
-        var isEmpty = this.isTokenType(TokenType.TEXT) &&
+    isEmptyGeometry_() {
+        const isEmpty = this.isTokenType(TokenType.TEXT) &&
             this.token_.value == EMPTY;
         if (isEmpty) {
             this.consume_();
         }
         return isEmpty;
-    };
+    }
     /**
      * Create an error message for an unexpected token error.
      * @return {string} Error message.
      * @private
      */
-    Parser.prototype.formatErrorMessage_ = function () {
+    formatErrorMessage_() {
         return 'Unexpected `' + this.token_.value + '` at position ' +
             this.token_.position + ' in `' + this.lexer_.wkt + '`';
-    };
+    }
     /**
      * @return {!import("../geom/Geometry.js").default} The geometry.
      * @private
      */
-    Parser.prototype.parseGeometry_ = function () {
-        var token = this.token_;
+    parseGeometry_() {
+        const token = this.token_;
         if (this.match(TokenType.TEXT)) {
-            var geomType = token.value;
+            const geomType = token.value;
             this.layout_ = this.parseGeometryLayout_();
             if (geomType == 'GEOMETRYCOLLECTION') {
-                var geometries = this.parseGeometryCollectionText_();
+                const geometries = this.parseGeometryCollectionText_();
                 return new GeometryCollection(geometries);
             }
             else {
-                var ctor = GeometryConstructor[geomType];
+                const ctor = GeometryConstructor[geomType];
                 if (!ctor) {
                     throw new Error('Invalid geometry type: ' + geomType);
                 }
-                var coordinates = void 0;
+                let coordinates;
                 switch (geomType) {
                     case 'POINT': {
                         coordinates = this.parsePointText_();
@@ -573,9 +559,8 @@ var Parser = /** @class */ (function () {
             }
         }
         throw new Error(this.formatErrorMessage_());
-    };
-    return Parser;
-}());
+    }
+}
 /**
  * @classdesc
  * Geometry format for reading and writing data in the `WellKnownText` (WKT)
@@ -583,22 +568,20 @@ var Parser = /** @class */ (function () {
  *
  * @api
  */
-var WKT = /** @class */ (function (_super) {
-    __extends(WKT, _super);
+class WKT extends TextFeature {
     /**
      * @param {Options=} opt_options Options.
      */
-    function WKT(opt_options) {
-        var _this = _super.call(this) || this;
-        var options = opt_options ? opt_options : {};
+    constructor(opt_options) {
+        super();
+        const options = opt_options ? opt_options : {};
         /**
          * Split GeometryCollection into multiple features.
          * @type {boolean}
          * @private
          */
-        _this.splitCollection_ = options.splitCollection !== undefined ?
+        this.splitCollection_ = options.splitCollection !== undefined ?
             options.splitCollection : false;
-        return _this;
     }
     /**
      * Parse a WKT string.
@@ -607,29 +590,29 @@ var WKT = /** @class */ (function (_super) {
      *     The geometry created.
      * @private
      */
-    WKT.prototype.parse_ = function (wkt) {
-        var lexer = new Lexer(wkt);
-        var parser = new Parser(lexer);
+    parse_(wkt) {
+        const lexer = new Lexer(wkt);
+        const parser = new Parser(lexer);
         return parser.parse();
-    };
+    }
     /**
      * @inheritDoc
      */
-    WKT.prototype.readFeatureFromText = function (text, opt_options) {
-        var geom = this.readGeometryFromText(text, opt_options);
+    readFeatureFromText(text, opt_options) {
+        const geom = this.readGeometryFromText(text, opt_options);
         if (geom) {
-            var feature = new Feature();
+            const feature = new Feature();
             feature.setGeometry(geom);
             return feature;
         }
         return null;
-    };
+    }
     /**
      * @inheritDoc
      */
-    WKT.prototype.readFeaturesFromText = function (text, opt_options) {
-        var geometries = [];
-        var geometry = this.readGeometryFromText(text, opt_options);
+    readFeaturesFromText(text, opt_options) {
+        let geometries = [];
+        const geometry = this.readGeometryFromText(text, opt_options);
         if (this.splitCollection_ &&
             geometry.getType() == GeometryType.GEOMETRY_COLLECTION) {
             geometries = ( /** @type {GeometryCollection} */(geometry))
@@ -638,64 +621,63 @@ var WKT = /** @class */ (function (_super) {
         else {
             geometries = [geometry];
         }
-        var features = [];
-        for (var i = 0, ii = geometries.length; i < ii; ++i) {
-            var feature = new Feature();
+        const features = [];
+        for (let i = 0, ii = geometries.length; i < ii; ++i) {
+            const feature = new Feature();
             feature.setGeometry(geometries[i]);
             features.push(feature);
         }
         return features;
-    };
+    }
     /**
      * @inheritDoc
      */
-    WKT.prototype.readGeometryFromText = function (text, opt_options) {
-        var geometry = this.parse_(text);
+    readGeometryFromText(text, opt_options) {
+        const geometry = this.parse_(text);
         if (geometry) {
             return transformGeometryWithOptions(geometry, false, opt_options);
         }
         else {
             return null;
         }
-    };
+    }
     /**
      * @inheritDoc
      */
-    WKT.prototype.writeFeatureText = function (feature, opt_options) {
-        var geometry = feature.getGeometry();
+    writeFeatureText(feature, opt_options) {
+        const geometry = feature.getGeometry();
         if (geometry) {
             return this.writeGeometryText(geometry, opt_options);
         }
         return '';
-    };
+    }
     /**
      * @inheritDoc
      */
-    WKT.prototype.writeFeaturesText = function (features, opt_options) {
+    writeFeaturesText(features, opt_options) {
         if (features.length == 1) {
             return this.writeFeatureText(features[0], opt_options);
         }
-        var geometries = [];
-        for (var i = 0, ii = features.length; i < ii; ++i) {
+        const geometries = [];
+        for (let i = 0, ii = features.length; i < ii; ++i) {
             geometries.push(features[i].getGeometry());
         }
-        var collection = new GeometryCollection(geometries);
+        const collection = new GeometryCollection(geometries);
         return this.writeGeometryText(collection, opt_options);
-    };
+    }
     /**
      * @inheritDoc
      */
-    WKT.prototype.writeGeometryText = function (geometry, opt_options) {
+    writeGeometryText(geometry, opt_options) {
         return encode(transformGeometryWithOptions(geometry, true, opt_options));
-    };
-    return WKT;
-}(TextFeature));
+    }
+}
 /**
  * @param {Point} geom Point geometry.
  * @return {string} Coordinates part of Point as WKT.
  */
 function encodePointGeometry(geom) {
-    var coordinates = geom.getCoordinates();
+    const coordinates = geom.getCoordinates();
     if (coordinates.length === 0) {
         return '';
     }
@@ -706,9 +688,9 @@ function encodePointGeometry(geom) {
  * @return {string} Coordinates part of MultiPoint as WKT.
  */
 function encodeMultiPointGeometry(geom) {
-    var array = [];
-    var components = geom.getPoints();
-    for (var i = 0, ii = components.length; i < ii; ++i) {
+    const array = [];
+    const components = geom.getPoints();
+    for (let i = 0, ii = components.length; i < ii; ++i) {
         array.push('(' + encodePointGeometry(components[i]) + ')');
     }
     return array.join(',');
@@ -718,9 +700,9 @@ function encodeMultiPointGeometry(geom) {
  * @return {string} Coordinates part of GeometryCollection as WKT.
  */
 function encodeGeometryCollectionGeometry(geom) {
-    var array = [];
-    var geoms = geom.getGeometries();
-    for (var i = 0, ii = geoms.length; i < ii; ++i) {
+    const array = [];
+    const geoms = geom.getGeometries();
+    for (let i = 0, ii = geoms.length; i < ii; ++i) {
         array.push(encode(geoms[i]));
     }
     return array.join(',');
@@ -730,9 +712,9 @@ function encodeGeometryCollectionGeometry(geom) {
  * @return {string} Coordinates part of LineString as WKT.
  */
 function encodeLineStringGeometry(geom) {
-    var coordinates = geom.getCoordinates();
-    var array = [];
-    for (var i = 0, ii = coordinates.length; i < ii; ++i) {
+    const coordinates = geom.getCoordinates();
+    const array = [];
+    for (let i = 0, ii = coordinates.length; i < ii; ++i) {
         array.push(coordinates[i].join(' '));
     }
     return array.join(',');
@@ -742,9 +724,9 @@ function encodeLineStringGeometry(geom) {
  * @return {string} Coordinates part of MultiLineString as WKT.
  */
 function encodeMultiLineStringGeometry(geom) {
-    var array = [];
-    var components = geom.getLineStrings();
-    for (var i = 0, ii = components.length; i < ii; ++i) {
+    const array = [];
+    const components = geom.getLineStrings();
+    for (let i = 0, ii = components.length; i < ii; ++i) {
         array.push('(' + encodeLineStringGeometry(components[i]) + ')');
     }
     return array.join(',');
@@ -754,9 +736,9 @@ function encodeMultiLineStringGeometry(geom) {
  * @return {string} Coordinates part of Polygon as WKT.
  */
 function encodePolygonGeometry(geom) {
-    var array = [];
-    var rings = geom.getLinearRings();
-    for (var i = 0, ii = rings.length; i < ii; ++i) {
+    const array = [];
+    const rings = geom.getLinearRings();
+    for (let i = 0, ii = rings.length; i < ii; ++i) {
         array.push('(' + encodeLineStringGeometry(rings[i]) + ')');
     }
     return array.join(',');
@@ -766,9 +748,9 @@ function encodePolygonGeometry(geom) {
  * @return {string} Coordinates part of MultiPolygon as WKT.
  */
 function encodeMultiPolygonGeometry(geom) {
-    var array = [];
-    var components = geom.getPolygons();
-    for (var i = 0, ii = components.length; i < ii; ++i) {
+    const array = [];
+    const components = geom.getPolygons();
+    for (let i = 0, ii = components.length; i < ii; ++i) {
         array.push('(' + encodePolygonGeometry(components[i]) + ')');
     }
     return array.join(',');
@@ -778,8 +760,8 @@ function encodeMultiPolygonGeometry(geom) {
  * @return {string} Potential dimensional information for WKT type.
  */
 function encodeGeometryLayout(geom) {
-    var layout = geom.getLayout();
-    var dimInfo = '';
+    const layout = geom.getLayout();
+    let dimInfo = '';
     if (layout === GeometryLayout.XYZ || layout === GeometryLayout.XYZM) {
         dimInfo += Z;
     }
@@ -792,7 +774,7 @@ function encodeGeometryLayout(geom) {
  * @const
  * @type {Object<string, function(import("../geom/Geometry.js").default): string>}
  */
-var GeometryEncoder = {
+const GeometryEncoder = {
     'Point': encodePointGeometry,
     'LineString': encodeLineStringGeometry,
     'Polygon': encodePolygonGeometry,
@@ -807,12 +789,12 @@ var GeometryEncoder = {
  * @return {string} WKT string for the geometry.
  */
 function encode(geom) {
-    var type = geom.getType();
-    var geometryEncoder = GeometryEncoder[type];
-    var enc = geometryEncoder(geom);
+    let type = geom.getType();
+    const geometryEncoder = GeometryEncoder[type];
+    const enc = geometryEncoder(geom);
     type = type.toUpperCase();
     if (typeof /** @type {?} */ (geom).getFlatCoordinates === 'function') {
-        var dimInfo = encodeGeometryLayout(/** @type {import("../geom/SimpleGeometry.js").default} */ (geom));
+        const dimInfo = encodeGeometryLayout(/** @type {import("../geom/SimpleGeometry.js").default} */ (geom));
         if (dimInfo.length > 0) {
             type += ' ' + dimInfo;
         }

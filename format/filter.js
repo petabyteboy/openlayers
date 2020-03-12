@@ -26,7 +26,7 @@ import Within from './filter/Within.js';
  * @api
  */
 export function and(conditions) {
-    var params = [null].concat(Array.prototype.slice.call(arguments));
+    const params = [null].concat(Array.prototype.slice.call(arguments));
     return new (Function.prototype.bind.apply(And, params));
 }
 /**
@@ -37,7 +37,7 @@ export function and(conditions) {
  * @api
  */
 export function or(conditions) {
-    var params = [null].concat(Array.prototype.slice.call(arguments));
+    const params = [null].concat(Array.prototype.slice.call(arguments));
     return new (Function.prototype.bind.apply(Or, params));
 }
 /**

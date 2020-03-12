@@ -1,19 +1,6 @@
 /**
  * @module ol/control/ZoomSlider
  */
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 import 'elm-pep';
 import Control from './Control.js';
 import { CLASS_CONTROL, CLASS_UNSELECTABLE } from '../css.js';
@@ -28,7 +15,7 @@ import PointerEventType from '../pointer/EventType.js';
  *
  * @enum {number}
  */
-var Direction = {
+const Direction = {
     VERTICAL: 0,
     HORIZONTAL: 1
 };
@@ -49,30 +36,28 @@ var Direction = {
  *
  * @api
  */
-var ZoomSlider = /** @class */ (function (_super) {
-    __extends(ZoomSlider, _super);
+class ZoomSlider extends Control {
     /**
      * @param {Options=} opt_options Zoom slider options.
      */
-    function ZoomSlider(opt_options) {
-        var _this = this;
-        var options = opt_options ? opt_options : {};
-        _this = _super.call(this, {
+    constructor(opt_options) {
+        const options = opt_options ? opt_options : {};
+        super({
             element: document.createElement('div'),
             render: options.render || render
-        }) || this;
+        });
         /**
           * @type {!Array.<import("../events.js").EventsKey>}
           * @private
           */
-        _this.dragListenerKeys_ = [];
+        this.dragListenerKeys_ = [];
         /**
          * Will hold the current resolution of the view.
          *
          * @type {number|undefined}
          * @private
          */
-        _this.currentResolution_ = undefined;
+        this.currentResolution_ = undefined;
         /**
          * The direction of the slider. Will be determined from actual display of the
          * container and defaults to Direction.VERTICAL.
@@ -80,73 +65,72 @@ var ZoomSlider = /** @class */ (function (_super) {
          * @type {Direction}
          * @private
          */
-        _this.direction_ = Direction.VERTICAL;
+        this.direction_ = Direction.VERTICAL;
         /**
          * @type {boolean}
          * @private
          */
-        _this.dragging_;
+        this.dragging_;
         /**
          * @type {number}
          * @private
          */
-        _this.heightLimit_ = 0;
+        this.heightLimit_ = 0;
         /**
          * @type {number}
          * @private
          */
-        _this.widthLimit_ = 0;
+        this.widthLimit_ = 0;
         /**
          * @type {number|undefined}
          * @private
          */
-        _this.startX_;
+        this.startX_;
         /**
          * @type {number|undefined}
          * @private
          */
-        _this.startY_;
+        this.startY_;
         /**
          * The calculated thumb size (border box plus margins).  Set when initSlider_
          * is called.
          * @type {import("../size.js").Size}
          * @private
          */
-        _this.thumbSize_ = null;
+        this.thumbSize_ = null;
         /**
          * Whether the slider is initialized.
          * @type {boolean}
          * @private
          */
-        _this.sliderInitialized_ = false;
+        this.sliderInitialized_ = false;
         /**
          * @type {number}
          * @private
          */
-        _this.duration_ = options.duration !== undefined ? options.duration : 200;
-        var className = options.className !== undefined ? options.className : 'ol-zoomslider';
-        var thumbElement = document.createElement('button');
+        this.duration_ = options.duration !== undefined ? options.duration : 200;
+        const className = options.className !== undefined ? options.className : 'ol-zoomslider';
+        const thumbElement = document.createElement('button');
         thumbElement.setAttribute('type', 'button');
         thumbElement.className = className + '-thumb ' + CLASS_UNSELECTABLE;
-        var containerElement = _this.element;
+        const containerElement = this.element;
         containerElement.className = className + ' ' + CLASS_UNSELECTABLE + ' ' + CLASS_CONTROL;
         containerElement.appendChild(thumbElement);
-        containerElement.addEventListener(PointerEventType.POINTERDOWN, _this.handleDraggerStart_.bind(_this), false);
-        containerElement.addEventListener(PointerEventType.POINTERMOVE, _this.handleDraggerDrag_.bind(_this), false);
-        containerElement.addEventListener(PointerEventType.POINTERUP, _this.handleDraggerEnd_.bind(_this), false);
-        containerElement.addEventListener(EventType.CLICK, _this.handleContainerClick_.bind(_this), false);
+        containerElement.addEventListener(PointerEventType.POINTERDOWN, this.handleDraggerStart_.bind(this), false);
+        containerElement.addEventListener(PointerEventType.POINTERMOVE, this.handleDraggerDrag_.bind(this), false);
+        containerElement.addEventListener(PointerEventType.POINTERUP, this.handleDraggerEnd_.bind(this), false);
+        containerElement.addEventListener(EventType.CLICK, this.handleContainerClick_.bind(this), false);
         thumbElement.addEventListener(EventType.CLICK, stopPropagation, false);
-        return _this;
     }
     /**
      * @inheritDoc
      */
-    ZoomSlider.prototype.setMap = function (map) {
-        _super.prototype.setMap.call(this, map);
+    setMap(map) {
+        super.setMap(map);
         if (map) {
             map.render();
         }
-    };
+    }
     /**
      * Initializes the slider element. This will determine and set this controls
      * direction_ and also constrain the dragging of the thumb to always be within
@@ -154,17 +138,17 @@ var ZoomSlider = /** @class */ (function (_super) {
      *
      * @private
      */
-    ZoomSlider.prototype.initSlider_ = function () {
-        var container = this.element;
-        var containerSize = {
+    initSlider_() {
+        const container = this.element;
+        const containerSize = {
             width: container.offsetWidth, height: container.offsetHeight
         };
-        var thumb = /** @type {HTMLElement} */ (container.firstElementChild);
-        var computedStyle = getComputedStyle(thumb);
-        var thumbWidth = thumb.offsetWidth +
+        const thumb = /** @type {HTMLElement} */ (container.firstElementChild);
+        const computedStyle = getComputedStyle(thumb);
+        const thumbWidth = thumb.offsetWidth +
             parseFloat(computedStyle['marginRight']) +
             parseFloat(computedStyle['marginLeft']);
-        var thumbHeight = thumb.offsetHeight +
+        const thumbHeight = thumb.offsetHeight +
             parseFloat(computedStyle['marginTop']) +
             parseFloat(computedStyle['marginBottom']);
         this.thumbSize_ = [thumbWidth, thumbHeight];
@@ -177,64 +161,64 @@ var ZoomSlider = /** @class */ (function (_super) {
             this.heightLimit_ = containerSize.height - thumbHeight;
         }
         this.sliderInitialized_ = true;
-    };
+    }
     /**
      * @param {PointerEvent} event The browser event to handle.
      * @private
      */
-    ZoomSlider.prototype.handleContainerClick_ = function (event) {
-        var view = this.getMap().getView();
-        var relativePosition = this.getRelativePosition_(event.offsetX - this.thumbSize_[0] / 2, event.offsetY - this.thumbSize_[1] / 2);
-        var resolution = this.getResolutionForPosition_(relativePosition);
-        var zoom = view.getConstrainedZoom(view.getZoomForResolution(resolution));
+    handleContainerClick_(event) {
+        const view = this.getMap().getView();
+        const relativePosition = this.getRelativePosition_(event.offsetX - this.thumbSize_[0] / 2, event.offsetY - this.thumbSize_[1] / 2);
+        const resolution = this.getResolutionForPosition_(relativePosition);
+        const zoom = view.getConstrainedZoom(view.getZoomForResolution(resolution));
         view.animateInternal({
             zoom: zoom,
             duration: this.duration_,
             easing: easeOut
         });
-    };
+    }
     /**
      * Handle dragger start events.
      * @param {PointerEvent} event The drag event.
      * @private
      */
-    ZoomSlider.prototype.handleDraggerStart_ = function (event) {
+    handleDraggerStart_(event) {
         if (!this.dragging_ && event.target === this.element.firstElementChild) {
-            var element = /** @type {HTMLElement} */ (this.element.firstElementChild);
+            const element = /** @type {HTMLElement} */ (this.element.firstElementChild);
             this.getMap().getView().beginInteraction();
             this.startX_ = event.clientX - parseFloat(element.style.left);
             this.startY_ = event.clientY - parseFloat(element.style.top);
             this.dragging_ = true;
             if (this.dragListenerKeys_.length === 0) {
-                var drag = this.handleDraggerDrag_;
-                var end = this.handleDraggerEnd_;
+                const drag = this.handleDraggerDrag_;
+                const end = this.handleDraggerEnd_;
                 this.dragListenerKeys_.push(listen(document, PointerEventType.POINTERMOVE, drag, this), listen(document, PointerEventType.POINTERUP, end, this));
             }
         }
-    };
+    }
     /**
      * Handle dragger drag events.
      *
      * @param {PointerEvent} event The drag event.
      * @private
      */
-    ZoomSlider.prototype.handleDraggerDrag_ = function (event) {
+    handleDraggerDrag_(event) {
         if (this.dragging_) {
-            var deltaX = event.clientX - this.startX_;
-            var deltaY = event.clientY - this.startY_;
-            var relativePosition = this.getRelativePosition_(deltaX, deltaY);
+            const deltaX = event.clientX - this.startX_;
+            const deltaY = event.clientY - this.startY_;
+            const relativePosition = this.getRelativePosition_(deltaX, deltaY);
             this.currentResolution_ = this.getResolutionForPosition_(relativePosition);
             this.getMap().getView().setResolution(this.currentResolution_);
         }
-    };
+    }
     /**
      * Handle dragger end events.
      * @param {PointerEvent} event The drag event.
      * @private
      */
-    ZoomSlider.prototype.handleDraggerEnd_ = function (event) {
+    handleDraggerEnd_(event) {
         if (this.dragging_) {
-            var view = this.getMap().getView();
+            const view = this.getMap().getView();
             view.endInteraction();
             this.dragging_ = false;
             this.startX_ = undefined;
@@ -242,23 +226,23 @@ var ZoomSlider = /** @class */ (function (_super) {
             this.dragListenerKeys_.forEach(unlistenByKey);
             this.dragListenerKeys_.length = 0;
         }
-    };
+    }
     /**
      * Positions the thumb inside its container according to the given resolution.
      *
      * @param {number} res The res.
      * @private
      */
-    ZoomSlider.prototype.setThumbPosition_ = function (res) {
-        var position = this.getPositionForResolution_(res);
-        var thumb = /** @type {HTMLElement} */ (this.element.firstElementChild);
+    setThumbPosition_(res) {
+        const position = this.getPositionForResolution_(res);
+        const thumb = /** @type {HTMLElement} */ (this.element.firstElementChild);
         if (this.direction_ == Direction.HORIZONTAL) {
             thumb.style.left = this.widthLimit_ * position + 'px';
         }
         else {
             thumb.style.top = this.heightLimit_ * position + 'px';
         }
-    };
+    }
     /**
      * Calculates the relative position of the thumb given x and y offsets.  The
      * relative position scales from 0 to 1.  The x and y offsets are assumed to be
@@ -269,8 +253,8 @@ var ZoomSlider = /** @class */ (function (_super) {
      * @return {number} The relative position of the thumb.
      * @private
      */
-    ZoomSlider.prototype.getRelativePosition_ = function (x, y) {
-        var amount;
+    getRelativePosition_(x, y) {
+        let amount;
         if (this.direction_ === Direction.HORIZONTAL) {
             amount = x / this.widthLimit_;
         }
@@ -278,7 +262,7 @@ var ZoomSlider = /** @class */ (function (_super) {
             amount = y / this.heightLimit_;
         }
         return clamp(amount, 0, 1);
-    };
+    }
     /**
      * Calculates the corresponding resolution of the thumb given its relative
      * position (where 0 is the minimum and 1 is the maximum).
@@ -287,10 +271,10 @@ var ZoomSlider = /** @class */ (function (_super) {
      * @return {number} The corresponding resolution.
      * @private
      */
-    ZoomSlider.prototype.getResolutionForPosition_ = function (position) {
-        var fn = this.getMap().getView().getResolutionForValueFunction();
+    getResolutionForPosition_(position) {
+        const fn = this.getMap().getView().getResolutionForValueFunction();
         return fn(1 - position);
-    };
+    }
     /**
      * Determines the relative position of the slider for the given resolution.  A
      * relative position of 0 corresponds to the minimum view resolution.  A
@@ -300,12 +284,11 @@ var ZoomSlider = /** @class */ (function (_super) {
      * @return {number} The relative position value (between 0 and 1).
      * @private
      */
-    ZoomSlider.prototype.getPositionForResolution_ = function (res) {
-        var fn = this.getMap().getView().getValueForResolutionFunction();
+    getPositionForResolution_(res) {
+        const fn = this.getMap().getView().getValueForResolutionFunction();
         return clamp(1 - fn(res), 0, 1);
-    };
-    return ZoomSlider;
-}(Control));
+    }
+}
 /**
  * Update the zoomslider element.
  * @param {import("../MapEvent.js").default} mapEvent Map event.
@@ -318,7 +301,7 @@ export function render(mapEvent) {
     if (!this.sliderInitialized_) {
         this.initSlider_();
     }
-    var res = mapEvent.frameState.viewState.resolution;
+    const res = mapEvent.frameState.viewState.resolution;
     this.currentResolution_ = res;
     this.setThumbPosition_(res);
 }

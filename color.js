@@ -17,14 +17,14 @@ import { clamp } from './math.js';
  * @type {RegExp}
  * @private
  */
-var HEX_COLOR_RE_ = /^#([a-f0-9]{3}|[a-f0-9]{4}(?:[a-f0-9]{2}){0,2})$/i;
+const HEX_COLOR_RE_ = /^#([a-f0-9]{3}|[a-f0-9]{4}(?:[a-f0-9]{2}){0,2})$/i;
 /**
  * Regular expression for matching potential named color style strings.
  * @const
  * @type {RegExp}
  * @private
  */
-var NAMED_COLOR_RE_ = /^([a-z]*)$|^hsla?\(.*\)$/i;
+const NAMED_COLOR_RE_ = /^([a-z]*)$|^hsla?\(.*\)$/i;
 /**
  * Return the color as an rgba string.
  * @param {Color|string} color Color.
@@ -45,11 +45,11 @@ export function asString(color) {
  * @return {string} Rgb string.
  */
 function fromNamed(color) {
-    var el = document.createElement('div');
+    const el = document.createElement('div');
     el.style.color = color;
     if (el.style.color !== '') {
         document.body.appendChild(el);
-        var rgb = getComputedStyle(el).color;
+        const rgb = getComputedStyle(el).color;
         document.body.removeChild(el);
         return rgb;
     }
@@ -61,7 +61,7 @@ function fromNamed(color) {
  * @param {string} s String.
  * @return {Color} Color.
  */
-export var fromString = (function () {
+export const fromString = (function () {
     // We maintain a small cache of parsed strings.  To provide cheap LRU-like
     // semantics, whenever the cache grows too large we simply delete an
     // arbitrary 25% of the entries.
@@ -69,29 +69,29 @@ export var fromString = (function () {
      * @const
      * @type {number}
      */
-    var MAX_CACHE_SIZE = 1024;
+    const MAX_CACHE_SIZE = 1024;
     /**
      * @type {Object<string, Color>}
      */
-    var cache = {};
+    const cache = {};
     /**
      * @type {number}
      */
-    var cacheSize = 0;
+    let cacheSize = 0;
     return (
     /**
      * @param {string} s String.
      * @return {Color} Color.
      */
     function (s) {
-        var color;
+        let color;
         if (cache.hasOwnProperty(s)) {
             color = cache[s];
         }
         else {
             if (cacheSize >= MAX_CACHE_SIZE) {
-                var i = 0;
-                for (var key in cache) {
+                let i = 0;
+                for (const key in cache) {
                     if ((i++ & 3) === 0) {
                         delete cache[key];
                         --cacheSize;
@@ -126,21 +126,20 @@ export function asArray(color) {
  * @return {Color} Color.
  */
 function fromStringInternal_(s) {
-    var r, g, b, a, color;
+    let r, g, b, a, color;
     if (NAMED_COLOR_RE_.exec(s)) {
         s = fromNamed(s);
     }
     if (HEX_COLOR_RE_.exec(s)) { // hex
-        var n = s.length - 1; // number of hex digits
-        var d = // number of digits per channel
-         void 0; // number of digits per channel
+        const n = s.length - 1; // number of hex digits
+        let d; // number of digits per channel
         if (n <= 4) {
             d = 1;
         }
         else {
             d = 2;
         }
-        var hasAlpha = n === 4 || n === 8;
+        const hasAlpha = n === 4 || n === 8;
         r = parseInt(s.substr(1 + 0 * d, d), 16);
         g = parseInt(s.substr(1 + 1 * d, d), 16);
         b = parseInt(s.substr(1 + 2 * d, d), 16);
@@ -191,19 +190,19 @@ export function normalize(color) {
  * @return {string} String.
  */
 export function toString(color) {
-    var r = color[0];
+    let r = color[0];
     if (r != (r | 0)) {
         r = (r + 0.5) | 0;
     }
-    var g = color[1];
+    let g = color[1];
     if (g != (g | 0)) {
         g = (g + 0.5) | 0;
     }
-    var b = color[2];
+    let b = color[2];
     if (b != (b | 0)) {
         b = (b + 0.5) | 0;
     }
-    var a = color[3] === undefined ? 1 : color[3];
+    const a = color[3] === undefined ? 1 : color[3];
     return 'rgba(' + r + ',' + g + ',' + b + ',' + a + ')';
 }
 /**

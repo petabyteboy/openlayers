@@ -12,12 +12,12 @@ import { coordinates as reverseCoordinates } from './reverse.js';
 export function linearRingIsClockwise(flatCoordinates, offset, end, stride) {
     // http://tinyurl.com/clockwise-method
     // https://github.com/OSGeo/gdal/blob/trunk/gdal/ogr/ogrlinearring.cpp
-    var edge = 0;
-    var x1 = flatCoordinates[end - stride];
-    var y1 = flatCoordinates[end - stride + 1];
+    let edge = 0;
+    let x1 = flatCoordinates[end - stride];
+    let y1 = flatCoordinates[end - stride + 1];
     for (; offset < end; offset += stride) {
-        var x2 = flatCoordinates[offset];
-        var y2 = flatCoordinates[offset + 1];
+        const x2 = flatCoordinates[offset];
+        const y2 = flatCoordinates[offset + 1];
         edge += (x2 - x1) * (y2 + y1);
         x1 = x2;
         y1 = y2;
@@ -38,10 +38,10 @@ export function linearRingIsClockwise(flatCoordinates, offset, end, stride) {
  * @return {boolean} Rings are correctly oriented.
  */
 export function linearRingsAreOriented(flatCoordinates, offset, ends, stride, opt_right) {
-    var right = opt_right !== undefined ? opt_right : false;
-    for (var i = 0, ii = ends.length; i < ii; ++i) {
-        var end = ends[i];
-        var isClockwise = linearRingIsClockwise(flatCoordinates, offset, end, stride);
+    const right = opt_right !== undefined ? opt_right : false;
+    for (let i = 0, ii = ends.length; i < ii; ++i) {
+        const end = ends[i];
+        const isClockwise = linearRingIsClockwise(flatCoordinates, offset, end, stride);
         if (i === 0) {
             if ((right && isClockwise) || (!right && !isClockwise)) {
                 return false;
@@ -70,8 +70,8 @@ export function linearRingsAreOriented(flatCoordinates, offset, ends, stride, op
  * @return {boolean} Rings are correctly oriented.
  */
 export function linearRingssAreOriented(flatCoordinates, offset, endss, stride, opt_right) {
-    for (var i = 0, ii = endss.length; i < ii; ++i) {
-        var ends = endss[i];
+    for (let i = 0, ii = endss.length; i < ii; ++i) {
+        const ends = endss[i];
         if (!linearRingsAreOriented(flatCoordinates, offset, ends, stride, opt_right)) {
             return false;
         }
@@ -95,11 +95,11 @@ export function linearRingssAreOriented(flatCoordinates, offset, endss, stride, 
  * @return {number} End.
  */
 export function orientLinearRings(flatCoordinates, offset, ends, stride, opt_right) {
-    var right = opt_right !== undefined ? opt_right : false;
-    for (var i = 0, ii = ends.length; i < ii; ++i) {
-        var end = ends[i];
-        var isClockwise = linearRingIsClockwise(flatCoordinates, offset, end, stride);
-        var reverse = i === 0 ?
+    const right = opt_right !== undefined ? opt_right : false;
+    for (let i = 0, ii = ends.length; i < ii; ++i) {
+        const end = ends[i];
+        const isClockwise = linearRingIsClockwise(flatCoordinates, offset, end, stride);
+        const reverse = i === 0 ?
             (right && isClockwise) || (!right && !isClockwise) :
             (right && !isClockwise) || (!right && isClockwise);
         if (reverse) {
@@ -123,7 +123,7 @@ export function orientLinearRings(flatCoordinates, offset, ends, stride, opt_rig
  * @return {number} End.
  */
 export function orientLinearRingsArray(flatCoordinates, offset, endss, stride, opt_right) {
-    for (var i = 0, ii = endss.length; i < ii; ++i) {
+    for (let i = 0, ii = endss.length; i < ii; ++i) {
         offset = orientLinearRings(flatCoordinates, offset, endss[i], stride, opt_right);
     }
     return offset;

@@ -1,16 +1,3 @@
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 /**
  * @module ol/reproj/Tile
  */
@@ -32,8 +19,7 @@ import Triangulation from './Triangulation.js';
  * See {@link module:ol/source/TileImage~TileImage}.
  *
  */
-var ReprojTile = /** @class */ (function (_super) {
-    __extends(ReprojTile, _super);
+class ReprojTile extends Tile {
     /**
      * @param {import("../proj/Projection.js").default} sourceProj Source projection.
      * @param {import("../tilegrid/TileGrid.js").default} sourceTileGrid Source tile grid.
@@ -48,70 +34,70 @@ var ReprojTile = /** @class */ (function (_super) {
      * @param {number=} opt_errorThreshold Acceptable reprojection error (in px).
      * @param {boolean=} opt_renderEdges Render reprojection edges.
      */
-    function ReprojTile(sourceProj, sourceTileGrid, targetProj, targetTileGrid, tileCoord, wrappedTileCoord, pixelRatio, gutter, getTileFunction, opt_errorThreshold, opt_renderEdges) {
-        var _this = _super.call(this, tileCoord, TileState.IDLE) || this;
+    constructor(sourceProj, sourceTileGrid, targetProj, targetTileGrid, tileCoord, wrappedTileCoord, pixelRatio, gutter, getTileFunction, opt_errorThreshold, opt_renderEdges) {
+        super(tileCoord, TileState.IDLE);
         /**
          * @private
          * @type {boolean}
          */
-        _this.renderEdges_ = opt_renderEdges !== undefined ? opt_renderEdges : false;
+        this.renderEdges_ = opt_renderEdges !== undefined ? opt_renderEdges : false;
         /**
          * @private
          * @type {number}
          */
-        _this.pixelRatio_ = pixelRatio;
+        this.pixelRatio_ = pixelRatio;
         /**
          * @private
          * @type {number}
          */
-        _this.gutter_ = gutter;
+        this.gutter_ = gutter;
         /**
          * @private
          * @type {HTMLCanvasElement}
          */
-        _this.canvas_ = null;
+        this.canvas_ = null;
         /**
          * @private
          * @type {import("../tilegrid/TileGrid.js").default}
          */
-        _this.sourceTileGrid_ = sourceTileGrid;
+        this.sourceTileGrid_ = sourceTileGrid;
         /**
          * @private
          * @type {import("../tilegrid/TileGrid.js").default}
          */
-        _this.targetTileGrid_ = targetTileGrid;
+        this.targetTileGrid_ = targetTileGrid;
         /**
          * @private
          * @type {import("../tilecoord.js").TileCoord}
          */
-        _this.wrappedTileCoord_ = wrappedTileCoord ? wrappedTileCoord : tileCoord;
+        this.wrappedTileCoord_ = wrappedTileCoord ? wrappedTileCoord : tileCoord;
         /**
          * @private
          * @type {!Array<import("../Tile.js").default>}
          */
-        _this.sourceTiles_ = [];
+        this.sourceTiles_ = [];
         /**
          * @private
          * @type {?Array<import("../events.js").EventsKey>}
          */
-        _this.sourcesListenerKeys_ = null;
+        this.sourcesListenerKeys_ = null;
         /**
          * @private
          * @type {number}
          */
-        _this.sourceZ_ = 0;
-        var targetExtent = targetTileGrid.getTileCoordExtent(_this.wrappedTileCoord_);
-        var maxTargetExtent = _this.targetTileGrid_.getExtent();
-        var maxSourceExtent = _this.sourceTileGrid_.getExtent();
-        var limitedTargetExtent = maxTargetExtent ?
+        this.sourceZ_ = 0;
+        const targetExtent = targetTileGrid.getTileCoordExtent(this.wrappedTileCoord_);
+        const maxTargetExtent = this.targetTileGrid_.getExtent();
+        let maxSourceExtent = this.sourceTileGrid_.getExtent();
+        const limitedTargetExtent = maxTargetExtent ?
             getIntersection(targetExtent, maxTargetExtent) : targetExtent;
         if (getArea(limitedTargetExtent) === 0) {
             // Tile is completely outside range -> EMPTY
             // TODO: is it actually correct that the source even creates the tile ?
-            _this.state = TileState.EMPTY;
-            return _this;
+            this.state = TileState.EMPTY;
+            return;
         }
-        var sourceProjExtent = sourceProj.getExtent();
+        const sourceProjExtent = sourceProj.getExtent();
         if (sourceProjExtent) {
             if (!maxSourceExtent) {
                 maxSourceExtent = sourceProjExtent;
@@ -120,29 +106,29 @@ var ReprojTile = /** @class */ (function (_super) {
                 maxSourceExtent = getIntersection(maxSourceExtent, sourceProjExtent);
             }
         }
-        var targetResolution = targetTileGrid.getResolution(_this.wrappedTileCoord_[0]);
-        var targetCenter = getCenter(limitedTargetExtent);
-        var sourceResolution = calculateSourceResolution(sourceProj, targetProj, targetCenter, targetResolution);
+        const targetResolution = targetTileGrid.getResolution(this.wrappedTileCoord_[0]);
+        const targetCenter = getCenter(limitedTargetExtent);
+        const sourceResolution = calculateSourceResolution(sourceProj, targetProj, targetCenter, targetResolution);
         if (!isFinite(sourceResolution) || sourceResolution <= 0) {
             // invalid sourceResolution -> EMPTY
             // probably edges of the projections when no extent is defined
-            _this.state = TileState.EMPTY;
-            return _this;
+            this.state = TileState.EMPTY;
+            return;
         }
-        var errorThresholdInPixels = opt_errorThreshold !== undefined ?
+        const errorThresholdInPixels = opt_errorThreshold !== undefined ?
             opt_errorThreshold : ERROR_THRESHOLD;
         /**
          * @private
          * @type {!import("./Triangulation.js").default}
          */
-        _this.triangulation_ = new Triangulation(sourceProj, targetProj, limitedTargetExtent, maxSourceExtent, sourceResolution * errorThresholdInPixels);
-        if (_this.triangulation_.getTriangles().length === 0) {
+        this.triangulation_ = new Triangulation(sourceProj, targetProj, limitedTargetExtent, maxSourceExtent, sourceResolution * errorThresholdInPixels);
+        if (this.triangulation_.getTriangles().length === 0) {
             // no valid triangles -> EMPTY
-            _this.state = TileState.EMPTY;
-            return _this;
+            this.state = TileState.EMPTY;
+            return;
         }
-        _this.sourceZ_ = sourceTileGrid.getZForResolution(sourceResolution);
-        var sourceExtent = _this.triangulation_.calculateSourceExtent();
+        this.sourceZ_ = sourceTileGrid.getZForResolution(sourceResolution);
+        let sourceExtent = this.triangulation_.calculateSourceExtent();
         if (maxSourceExtent) {
             if (sourceProj.canWrapX()) {
                 sourceExtent[1] = clamp(sourceExtent[1], maxSourceExtent[1], maxSourceExtent[3]);
@@ -153,36 +139,35 @@ var ReprojTile = /** @class */ (function (_super) {
             }
         }
         if (!getArea(sourceExtent)) {
-            _this.state = TileState.EMPTY;
+            this.state = TileState.EMPTY;
         }
         else {
-            var sourceRange = sourceTileGrid.getTileRangeForExtentAndZ(sourceExtent, _this.sourceZ_);
-            for (var srcX = sourceRange.minX; srcX <= sourceRange.maxX; srcX++) {
-                for (var srcY = sourceRange.minY; srcY <= sourceRange.maxY; srcY++) {
-                    var tile = getTileFunction(_this.sourceZ_, srcX, srcY, pixelRatio);
+            const sourceRange = sourceTileGrid.getTileRangeForExtentAndZ(sourceExtent, this.sourceZ_);
+            for (let srcX = sourceRange.minX; srcX <= sourceRange.maxX; srcX++) {
+                for (let srcY = sourceRange.minY; srcY <= sourceRange.maxY; srcY++) {
+                    const tile = getTileFunction(this.sourceZ_, srcX, srcY, pixelRatio);
                     if (tile) {
-                        _this.sourceTiles_.push(tile);
+                        this.sourceTiles_.push(tile);
                     }
                 }
             }
-            if (_this.sourceTiles_.length === 0) {
-                _this.state = TileState.EMPTY;
+            if (this.sourceTiles_.length === 0) {
+                this.state = TileState.EMPTY;
             }
         }
-        return _this;
     }
     /**
      * Get the HTML Canvas element for this tile.
      * @return {HTMLCanvasElement} Canvas.
      */
-    ReprojTile.prototype.getImage = function () {
+    getImage() {
         return this.canvas_;
-    };
+    }
     /**
      * @private
      */
-    ReprojTile.prototype.reproject_ = function () {
-        var sources = [];
+    reproject_() {
+        const sources = [];
         this.sourceTiles_.forEach(function (tile, i, arr) {
             if (tile && tile.getState() == TileState.LOADED) {
                 sources.push({
@@ -196,66 +181,65 @@ var ReprojTile = /** @class */ (function (_super) {
             this.state = TileState.ERROR;
         }
         else {
-            var z = this.wrappedTileCoord_[0];
-            var size = this.targetTileGrid_.getTileSize(z);
-            var width = typeof size === 'number' ? size : size[0];
-            var height = typeof size === 'number' ? size : size[1];
-            var targetResolution = this.targetTileGrid_.getResolution(z);
-            var sourceResolution = this.sourceTileGrid_.getResolution(this.sourceZ_);
-            var targetExtent = this.targetTileGrid_.getTileCoordExtent(this.wrappedTileCoord_);
+            const z = this.wrappedTileCoord_[0];
+            const size = this.targetTileGrid_.getTileSize(z);
+            const width = typeof size === 'number' ? size : size[0];
+            const height = typeof size === 'number' ? size : size[1];
+            const targetResolution = this.targetTileGrid_.getResolution(z);
+            const sourceResolution = this.sourceTileGrid_.getResolution(this.sourceZ_);
+            const targetExtent = this.targetTileGrid_.getTileCoordExtent(this.wrappedTileCoord_);
             this.canvas_ = renderReprojected(width, height, this.pixelRatio_, sourceResolution, this.sourceTileGrid_.getExtent(), targetResolution, targetExtent, this.triangulation_, sources, this.gutter_, this.renderEdges_);
             this.state = TileState.LOADED;
         }
         this.changed();
-    };
+    }
     /**
      * @inheritDoc
      */
-    ReprojTile.prototype.load = function () {
+    load() {
         if (this.state == TileState.IDLE) {
             this.state = TileState.LOADING;
             this.changed();
-            var leftToLoad_1 = 0;
+            let leftToLoad = 0;
             this.sourcesListenerKeys_ = [];
             this.sourceTiles_.forEach(function (tile, i, arr) {
-                var state = tile.getState();
+                const state = tile.getState();
                 if (state == TileState.IDLE || state == TileState.LOADING) {
-                    leftToLoad_1++;
-                    var sourceListenKey_1 = listen(tile, EventType.CHANGE, function (e) {
-                        var state = tile.getState();
+                    leftToLoad++;
+                    const sourceListenKey = listen(tile, EventType.CHANGE, function (e) {
+                        const state = tile.getState();
                         if (state == TileState.LOADED ||
                             state == TileState.ERROR ||
                             state == TileState.EMPTY) {
-                            unlistenByKey(sourceListenKey_1);
-                            leftToLoad_1--;
-                            if (leftToLoad_1 === 0) {
+                            unlistenByKey(sourceListenKey);
+                            leftToLoad--;
+                            if (leftToLoad === 0) {
                                 this.unlistenSources_();
                                 this.reproject_();
                             }
                         }
                     }, this);
-                    this.sourcesListenerKeys_.push(sourceListenKey_1);
+                    this.sourcesListenerKeys_.push(sourceListenKey);
                 }
             }.bind(this));
             this.sourceTiles_.forEach(function (tile, i, arr) {
-                var state = tile.getState();
+                const state = tile.getState();
                 if (state == TileState.IDLE) {
                     tile.load();
                 }
             });
-            if (leftToLoad_1 === 0) {
+            if (leftToLoad === 0) {
                 setTimeout(this.reproject_.bind(this), 0);
             }
         }
-    };
+    }
     /**
      * @private
      */
-    ReprojTile.prototype.unlistenSources_ = function () {
+    unlistenSources_() {
         this.sourcesListenerKeys_.forEach(unlistenByKey);
         this.sourcesListenerKeys_ = null;
-    };
-    return ReprojTile;
-}(Tile));
+    }
+}
 export default ReprojTile;
 //# sourceMappingURL=Tile.js.map

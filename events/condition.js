@@ -19,8 +19,8 @@ import { WEBKIT, MAC } from '../has.js';
  * @return {boolean} True if only the alt key is pressed.
  * @api
  */
-export var altKeyOnly = function (mapBrowserEvent) {
-    var originalEvent = /** @type {KeyboardEvent|MouseEvent|TouchEvent} */ (mapBrowserEvent.originalEvent);
+export const altKeyOnly = function (mapBrowserEvent) {
+    const originalEvent = /** @type {KeyboardEvent|MouseEvent|TouchEvent} */ (mapBrowserEvent.originalEvent);
     return (originalEvent.altKey &&
         !(originalEvent.metaKey || originalEvent.ctrlKey) &&
         !originalEvent.shiftKey);
@@ -33,8 +33,8 @@ export var altKeyOnly = function (mapBrowserEvent) {
  * @return {boolean} True if only the alt and shift keys are pressed.
  * @api
  */
-export var altShiftKeysOnly = function (mapBrowserEvent) {
-    var originalEvent = /** @type {KeyboardEvent|MouseEvent|TouchEvent} */ (mapBrowserEvent.originalEvent);
+export const altShiftKeysOnly = function (mapBrowserEvent) {
+    const originalEvent = /** @type {KeyboardEvent|MouseEvent|TouchEvent} */ (mapBrowserEvent.originalEvent);
     return (originalEvent.altKey &&
         !(originalEvent.metaKey || originalEvent.ctrlKey) &&
         originalEvent.shiftKey);
@@ -47,7 +47,7 @@ export var altShiftKeysOnly = function (mapBrowserEvent) {
  * @return {boolean} The map has the focus.
  * @api
  */
-export var focus = function (event) {
+export const focus = function (event) {
     return event.target.getTargetElement() === document.activeElement;
 };
 /**
@@ -57,7 +57,7 @@ export var focus = function (event) {
  * @return {boolean} True.
  * @api
  */
-export var always = TRUE;
+export const always = TRUE;
 /**
  * Return `true` if the event is a `click` event, `false` otherwise.
  *
@@ -65,7 +65,7 @@ export var always = TRUE;
  * @return {boolean} True if the event is a map `click` event.
  * @api
  */
-export var click = function (mapBrowserEvent) {
+export const click = function (mapBrowserEvent) {
     return mapBrowserEvent.type == MapBrowserEventType.CLICK;
 };
 /**
@@ -77,8 +77,8 @@ export var click = function (mapBrowserEvent) {
  * @param {import("../MapBrowserEvent.js").default} mapBrowserEvent Map browser event.
  * @return {boolean} The result.
  */
-export var mouseActionButton = function (mapBrowserEvent) {
-    var originalEvent = /** @type {MouseEvent} */ (mapBrowserEvent.originalEvent);
+export const mouseActionButton = function (mapBrowserEvent) {
+    const originalEvent = /** @type {MouseEvent} */ (mapBrowserEvent.originalEvent);
     return originalEvent.button == 0 &&
         !(WEBKIT && MAC && originalEvent.ctrlKey);
 };
@@ -89,7 +89,7 @@ export var mouseActionButton = function (mapBrowserEvent) {
  * @return {boolean} False.
  * @api
  */
-export var never = FALSE;
+export const never = FALSE;
 /**
  * Return `true` if the browser event is a `pointermove` event, `false`
  * otherwise.
@@ -98,7 +98,7 @@ export var never = FALSE;
  * @return {boolean} True if the browser event is a `pointermove` event.
  * @api
  */
-export var pointerMove = function (mapBrowserEvent) {
+export const pointerMove = function (mapBrowserEvent) {
     return mapBrowserEvent.type == 'pointermove';
 };
 /**
@@ -108,7 +108,7 @@ export var pointerMove = function (mapBrowserEvent) {
  * @return {boolean} True if the event is a map `singleclick` event.
  * @api
  */
-export var singleClick = function (mapBrowserEvent) {
+export const singleClick = function (mapBrowserEvent) {
     return mapBrowserEvent.type == MapBrowserEventType.SINGLECLICK;
 };
 /**
@@ -118,7 +118,7 @@ export var singleClick = function (mapBrowserEvent) {
  * @return {boolean} True if the event is a map `dblclick` event.
  * @api
  */
-export var doubleClick = function (mapBrowserEvent) {
+export const doubleClick = function (mapBrowserEvent) {
     return mapBrowserEvent.type == MapBrowserEventType.DBLCLICK;
 };
 /**
@@ -129,8 +129,8 @@ export var doubleClick = function (mapBrowserEvent) {
  * @return {boolean} True only if there no modifier keys are pressed.
  * @api
  */
-export var noModifierKeys = function (mapBrowserEvent) {
-    var originalEvent = /** @type {KeyboardEvent|MouseEvent|TouchEvent} */ (mapBrowserEvent.originalEvent);
+export const noModifierKeys = function (mapBrowserEvent) {
+    const originalEvent = /** @type {KeyboardEvent|MouseEvent|TouchEvent} */ (mapBrowserEvent.originalEvent);
     return (!originalEvent.altKey &&
         !(originalEvent.metaKey || originalEvent.ctrlKey) &&
         !originalEvent.shiftKey);
@@ -144,8 +144,8 @@ export var noModifierKeys = function (mapBrowserEvent) {
  * @return {boolean} True if only the platform modifier key is pressed.
  * @api
  */
-export var platformModifierKeyOnly = function (mapBrowserEvent) {
-    var originalEvent = /** @type {KeyboardEvent|MouseEvent|TouchEvent} */ (mapBrowserEvent.originalEvent);
+export const platformModifierKeyOnly = function (mapBrowserEvent) {
+    const originalEvent = /** @type {KeyboardEvent|MouseEvent|TouchEvent} */ (mapBrowserEvent.originalEvent);
     return !originalEvent.altKey &&
         (MAC ? originalEvent.metaKey : originalEvent.ctrlKey) &&
         !originalEvent.shiftKey;
@@ -158,8 +158,8 @@ export var platformModifierKeyOnly = function (mapBrowserEvent) {
  * @return {boolean} True if only the shift key is pressed.
  * @api
  */
-export var shiftKeyOnly = function (mapBrowserEvent) {
-    var originalEvent = /** @type {KeyboardEvent|MouseEvent|TouchEvent} */ (mapBrowserEvent.originalEvent);
+export const shiftKeyOnly = function (mapBrowserEvent) {
+    const originalEvent = /** @type {KeyboardEvent|MouseEvent|TouchEvent} */ (mapBrowserEvent.originalEvent);
     return (!originalEvent.altKey &&
         !(originalEvent.metaKey || originalEvent.ctrlKey) &&
         originalEvent.shiftKey);
@@ -172,9 +172,9 @@ export var shiftKeyOnly = function (mapBrowserEvent) {
  * @return {boolean} True only if the target element is not editable.
  * @api
  */
-export var targetNotEditable = function (mapBrowserEvent) {
-    var originalEvent = /** @type {KeyboardEvent|MouseEvent|TouchEvent} */ (mapBrowserEvent.originalEvent);
-    var tagName = /** @type {Element} */ (originalEvent.target).tagName;
+export const targetNotEditable = function (mapBrowserEvent) {
+    const originalEvent = /** @type {KeyboardEvent|MouseEvent|TouchEvent} */ (mapBrowserEvent.originalEvent);
+    const tagName = /** @type {Element} */ (originalEvent.target).tagName;
     return tagName !== 'INPUT' && tagName !== 'SELECT' && tagName !== 'TEXTAREA';
 };
 /**
@@ -184,8 +184,8 @@ export var targetNotEditable = function (mapBrowserEvent) {
  * @return {boolean} True if the event originates from a mouse device.
  * @api
  */
-export var mouseOnly = function (mapBrowserEvent) {
-    var pointerEvent = /** @type {import("../MapBrowserPointerEvent").default} */ (mapBrowserEvent).pointerEvent;
+export const mouseOnly = function (mapBrowserEvent) {
+    const pointerEvent = /** @type {import("../MapBrowserPointerEvent").default} */ (mapBrowserEvent).pointerEvent;
     assert(pointerEvent !== undefined, 56); // mapBrowserEvent must originate from a pointer event
     // see http://www.w3.org/TR/pointerevents/#widl-PointerEvent-pointerType
     return pointerEvent.pointerType == 'mouse';
@@ -197,8 +197,8 @@ export var mouseOnly = function (mapBrowserEvent) {
  * @return {boolean} True if the event originates from a touchable device.
  * @api
  */
-export var touchOnly = function (mapBrowserEvent) {
-    var pointerEvt = /** @type {import("../MapBrowserPointerEvent").default} */ (mapBrowserEvent).pointerEvent;
+export const touchOnly = function (mapBrowserEvent) {
+    const pointerEvt = /** @type {import("../MapBrowserPointerEvent").default} */ (mapBrowserEvent).pointerEvent;
     assert(pointerEvt !== undefined, 56); // mapBrowserEvent must originate from a pointer event
     // see http://www.w3.org/TR/pointerevents/#widl-PointerEvent-pointerType
     return pointerEvt.pointerType === 'touch';
@@ -210,8 +210,8 @@ export var touchOnly = function (mapBrowserEvent) {
  * @return {boolean} True if the event originates from a digital pen.
  * @api
  */
-export var penOnly = function (mapBrowserEvent) {
-    var pointerEvt = /** @type {import("../MapBrowserPointerEvent").default} */ (mapBrowserEvent).pointerEvent;
+export const penOnly = function (mapBrowserEvent) {
+    const pointerEvt = /** @type {import("../MapBrowserPointerEvent").default} */ (mapBrowserEvent).pointerEvent;
     assert(pointerEvt !== undefined, 56); // mapBrowserEvent must originate from a pointer event
     // see http://www.w3.org/TR/pointerevents/#widl-PointerEvent-pointerType
     return pointerEvt.pointerType === 'pen';
@@ -225,8 +225,8 @@ export var penOnly = function (mapBrowserEvent) {
  * @return {boolean} True if the event originates from a primary pointer.
  * @api
  */
-export var primaryAction = function (mapBrowserEvent) {
-    var pointerEvent = /** @type {import("../MapBrowserPointerEvent").default} */ (mapBrowserEvent).pointerEvent;
+export const primaryAction = function (mapBrowserEvent) {
+    const pointerEvent = /** @type {import("../MapBrowserPointerEvent").default} */ (mapBrowserEvent).pointerEvent;
     assert(pointerEvent !== undefined, 56); // mapBrowserEvent must originate from a pointer event
     return pointerEvent.isPrimary && pointerEvent.button === 0;
 };

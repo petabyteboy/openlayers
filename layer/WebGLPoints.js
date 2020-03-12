@@ -1,16 +1,3 @@
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 /**
  * @module ol/layer/WebGLPoints
  */
@@ -79,31 +66,28 @@ import Layer from './Layer.js';
  *
  * @fires import("../render/Event.js").RenderEvent
  */
-var WebGLPointsLayer = /** @class */ (function (_super) {
-    __extends(WebGLPointsLayer, _super);
+class WebGLPointsLayer extends Layer {
     /**
      * @param {Options} options Options.
      */
-    function WebGLPointsLayer(options) {
-        var _this = this;
-        var baseOptions = assign({}, options);
-        _this = _super.call(this, baseOptions) || this;
+    constructor(options) {
+        const baseOptions = assign({}, options);
+        super(baseOptions);
         /**
          * @private
          * @type {import('../webgl/ShaderBuilder.js').StyleParseResult}
          */
-        _this.parseResult_ = parseLiteralStyle(options.style);
+        this.parseResult_ = parseLiteralStyle(options.style);
         /**
          * @private
          * @type {boolean}
          */
-        _this.hitDetectionDisabled_ = !!options.disableHitDetection;
-        return _this;
+        this.hitDetectionDisabled_ = !!options.disableHitDetection;
     }
     /**
      * @inheritDoc
      */
-    WebGLPointsLayer.prototype.createRenderer = function () {
+    createRenderer() {
         return new WebGLPointsLayerRenderer(this, {
             vertexShader: this.parseResult_.builder.getSymbolVertexShader(),
             fragmentShader: this.parseResult_.builder.getSymbolFragmentShader(),
@@ -114,16 +98,15 @@ var WebGLPointsLayer = /** @class */ (function (_super) {
             uniforms: this.parseResult_.uniforms,
             attributes: this.parseResult_.attributes
         });
-    };
+    }
     /**
      *
      * @inheritDoc
      */
-    WebGLPointsLayer.prototype.disposeInternal = function () {
+    disposeInternal() {
         this.renderer_.dispose();
-        _super.prototype.disposeInternal.call(this);
-    };
-    return WebGLPointsLayer;
-}(Layer));
+        super.disposeInternal();
+    }
+}
 export default WebGLPointsLayer;
 //# sourceMappingURL=WebGLPoints.js.map

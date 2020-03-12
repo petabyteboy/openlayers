@@ -1,19 +1,6 @@
 /**
  * @module ol/source/XYZ
  */
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 import TileImage from './TileImage.js';
 import { createXYZ, extentFromProjection } from '../tilegrid.js';
 /**
@@ -77,17 +64,15 @@ import { createXYZ, extentFromProjection } from '../tilegrid.js';
  *
  * @api
  */
-var XYZ = /** @class */ (function (_super) {
-    __extends(XYZ, _super);
+class XYZ extends TileImage {
     /**
      * @param {Options=} opt_options XYZ options.
      */
-    function XYZ(opt_options) {
-        var _this = this;
-        var options = opt_options || {};
-        var projection = options.projection !== undefined ?
+    constructor(opt_options) {
+        const options = opt_options || {};
+        const projection = options.projection !== undefined ?
             options.projection : 'EPSG:3857';
-        var tileGrid = options.tileGrid !== undefined ? options.tileGrid :
+        const tileGrid = options.tileGrid !== undefined ? options.tileGrid :
             createXYZ({
                 extent: extentFromProjection(projection),
                 maxResolution: options.maxResolution,
@@ -95,7 +80,7 @@ var XYZ = /** @class */ (function (_super) {
                 minZoom: options.minZoom,
                 tileSize: options.tileSize
             });
-        _this = _super.call(this, {
+        super({
             attributions: options.attributions,
             cacheSize: options.cacheSize,
             crossOrigin: options.crossOrigin,
@@ -112,10 +97,8 @@ var XYZ = /** @class */ (function (_super) {
             transition: options.transition,
             attributionsCollapsible: options.attributionsCollapsible,
             zDirection: options.zDirection
-        }) || this;
-        return _this;
+        });
     }
-    return XYZ;
-}(TileImage));
+}
 export default XYZ;
 //# sourceMappingURL=XYZ.js.map

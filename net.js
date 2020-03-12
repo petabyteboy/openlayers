@@ -14,8 +14,8 @@ import { getUid } from './util.js';
  *     callback. Default is 'callback'.
  */
 export function jsonp(url, callback, opt_errback, opt_callbackParam) {
-    var script = document.createElement('script');
-    var key = 'olc_' + getUid(callback);
+    const script = document.createElement('script');
+    const key = 'olc_' + getUid(callback);
     function cleanup() {
         delete window[key];
         script.parentNode.removeChild(script);
@@ -23,7 +23,7 @@ export function jsonp(url, callback, opt_errback, opt_callbackParam) {
     script.async = true;
     script.src = url + (url.indexOf('?') == -1 ? '?' : '&') +
         (opt_callbackParam || 'callback') + '=' + key;
-    var timer = setTimeout(function () {
+    const timer = setTimeout(function () {
         cleanup();
         if (opt_errback) {
             opt_errback();

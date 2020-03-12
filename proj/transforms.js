@@ -6,7 +6,7 @@ import { isEmpty } from '../obj.js';
  * @private
  * @type {!Object<string, Object<string, import("../proj.js").TransformFunction>>}
  */
-var transforms = {};
+let transforms = {};
 /**
  * Clear the transform cache.
  */
@@ -22,8 +22,8 @@ export function clear() {
  * @param {import("../proj.js").TransformFunction} transformFn Transform.
  */
 export function add(source, destination, transformFn) {
-    var sourceCode = source.getCode();
-    var destinationCode = destination.getCode();
+    const sourceCode = source.getCode();
+    const destinationCode = destination.getCode();
     if (!(sourceCode in transforms)) {
         transforms[sourceCode] = {};
     }
@@ -39,9 +39,9 @@ export function add(source, destination, transformFn) {
  * @return {import("../proj.js").TransformFunction} transformFn The unregistered transform.
  */
 export function remove(source, destination) {
-    var sourceCode = source.getCode();
-    var destinationCode = destination.getCode();
-    var transform = transforms[sourceCode][destinationCode];
+    const sourceCode = source.getCode();
+    const destinationCode = destination.getCode();
+    const transform = transforms[sourceCode][destinationCode];
     delete transforms[sourceCode][destinationCode];
     if (isEmpty(transforms[sourceCode])) {
         delete transforms[sourceCode];
@@ -55,7 +55,7 @@ export function remove(source, destination) {
  * @return {import("../proj.js").TransformFunction|undefined} The transform function (if found).
  */
 export function get(sourceCode, destinationCode) {
-    var transform;
+    let transform;
     if (sourceCode in transforms && destinationCode in transforms[sourceCode]) {
         transform = transforms[sourceCode][destinationCode];
     }

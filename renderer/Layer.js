@@ -1,16 +1,3 @@
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 /**
  * @module ol/renderer/Layer
  */
@@ -22,21 +9,19 @@ import SourceState from '../source/State.js';
 /**
  * @template {import("../layer/Layer.js").default} LayerType
  */
-var LayerRenderer = /** @class */ (function (_super) {
-    __extends(LayerRenderer, _super);
+class LayerRenderer extends Observable {
     /**
      * @param {LayerType} layer Layer.
      */
-    function LayerRenderer(layer) {
-        var _this = _super.call(this) || this;
+    constructor(layer) {
+        super();
         /** @private */
-        _this.boundHandleImageChange_ = _this.handleImageChange_.bind(_this);
+        this.boundHandleImageChange_ = this.handleImageChange_.bind(this);
         /**
          * @private
          * @type {LayerType}
          */
-        _this.layer_ = layer;
-        return _this;
+        this.layer_ = layer;
     }
     /**
      * Asynchronous layer level hit detection.
@@ -44,18 +29,18 @@ var LayerRenderer = /** @class */ (function (_super) {
      * @return {Promise<Array<import("../Feature").default>>} Promise that resolves with
      * an array of features.
      */
-    LayerRenderer.prototype.getFeatures = function (pixel) {
+    getFeatures(pixel) {
         return abstract();
-    };
+    }
     /**
      * Determine whether render should be called.
      * @abstract
      * @param {import("../PluggableMap.js").FrameState} frameState Frame state.
      * @return {boolean} Layer is ready to be rendered.
      */
-    LayerRenderer.prototype.prepareFrame = function (frameState) {
+    prepareFrame(frameState) {
         return abstract();
-    };
+    }
     /**
      * Render the layer.
      * @abstract
@@ -63,20 +48,20 @@ var LayerRenderer = /** @class */ (function (_super) {
      * @param {HTMLElement} target Target that may be used to render content to.
      * @return {HTMLElement} The rendered element.
      */
-    LayerRenderer.prototype.renderFrame = function (frameState, target) {
+    renderFrame(frameState, target) {
         return abstract();
-    };
+    }
     /**
      * @param {Object<number, Object<string, import("../Tile.js").default>>} tiles Lookup of loaded tiles by zoom level.
      * @param {number} zoom Zoom level.
      * @param {import("../Tile.js").default} tile Tile.
      */
-    LayerRenderer.prototype.loadedTileCallback = function (tiles, zoom, tile) {
+    loadedTileCallback(tiles, zoom, tile) {
         if (!tiles[zoom]) {
             tiles[zoom] = {};
         }
         tiles[zoom][tile.tileCoord.toString()] = tile;
-    };
+    }
     /**
      * Create a function that adds loaded tiles to the tile lookup.
      * @param {import("../source/Tile.js").default} source Tile source.
@@ -86,7 +71,7 @@ var LayerRenderer = /** @class */ (function (_super) {
      *     called with a zoom level and a tile range to add loaded tiles to the lookup.
      * @protected
      */
-    LayerRenderer.prototype.createLoadedTileFinder = function (source, projection, tiles) {
+    createLoadedTileFinder(source, projection, tiles) {
         return (
         /**
          * @param {number} zoom Zoom level.
@@ -95,10 +80,10 @@ var LayerRenderer = /** @class */ (function (_super) {
          * @this {LayerRenderer}
          */
         function (zoom, tileRange) {
-            var callback = this.loadedTileCallback.bind(this, tiles, zoom);
+            const callback = this.loadedTileCallback.bind(this, tiles, zoom);
             return source.forEachLoadedTile(projection, zoom, tileRange, callback);
         }).bind(this);
-    };
+    }
     /**
      * @abstract
      * @param {import("../coordinate.js").Coordinate} coordinate Coordinate.
@@ -109,7 +94,7 @@ var LayerRenderer = /** @class */ (function (_super) {
      * @return {T|void} Callback result.
      * @template T
      */
-    LayerRenderer.prototype.forEachFeatureAtCoordinate = function (coordinate, frameState, hitTolerance, callback, declutteredFeatures) { };
+    forEachFeatureAtCoordinate(coordinate, frameState, hitTolerance, callback, declutteredFeatures) { }
     /**
      * @abstract
      * @param {import("../pixel.js").Pixel} pixel Pixel.
@@ -119,31 +104,31 @@ var LayerRenderer = /** @class */ (function (_super) {
      *    location, null will be returned.  If there is data, but pixel values cannot be
      *    returned, and empty array will be returned.
      */
-    LayerRenderer.prototype.getDataAtPixel = function (pixel, frameState, hitTolerance) {
+    getDataAtPixel(pixel, frameState, hitTolerance) {
         return abstract();
-    };
+    }
     /**
      * @return {LayerType} Layer.
      */
-    LayerRenderer.prototype.getLayer = function () {
+    getLayer() {
         return this.layer_;
-    };
+    }
     /**
      * Perform action necessary to get the layer rendered after new fonts have loaded
      * @abstract
      */
-    LayerRenderer.prototype.handleFontsChanged = function () { };
+    handleFontsChanged() { }
     /**
      * Handle changes in image state.
      * @param {import("../events/Event.js").default} event Image change event.
      * @private
      */
-    LayerRenderer.prototype.handleImageChange_ = function (event) {
-        var image = /** @type {import("../Image.js").default} */ (event.target);
+    handleImageChange_(event) {
+        const image = /** @type {import("../Image.js").default} */ (event.target);
         if (image.getState() === ImageState.LOADED) {
             this.renderIfReadyAndVisible();
         }
-    };
+    }
     /**
      * Load the image if not already loaded, and register the image change
      * listener if needed.
@@ -151,8 +136,8 @@ var LayerRenderer = /** @class */ (function (_super) {
      * @return {boolean} `true` if the image is already loaded, `false` otherwise.
      * @protected
      */
-    LayerRenderer.prototype.loadImage = function (image) {
-        var imageState = image.getState();
+    loadImage(image) {
+        let imageState = image.getState();
         if (imageState != ImageState.LOADED && imageState != ImageState.ERROR) {
             image.addEventListener(EventType.CHANGE, this.boundHandleImageChange_);
         }
@@ -161,17 +146,16 @@ var LayerRenderer = /** @class */ (function (_super) {
             imageState = image.getState();
         }
         return imageState == ImageState.LOADED;
-    };
+    }
     /**
      * @protected
      */
-    LayerRenderer.prototype.renderIfReadyAndVisible = function () {
-        var layer = this.getLayer();
+    renderIfReadyAndVisible() {
+        const layer = this.getLayer();
         if (layer.getVisible() && layer.getSourceState() == SourceState.READY) {
             layer.changed();
         }
-    };
-    return LayerRenderer;
-}(Observable));
+    }
+}
 export default LayerRenderer;
 //# sourceMappingURL=Layer.js.map

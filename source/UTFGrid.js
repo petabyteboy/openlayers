@@ -1,19 +1,6 @@
 /**
  * @module ol/source/UTFGrid
  */
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 import Tile from '../Tile.js';
 import TileState from '../TileState.js';
 import { createFromTemplates, nullTileUrlFunction } from '../tileurlfunction.js';
@@ -33,8 +20,7 @@ import { createXYZ, extentFromProjection } from '../tilegrid.js';
  * @property {Array<string>} keys The keys.
  * @property {Object<string, Object>} [data] Optional data.
  */
-var CustomTile = /** @class */ (function (_super) {
-    __extends(CustomTile, _super);
+export class CustomTile extends Tile {
     /**
      * @param {import("../tilecoord.js").TileCoord} tileCoord Tile coordinate.
      * @param {TileState} state State.
@@ -43,70 +29,69 @@ var CustomTile = /** @class */ (function (_super) {
      * @param {boolean} preemptive Load the tile when visible (before it's needed).
      * @param {boolean} jsonp Load the tile as a script.
      */
-    function CustomTile(tileCoord, state, src, extent, preemptive, jsonp) {
-        var _this = _super.call(this, tileCoord, state) || this;
+    constructor(tileCoord, state, src, extent, preemptive, jsonp) {
+        super(tileCoord, state);
         /**
          * @private
          * @type {string}
          */
-        _this.src_ = src;
+        this.src_ = src;
         /**
          * @private
          * @type {import("../extent.js").Extent}
          */
-        _this.extent_ = extent;
+        this.extent_ = extent;
         /**
          * @private
          * @type {boolean}
          */
-        _this.preemptive_ = preemptive;
+        this.preemptive_ = preemptive;
         /**
          * @private
          * @type {Array<string>}
          */
-        _this.grid_ = null;
+        this.grid_ = null;
         /**
          * @private
          * @type {Array<string>}
          */
-        _this.keys_ = null;
+        this.keys_ = null;
         /**
          * @private
          * @type {Object<string, Object>|undefined}
          */
-        _this.data_ = null;
+        this.data_ = null;
         /**
          * @private
          * @type {boolean}
          */
-        _this.jsonp_ = jsonp;
-        return _this;
+        this.jsonp_ = jsonp;
     }
     /**
      * Get the image element for this tile.
      * @return {HTMLImageElement} Image.
      */
-    CustomTile.prototype.getImage = function () {
+    getImage() {
         return null;
-    };
+    }
     /**
      * Synchronously returns data at given coordinate (if available).
      * @param {import("../coordinate.js").Coordinate} coordinate Coordinate.
      * @return {*} The data.
      */
-    CustomTile.prototype.getData = function (coordinate) {
+    getData(coordinate) {
         if (!this.grid_ || !this.keys_) {
             return null;
         }
-        var xRelative = (coordinate[0] - this.extent_[0]) /
+        const xRelative = (coordinate[0] - this.extent_[0]) /
             (this.extent_[2] - this.extent_[0]);
-        var yRelative = (coordinate[1] - this.extent_[1]) /
+        const yRelative = (coordinate[1] - this.extent_[1]) /
             (this.extent_[3] - this.extent_[1]);
-        var row = this.grid_[Math.floor((1 - yRelative) * this.grid_.length)];
+        const row = this.grid_[Math.floor((1 - yRelative) * this.grid_.length)];
         if (typeof row !== 'string') {
             return null;
         }
-        var code = row.charCodeAt(Math.floor(xRelative * row.length));
+        let code = row.charCodeAt(Math.floor(xRelative * row.length));
         if (code >= 93) {
             code--;
         }
@@ -114,9 +99,9 @@ var CustomTile = /** @class */ (function (_super) {
             code--;
         }
         code -= 32;
-        var data = null;
+        let data = null;
         if (code in this.keys_) {
-            var id = this.keys_[code];
+            const id = this.keys_[code];
             if (this.data_ && id in this.data_) {
                 data = this.data_[id];
             }
@@ -125,7 +110,7 @@ var CustomTile = /** @class */ (function (_super) {
             }
         }
         return data;
-    };
+    }
     /**
      * Calls the callback (synchronously by default) with the available data
      * for given coordinate (or `null` if not yet loaded).
@@ -134,7 +119,7 @@ var CustomTile = /** @class */ (function (_super) {
      * @param {boolean=} opt_request If `true` the callback is always async.
      *                               The tile data is requested if not yet loaded.
      */
-    CustomTile.prototype.forDataAtCoordinate = function (coordinate, callback, opt_request) {
+    forDataAtCoordinate(coordinate, callback, opt_request) {
         if (this.state == TileState.EMPTY && opt_request === true) {
             this.state = TileState.IDLE;
             listenOnce(this, EventType.CHANGE, function (e) {
@@ -152,58 +137,58 @@ var CustomTile = /** @class */ (function (_super) {
                 callback(this.getData(coordinate));
             }
         }
-    };
+    }
     /**
      * @inheritDoc
      */
-    CustomTile.prototype.getKey = function () {
+    getKey() {
         return this.src_;
-    };
+    }
     /**
      * @private
      */
-    CustomTile.prototype.handleError_ = function () {
+    handleError_() {
         this.state = TileState.ERROR;
         this.changed();
-    };
+    }
     /**
      * @param {!UTFGridJSON} json UTFGrid data.
      * @private
      */
-    CustomTile.prototype.handleLoad_ = function (json) {
+    handleLoad_(json) {
         this.grid_ = json['grid'];
         this.keys_ = json['keys'];
         this.data_ = json['data'];
         this.state = TileState.LOADED;
         this.changed();
-    };
+    }
     /**
      * @private
      */
-    CustomTile.prototype.loadInternal_ = function () {
+    loadInternal_() {
         if (this.state == TileState.IDLE) {
             this.state = TileState.LOADING;
             if (this.jsonp_) {
                 requestJSONP(this.src_, this.handleLoad_.bind(this), this.handleError_.bind(this));
             }
             else {
-                var client = new XMLHttpRequest();
+                const client = new XMLHttpRequest();
                 client.addEventListener('load', this.onXHRLoad_.bind(this));
                 client.addEventListener('error', this.onXHRError_.bind(this));
                 client.open('GET', this.src_);
                 client.send();
             }
         }
-    };
+    }
     /**
      * @private
      * @param {Event} event The load event.
      */
-    CustomTile.prototype.onXHRLoad_ = function (event) {
-        var client = /** @type {XMLHttpRequest} */ (event.target);
+    onXHRLoad_(event) {
+        const client = /** @type {XMLHttpRequest} */ (event.target);
         // status will be 0 for file:// urls
         if (!client.status || client.status >= 200 && client.status < 300) {
-            var response = void 0;
+            let response;
             try {
                 response = /** @type {!UTFGridJSON} */ (JSON.parse(client.responseText));
             }
@@ -216,28 +201,26 @@ var CustomTile = /** @class */ (function (_super) {
         else {
             this.handleError_();
         }
-    };
+    }
     /**
      * @private
      * @param {Event} event The error event.
      */
-    CustomTile.prototype.onXHRError_ = function (event) {
+    onXHRError_(event) {
         this.handleError_();
-    };
+    }
     /**
      * @override
      */
-    CustomTile.prototype.load = function () {
+    load() {
         if (this.preemptive_) {
             this.loadInternal_();
         }
         else {
             this.setState(TileState.EMPTY);
         }
-    };
-    return CustomTile;
-}(Tile));
-export { CustomTile };
+    }
+}
 /**
  * @typedef {Object} Options
  * @property {boolean} [preemptive=true]
@@ -258,66 +241,64 @@ export { CustomTile };
  * Layer source for UTFGrid interaction data loaded from TileJSON format.
  * @api
  */
-var UTFGrid = /** @class */ (function (_super) {
-    __extends(UTFGrid, _super);
+class UTFGrid extends TileSource {
     /**
      * @param {Options} options Source options.
      */
-    function UTFGrid(options) {
-        var _this = _super.call(this, {
+    constructor(options) {
+        super({
             projection: getProjection('EPSG:3857'),
             state: SourceState.LOADING
-        }) || this;
+        });
         /**
          * @private
          * @type {boolean}
          */
-        _this.preemptive_ = options.preemptive !== undefined ?
+        this.preemptive_ = options.preemptive !== undefined ?
             options.preemptive : true;
         /**
          * @private
          * @type {!import("../Tile.js").UrlFunction}
          */
-        _this.tileUrlFunction_ = nullTileUrlFunction;
+        this.tileUrlFunction_ = nullTileUrlFunction;
         /**
          * @private
          * @type {string|undefined}
          */
-        _this.template_ = undefined;
+        this.template_ = undefined;
         /**
          * @private
          * @type {boolean}
          */
-        _this.jsonp_ = options.jsonp || false;
+        this.jsonp_ = options.jsonp || false;
         if (options.url) {
-            if (_this.jsonp_) {
-                requestJSONP(options.url, _this.handleTileJSONResponse.bind(_this), _this.handleTileJSONError.bind(_this));
+            if (this.jsonp_) {
+                requestJSONP(options.url, this.handleTileJSONResponse.bind(this), this.handleTileJSONError.bind(this));
             }
             else {
-                var client = new XMLHttpRequest();
-                client.addEventListener('load', _this.onXHRLoad_.bind(_this));
-                client.addEventListener('error', _this.onXHRError_.bind(_this));
+                const client = new XMLHttpRequest();
+                client.addEventListener('load', this.onXHRLoad_.bind(this));
+                client.addEventListener('error', this.onXHRError_.bind(this));
                 client.open('GET', options.url);
                 client.send();
             }
         }
         else if (options.tileJSON) {
-            _this.handleTileJSONResponse(options.tileJSON);
+            this.handleTileJSONResponse(options.tileJSON);
         }
         else {
             assert(false, 51); // Either `url` or `tileJSON` options must be provided
         }
-        return _this;
     }
     /**
      * @private
      * @param {Event} event The load event.
      */
-    UTFGrid.prototype.onXHRLoad_ = function (event) {
-        var client = /** @type {XMLHttpRequest} */ (event.target);
+    onXHRLoad_(event) {
+        const client = /** @type {XMLHttpRequest} */ (event.target);
         // status will be 0 for file:// urls
         if (!client.status || client.status >= 200 && client.status < 300) {
-            var response = void 0;
+            let response;
             try {
                 response = /** @type {import("./TileJSON.js").Config} */ (JSON.parse(client.responseText));
             }
@@ -330,22 +311,22 @@ var UTFGrid = /** @class */ (function (_super) {
         else {
             this.handleTileJSONError();
         }
-    };
+    }
     /**
      * @private
      * @param {Event} event The error event.
      */
-    UTFGrid.prototype.onXHRError_ = function (event) {
+    onXHRError_(event) {
         this.handleTileJSONError();
-    };
+    }
     /**
      * Return the template from TileJSON.
      * @return {string|undefined} The template from TileJSON.
      * @api
      */
-    UTFGrid.prototype.getTemplate = function () {
+    getTemplate() {
         return this.template_;
-    };
+    }
     /**
      * Calls the callback (synchronously by default) with the available data
      * for given coordinate and resolution (or `null` if not yet loaded or
@@ -357,11 +338,11 @@ var UTFGrid = /** @class */ (function (_super) {
      *                               The tile data is requested if not yet loaded.
      * @api
      */
-    UTFGrid.prototype.forDataAtCoordinateAndResolution = function (coordinate, resolution, callback, opt_request) {
+    forDataAtCoordinateAndResolution(coordinate, resolution, callback, opt_request) {
         if (this.tileGrid) {
-            var z = this.tileGrid.getZForResolution(resolution, this.zDirection);
-            var tileCoord = this.tileGrid.getTileCoordForCoordAndZ(coordinate, z);
-            var tile = /** @type {!CustomTile} */ (this.getTile(tileCoord[0], tileCoord[1], tileCoord[2], 1, this.getProjection()));
+            const z = this.tileGrid.getZForResolution(resolution, this.zDirection);
+            const tileCoord = this.tileGrid.getTileCoordForCoordAndZ(coordinate, z);
+            const tile = /** @type {!CustomTile} */ (this.getTile(tileCoord[0], tileCoord[1], tileCoord[2], 1, this.getProjection()));
             tile.forDataAtCoordinate(coordinate, callback, opt_request);
         }
         else {
@@ -374,81 +355,80 @@ var UTFGrid = /** @class */ (function (_super) {
                 callback(null);
             }
         }
-    };
+    }
     /**
      * @protected
      */
-    UTFGrid.prototype.handleTileJSONError = function () {
+    handleTileJSONError() {
         this.setState(SourceState.ERROR);
-    };
+    }
     /**
      * TODO: very similar to ol/source/TileJSON#handleTileJSONResponse
      * @protected
      * @param {import("./TileJSON.js").Config} tileJSON Tile JSON.
      */
-    UTFGrid.prototype.handleTileJSONResponse = function (tileJSON) {
-        var epsg4326Projection = getProjection('EPSG:4326');
-        var sourceProjection = this.getProjection();
-        var extent;
+    handleTileJSONResponse(tileJSON) {
+        const epsg4326Projection = getProjection('EPSG:4326');
+        const sourceProjection = this.getProjection();
+        let extent;
         if (tileJSON['bounds'] !== undefined) {
-            var transform = getTransformFromProjections(epsg4326Projection, sourceProjection);
+            const transform = getTransformFromProjections(epsg4326Projection, sourceProjection);
             extent = applyTransform(tileJSON['bounds'], transform);
         }
-        var minZoom = tileJSON['minzoom'] || 0;
-        var maxZoom = tileJSON['maxzoom'] || 22;
-        var tileGrid = createXYZ({
+        const minZoom = tileJSON['minzoom'] || 0;
+        const maxZoom = tileJSON['maxzoom'] || 22;
+        const tileGrid = createXYZ({
             extent: extentFromProjection(sourceProjection),
             maxZoom: maxZoom,
             minZoom: minZoom
         });
         this.tileGrid = tileGrid;
         this.template_ = tileJSON['template'];
-        var grids = tileJSON['grids'];
+        const grids = tileJSON['grids'];
         if (!grids) {
             this.setState(SourceState.ERROR);
             return;
         }
         this.tileUrlFunction_ = createFromTemplates(grids, tileGrid);
         if (tileJSON['attribution'] !== undefined) {
-            var attributionExtent_1 = extent !== undefined ?
+            const attributionExtent = extent !== undefined ?
                 extent : epsg4326Projection.getExtent();
             this.setAttributions(function (frameState) {
-                if (intersects(attributionExtent_1, frameState.extent)) {
+                if (intersects(attributionExtent, frameState.extent)) {
                     return [tileJSON['attribution']];
                 }
                 return null;
             });
         }
         this.setState(SourceState.READY);
-    };
+    }
     /**
      * @inheritDoc
      */
-    UTFGrid.prototype.getTile = function (z, x, y, pixelRatio, projection) {
-        var tileCoordKey = getKeyZXY(z, x, y);
+    getTile(z, x, y, pixelRatio, projection) {
+        const tileCoordKey = getKeyZXY(z, x, y);
         if (this.tileCache.containsKey(tileCoordKey)) {
             return (
             /** @type {!import("../Tile.js").default} */ (this.tileCache.get(tileCoordKey)));
         }
         else {
-            var tileCoord = [z, x, y];
-            var urlTileCoord = this.getTileCoordForTileUrlFunction(tileCoord, projection);
-            var tileUrl = this.tileUrlFunction_(urlTileCoord, pixelRatio, projection);
-            var tile = new CustomTile(tileCoord, tileUrl !== undefined ? TileState.IDLE : TileState.EMPTY, tileUrl !== undefined ? tileUrl : '', this.tileGrid.getTileCoordExtent(tileCoord), this.preemptive_, this.jsonp_);
+            const tileCoord = [z, x, y];
+            const urlTileCoord = this.getTileCoordForTileUrlFunction(tileCoord, projection);
+            const tileUrl = this.tileUrlFunction_(urlTileCoord, pixelRatio, projection);
+            const tile = new CustomTile(tileCoord, tileUrl !== undefined ? TileState.IDLE : TileState.EMPTY, tileUrl !== undefined ? tileUrl : '', this.tileGrid.getTileCoordExtent(tileCoord), this.preemptive_, this.jsonp_);
             this.tileCache.set(tileCoordKey, tile);
             return tile;
         }
-    };
+    }
     /**
      * @inheritDoc
      */
-    UTFGrid.prototype.useTile = function (z, x, y) {
-        var tileCoordKey = getKeyZXY(z, x, y);
+    useTile(z, x, y) {
+        const tileCoordKey = getKeyZXY(z, x, y);
         if (this.tileCache.containsKey(tileCoordKey)) {
             this.tileCache.get(tileCoordKey);
         }
-    };
-    return UTFGrid;
-}(TileSource));
+    }
+}
 export default UTFGrid;
 //# sourceMappingURL=UTFGrid.js.map

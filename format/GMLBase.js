@@ -1,16 +1,3 @@
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 /**
  * @module ol/format/GMLBase
  */
@@ -36,7 +23,7 @@ import { getAllTextContent, getAttributeNS, makeArrayPusher, makeReplacer, parse
  * @const
  * @type {string}
  */
-export var GMLNS = 'http://www.opengis.net/gml';
+export const GMLNS = 'http://www.opengis.net/gml';
 /**
  * A regular expression that matches if a string only contains whitespace
  * characters. It will e.g. match `''`, `' '`, `'\n'` etc. The non-breaking
@@ -48,7 +35,7 @@ export var GMLNS = 'http://www.opengis.net/gml';
  * @const
  * @type {RegExp}
  */
-var ONLY_WHITESPACE_RE = /^[\s\xa0]*$/;
+const ONLY_WHITESPACE_RE = /^[\s\xa0]*$/;
 /**
  * @typedef {Object} Options
  * @property {Object<string, string>|string} [featureNS] Feature
@@ -90,72 +77,70 @@ var ONLY_WHITESPACE_RE = /^[\s\xa0]*$/;
  *
  * @abstract
  */
-var GMLBase = /** @class */ (function (_super) {
-    __extends(GMLBase, _super);
+class GMLBase extends XMLFeature {
     /**
      * @param {Options=} opt_options Optional configuration object.
      */
-    function GMLBase(opt_options) {
-        var _this = _super.call(this) || this;
-        var options = /** @type {Options} */ (opt_options ? opt_options : {});
+    constructor(opt_options) {
+        super();
+        const options = /** @type {Options} */ (opt_options ? opt_options : {});
         /**
          * @protected
          * @type {Array<string>|string|undefined}
          */
-        _this.featureType = options.featureType;
+        this.featureType = options.featureType;
         /**
          * @protected
          * @type {Object<string, string>|string|undefined}
          */
-        _this.featureNS = options.featureNS;
+        this.featureNS = options.featureNS;
         /**
          * @protected
          * @type {string}
          */
-        _this.srsName = options.srsName;
+        this.srsName = options.srsName;
         /**
          * @protected
          * @type {string}
          */
-        _this.schemaLocation = '';
+        this.schemaLocation = '';
         /**
          * @type {Object<string, Object<string, Object>>}
          */
-        _this.FEATURE_COLLECTION_PARSERS = {};
-        _this.FEATURE_COLLECTION_PARSERS[_this.namespace] = {
-            'featureMember': makeArrayPusher(_this.readFeaturesInternal),
-            'featureMembers': makeReplacer(_this.readFeaturesInternal)
+        this.FEATURE_COLLECTION_PARSERS = {};
+        this.FEATURE_COLLECTION_PARSERS[this.namespace] = {
+            'featureMember': makeArrayPusher(this.readFeaturesInternal),
+            'featureMembers': makeReplacer(this.readFeaturesInternal)
         };
-        return _this;
     }
     /**
      * @param {Element} node Node.
      * @param {Array<*>} objectStack Object stack.
      * @return {Array<Feature> | undefined} Features.
      */
-    GMLBase.prototype.readFeaturesInternal = function (node, objectStack) {
-        var localName = node.localName;
-        var features = null;
+    readFeaturesInternal(node, objectStack) {
+        const localName = node.localName;
+        let features = null;
         if (localName == 'FeatureCollection') {
             features = pushParseAndPop([], this.FEATURE_COLLECTION_PARSERS, node, objectStack, this);
         }
         else if (localName == 'featureMembers' || localName == 'featureMember') {
-            var context = objectStack[0];
-            var featureType = context['featureType'];
-            var featureNS = context['featureNS'];
-            var prefix = 'p';
-            var defaultPrefix = 'p0';
+            const context = objectStack[0];
+            let featureType = context['featureType'];
+            let featureNS = context['featureNS'];
+            const prefix = 'p';
+            const defaultPrefix = 'p0';
             if (!featureType && node.childNodes) {
                 featureType = [], featureNS = {};
-                for (var i = 0, ii = node.childNodes.length; i < ii; ++i) {
-                    var child = node.childNodes[i];
+                for (let i = 0, ii = node.childNodes.length; i < ii; ++i) {
+                    const child = node.childNodes[i];
                     if (child.nodeType === 1) {
-                        var ft = child.nodeName.split(':').pop();
+                        const ft = child.nodeName.split(':').pop();
                         if (featureType.indexOf(ft) === -1) {
-                            var key = '';
-                            var count = 0;
-                            var uri = child.namespaceURI;
-                            for (var candidate in featureNS) {
+                            let key = '';
+                            let count = 0;
+                            const uri = child.namespaceURI;
+                            for (const candidate in featureNS) {
                                 if (featureNS[candidate] === uri) {
                                     key = candidate;
                                     break;
@@ -177,18 +162,18 @@ var GMLBase = /** @class */ (function (_super) {
                 }
             }
             if (typeof featureNS === 'string') {
-                var ns = featureNS;
+                const ns = featureNS;
                 featureNS = {};
                 featureNS[defaultPrefix] = ns;
             }
             /** @type {Object<string, Object<string, import("../xml.js").Parser>>} */
-            var parsersNS = {};
-            var featureTypes = Array.isArray(featureType) ? featureType : [featureType];
-            for (var p in featureNS) {
+            const parsersNS = {};
+            const featureTypes = Array.isArray(featureType) ? featureType : [featureType];
+            for (const p in featureNS) {
                 /** @type {Object<string, import("../xml.js").Parser>} */
-                var parsers = {};
-                for (var i = 0, ii = featureTypes.length; i < ii; ++i) {
-                    var featurePrefix = featureTypes[i].indexOf(':') === -1 ?
+                const parsers = {};
+                for (let i = 0, ii = featureTypes.length; i < ii; ++i) {
+                    const featurePrefix = featureTypes[i].indexOf(':') === -1 ?
                         defaultPrefix : featureTypes[i].split(':')[0];
                     if (featurePrefix === p) {
                         parsers[featureTypes[i].split(':').pop()] =
@@ -210,17 +195,17 @@ var GMLBase = /** @class */ (function (_super) {
             features = [];
         }
         return features;
-    };
+    }
     /**
      * @param {Element} node Node.
      * @param {Array<*>} objectStack Object stack.
      * @return {import("../geom/Geometry.js").default|import("../extent.js").Extent|undefined} Geometry.
      */
-    GMLBase.prototype.readGeometryElement = function (node, objectStack) {
-        var context = /** @type {Object} */ (objectStack[0]);
+    readGeometryElement(node, objectStack) {
+        const context = /** @type {Object} */ (objectStack[0]);
         context['srsName'] = node.firstElementChild.getAttribute('srsName');
         context['srsDimension'] = node.firstElementChild.getAttribute('srsDimension');
-        var geometry = pushParseAndPop(null, this.GEOMETRY_PARSERS, node, objectStack, this);
+        const geometry = pushParseAndPop(null, this.GEOMETRY_PARSERS, node, objectStack, this);
         if (geometry) {
             if (Array.isArray(geometry)) {
                 return transformExtentWithOptions(/** @type {import("../extent.js").Extent} */ (geometry), context);
@@ -232,19 +217,19 @@ var GMLBase = /** @class */ (function (_super) {
         else {
             return undefined;
         }
-    };
+    }
     /**
      * @param {Element} node Node.
      * @param {Array<*>} objectStack Object stack.
      * @param {boolean} asFeature whether result should be wrapped as a feature.
      * @return {Feature|Object} Feature
      */
-    GMLBase.prototype.readFeatureElementInternal = function (node, objectStack, asFeature) {
-        var geometryName;
-        var values = {};
-        for (var n = node.firstElementChild; n; n = n.nextElementSibling) {
-            var value = void 0;
-            var localName = n.localName;
+    readFeatureElementInternal(node, objectStack, asFeature) {
+        let geometryName;
+        const values = {};
+        for (let n = node.firstElementChild; n; n = n.nextElementSibling) {
+            let value;
+            const localName = n.localName;
             // first, check if it is simple attribute
             if (n.childNodes.length === 0
                 || (n.childNodes.length === 1 && (n.firstChild.nodeType === 3 || n.firstChild.nodeType === 4))) {
@@ -275,11 +260,11 @@ var GMLBase = /** @class */ (function (_super) {
             else {
                 values[localName] = value;
             }
-            var len = n.attributes.length;
+            const len = n.attributes.length;
             if (len > 0) {
                 values[localName] = { _content_: values[localName] };
-                for (var i = 0; i < len; i++) {
-                    var attName = n.attributes[i].name;
+                for (let i = 0; i < len; i++) {
+                    const attName = n.attributes[i].name;
                     values[localName][attName] = n.attributes[i].value;
                 }
             }
@@ -288,153 +273,153 @@ var GMLBase = /** @class */ (function (_super) {
             return values;
         }
         else {
-            var feature = new Feature(values);
+            const feature = new Feature(values);
             if (geometryName) {
                 feature.setGeometryName(geometryName);
             }
-            var fid = node.getAttribute('fid') ||
+            const fid = node.getAttribute('fid') ||
                 getAttributeNS(node, this.namespace, 'id');
             if (fid) {
                 feature.setId(fid);
             }
             return feature;
         }
-    };
+    }
     /**
      * @param {Element} node Node.
      * @param {Array<*>} objectStack Object stack.
      * @return {Feature} Feature.
      */
-    GMLBase.prototype.readFeatureElement = function (node, objectStack) {
+    readFeatureElement(node, objectStack) {
         return this.readFeatureElementInternal(node, objectStack, true);
-    };
+    }
     /**
      * @param {Element} node Node.
      * @param {Array<*>} objectStack Object stack.
      * @return {Point|undefined} Point.
      */
-    GMLBase.prototype.readPoint = function (node, objectStack) {
-        var flatCoordinates = this.readFlatCoordinatesFromNode_(node, objectStack);
+    readPoint(node, objectStack) {
+        const flatCoordinates = this.readFlatCoordinatesFromNode_(node, objectStack);
         if (flatCoordinates) {
             return new Point(flatCoordinates, GeometryLayout.XYZ);
         }
-    };
+    }
     /**
      * @param {Element} node Node.
      * @param {Array<*>} objectStack Object stack.
      * @return {MultiPoint|undefined} MultiPoint.
      */
-    GMLBase.prototype.readMultiPoint = function (node, objectStack) {
+    readMultiPoint(node, objectStack) {
         /** @type {Array<Array<number>>} */
-        var coordinates = pushParseAndPop([], this.MULTIPOINT_PARSERS_, node, objectStack, this);
+        const coordinates = pushParseAndPop([], this.MULTIPOINT_PARSERS_, node, objectStack, this);
         if (coordinates) {
             return new MultiPoint(coordinates);
         }
         else {
             return undefined;
         }
-    };
+    }
     /**
      * @param {Element} node Node.
      * @param {Array<*>} objectStack Object stack.
      * @return {MultiLineString|undefined} MultiLineString.
      */
-    GMLBase.prototype.readMultiLineString = function (node, objectStack) {
+    readMultiLineString(node, objectStack) {
         /** @type {Array<LineString>} */
-        var lineStrings = pushParseAndPop([], this.MULTILINESTRING_PARSERS_, node, objectStack, this);
+        const lineStrings = pushParseAndPop([], this.MULTILINESTRING_PARSERS_, node, objectStack, this);
         if (lineStrings) {
             return new MultiLineString(lineStrings);
         }
-    };
+    }
     /**
      * @param {Element} node Node.
      * @param {Array<*>} objectStack Object stack.
      * @return {MultiPolygon|undefined} MultiPolygon.
      */
-    GMLBase.prototype.readMultiPolygon = function (node, objectStack) {
+    readMultiPolygon(node, objectStack) {
         /** @type {Array<Polygon>} */
-        var polygons = pushParseAndPop([], this.MULTIPOLYGON_PARSERS_, node, objectStack, this);
+        const polygons = pushParseAndPop([], this.MULTIPOLYGON_PARSERS_, node, objectStack, this);
         if (polygons) {
             return new MultiPolygon(polygons);
         }
-    };
+    }
     /**
      * @param {Element} node Node.
      * @param {Array<*>} objectStack Object stack.
      * @private
      */
-    GMLBase.prototype.pointMemberParser_ = function (node, objectStack) {
+    pointMemberParser_(node, objectStack) {
         parseNode(this.POINTMEMBER_PARSERS_, node, objectStack, this);
-    };
+    }
     /**
      * @param {Element} node Node.
      * @param {Array<*>} objectStack Object stack.
      * @private
      */
-    GMLBase.prototype.lineStringMemberParser_ = function (node, objectStack) {
+    lineStringMemberParser_(node, objectStack) {
         parseNode(this.LINESTRINGMEMBER_PARSERS_, node, objectStack, this);
-    };
+    }
     /**
      * @param {Element} node Node.
      * @param {Array<*>} objectStack Object stack.
      * @private
      */
-    GMLBase.prototype.polygonMemberParser_ = function (node, objectStack) {
+    polygonMemberParser_(node, objectStack) {
         parseNode(this.POLYGONMEMBER_PARSERS_, node, objectStack, this);
-    };
+    }
     /**
      * @param {Element} node Node.
      * @param {Array<*>} objectStack Object stack.
      * @return {LineString|undefined} LineString.
      */
-    GMLBase.prototype.readLineString = function (node, objectStack) {
-        var flatCoordinates = this.readFlatCoordinatesFromNode_(node, objectStack);
+    readLineString(node, objectStack) {
+        const flatCoordinates = this.readFlatCoordinatesFromNode_(node, objectStack);
         if (flatCoordinates) {
-            var lineString = new LineString(flatCoordinates, GeometryLayout.XYZ);
+            const lineString = new LineString(flatCoordinates, GeometryLayout.XYZ);
             return lineString;
         }
         else {
             return undefined;
         }
-    };
+    }
     /**
      * @param {Element} node Node.
      * @param {Array<*>} objectStack Object stack.
      * @private
      * @return {Array<number>|undefined} LinearRing flat coordinates.
      */
-    GMLBase.prototype.readFlatLinearRing_ = function (node, objectStack) {
-        var ring = pushParseAndPop(null, this.GEOMETRY_FLAT_COORDINATES_PARSERS, node, objectStack, this);
+    readFlatLinearRing_(node, objectStack) {
+        const ring = pushParseAndPop(null, this.GEOMETRY_FLAT_COORDINATES_PARSERS, node, objectStack, this);
         if (ring) {
             return ring;
         }
         else {
             return undefined;
         }
-    };
+    }
     /**
      * @param {Element} node Node.
      * @param {Array<*>} objectStack Object stack.
      * @return {LinearRing|undefined} LinearRing.
      */
-    GMLBase.prototype.readLinearRing = function (node, objectStack) {
-        var flatCoordinates = this.readFlatCoordinatesFromNode_(node, objectStack);
+    readLinearRing(node, objectStack) {
+        const flatCoordinates = this.readFlatCoordinatesFromNode_(node, objectStack);
         if (flatCoordinates) {
             return new LinearRing(flatCoordinates, GeometryLayout.XYZ);
         }
-    };
+    }
     /**
      * @param {Element} node Node.
      * @param {Array<*>} objectStack Object stack.
      * @return {Polygon|undefined} Polygon.
      */
-    GMLBase.prototype.readPolygon = function (node, objectStack) {
+    readPolygon(node, objectStack) {
         /** @type {Array<Array<number>>} */
-        var flatLinearRings = pushParseAndPop([null], this.FLAT_LINEAR_RINGS_PARSERS, node, objectStack, this);
+        const flatLinearRings = pushParseAndPop([null], this.FLAT_LINEAR_RINGS_PARSERS, node, objectStack, this);
         if (flatLinearRings && flatLinearRings[0]) {
-            var flatCoordinates = flatLinearRings[0];
-            var ends = [flatCoordinates.length];
-            var i = void 0, ii = void 0;
+            const flatCoordinates = flatLinearRings[0];
+            const ends = [flatCoordinates.length];
+            let i, ii;
             for (i = 1, ii = flatLinearRings.length; i < ii; ++i) {
                 extend(flatCoordinates, flatLinearRings[i]);
                 ends.push(flatCoordinates.length);
@@ -444,46 +429,45 @@ var GMLBase = /** @class */ (function (_super) {
         else {
             return undefined;
         }
-    };
+    }
     /**
      * @param {Element} node Node.
      * @param {Array<*>} objectStack Object stack.
      * @private
      * @return {Array<number>} Flat coordinates.
      */
-    GMLBase.prototype.readFlatCoordinatesFromNode_ = function (node, objectStack) {
+    readFlatCoordinatesFromNode_(node, objectStack) {
         return pushParseAndPop(null, this.GEOMETRY_FLAT_COORDINATES_PARSERS, node, objectStack, this);
-    };
+    }
     /**
      * @inheritDoc
      */
     //@ts-ignore
-    GMLBase.prototype.readGeometryFromNode = function (node, opt_options) {
-        var geometry = this.readGeometryElement(node, [this.getReadOptions(node, opt_options ? opt_options : {})]);
+    readGeometryFromNode(node, opt_options) {
+        const geometry = this.readGeometryElement(node, [this.getReadOptions(node, opt_options ? opt_options : {})]);
         return geometry ? geometry : null;
-    };
+    }
     /**
      * @inheritDoc
      */
-    GMLBase.prototype.readFeaturesFromNode = function (node, opt_options) {
-        var options = {
+    readFeaturesFromNode(node, opt_options) {
+        const options = {
             featureType: this.featureType,
             featureNS: this.featureNS
         };
         if (opt_options) {
             assign(options, this.getReadOptions(node, opt_options));
         }
-        var features = this.readFeaturesInternal(node, [options]);
+        const features = this.readFeaturesInternal(node, [options]);
         return features || [];
-    };
+    }
     /**
      * @inheritDoc
      */
-    GMLBase.prototype.readProjectionFromNode = function (node) {
+    readProjectionFromNode(node) {
         return getProjection(this.srsName ? this.srsName : node.firstElementChild.getAttribute('srsName'));
-    };
-    return GMLBase;
-}(XMLFeature));
+    }
+}
 GMLBase.prototype.namespace = GMLNS;
 /**
  * @const

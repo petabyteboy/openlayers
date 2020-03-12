@@ -1,16 +1,3 @@
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 /**
  * @module ol/format/WMTSCapabilities
  */
@@ -24,7 +11,7 @@ import { pushParseAndPop, makeStructureNS, makeObjectPropertySetter, makeObjectP
  * @const
  * @type {Array<null|string>}
  */
-var NAMESPACE_URIS = [
+const NAMESPACE_URIS = [
     null,
     'http://www.opengis.net/wmts/1.0'
 ];
@@ -32,7 +19,7 @@ var NAMESPACE_URIS = [
  * @const
  * @type {Array<null|string>}
  */
-var OWS_NAMESPACE_URIS = [
+const OWS_NAMESPACE_URIS = [
     null,
     'http://www.opengis.net/ows/1.1'
 ];
@@ -41,7 +28,7 @@ var OWS_NAMESPACE_URIS = [
  * @type {Object<string, Object<string, import("../xml.js").Parser>>}
  */
 // @ts-ignore
-var PARSERS = makeStructureNS(NAMESPACE_URIS, {
+const PARSERS = makeStructureNS(NAMESPACE_URIS, {
     'Contents': makeObjectPropertySetter(readContents)
 });
 /**
@@ -50,52 +37,49 @@ var PARSERS = makeStructureNS(NAMESPACE_URIS, {
  *
  * @api
  */
-var WMTSCapabilities = /** @class */ (function (_super) {
-    __extends(WMTSCapabilities, _super);
-    function WMTSCapabilities() {
-        var _this = _super.call(this) || this;
+class WMTSCapabilities extends XML {
+    constructor() {
+        super();
         /**
          * @type {OWS}
          * @private
          */
-        _this.owsParser_ = new OWS();
-        return _this;
+        this.owsParser_ = new OWS();
     }
     /**
      * @inheritDoc
      */
-    WMTSCapabilities.prototype.readFromDocument = function (doc) {
-        for (var n = doc.firstChild; n; n = n.nextSibling) {
+    readFromDocument(doc) {
+        for (let n = doc.firstChild; n; n = n.nextSibling) {
             if (n.nodeType == Node.ELEMENT_NODE) {
                 return this.readFromNode(n);
             }
         }
         return null;
-    };
+    }
     /**
      * @inheritDoc
      */
-    WMTSCapabilities.prototype.readFromNode = function (node) {
-        var version = node.getAttribute('version');
+    readFromNode(node) {
+        let version = node.getAttribute('version');
         if (version) {
             version = version.trim();
         }
-        var WMTSCapabilityObject = this.owsParser_.readFromNode(node);
+        let WMTSCapabilityObject = this.owsParser_.readFromNode(node);
         if (!WMTSCapabilityObject) {
             return null;
         }
         WMTSCapabilityObject['version'] = version;
         WMTSCapabilityObject = pushParseAndPop(WMTSCapabilityObject, PARSERS, node, []);
         return WMTSCapabilityObject ? WMTSCapabilityObject : null;
-    };
-    return WMTSCapabilities;
-}(XML));
+    }
+}
 /**
  * @const
  * @type {Object<string, Object<string, import("../xml.js").Parser>>}
  */
 // @ts-ignore
-var CONTENTS_PARSERS = makeStructureNS(NAMESPACE_URIS, {
+const CONTENTS_PARSERS = makeStructureNS(NAMESPACE_URIS, {
     'Layer': makeObjectPropertyPusher(readLayer),
     'TileMatrixSet': makeObjectPropertyPusher(readTileMatrixSet)
 });
@@ -104,7 +88,7 @@ var CONTENTS_PARSERS = makeStructureNS(NAMESPACE_URIS, {
  * @type {Object<string, Object<string, import("../xml.js").Parser>>}
  */
 // @ts-ignore
-var LAYER_PARSERS = makeStructureNS(NAMESPACE_URIS, {
+const LAYER_PARSERS = makeStructureNS(NAMESPACE_URIS, {
     'Style': makeObjectPropertyPusher(readStyle),
     'Format': makeObjectPropertyPusher(readString),
     'TileMatrixSetLink': makeObjectPropertyPusher(readTileMatrixSetLink),
@@ -121,7 +105,7 @@ var LAYER_PARSERS = makeStructureNS(NAMESPACE_URIS, {
  * @type {Object<string, Object<string, import("../xml.js").Parser>>}
  */
 // @ts-ignore
-var STYLE_PARSERS = makeStructureNS(NAMESPACE_URIS, {
+const STYLE_PARSERS = makeStructureNS(NAMESPACE_URIS, {
     'LegendURL': makeObjectPropertyPusher(readLegendUrl)
 }, makeStructureNS(OWS_NAMESPACE_URIS, {
     'Title': makeObjectPropertySetter(readString),
@@ -132,7 +116,7 @@ var STYLE_PARSERS = makeStructureNS(NAMESPACE_URIS, {
  * @type {Object<string, Object<string, import("../xml.js").Parser>>}
  */
 // @ts-ignore
-var TMS_LINKS_PARSERS = makeStructureNS(NAMESPACE_URIS, {
+const TMS_LINKS_PARSERS = makeStructureNS(NAMESPACE_URIS, {
     'TileMatrixSet': makeObjectPropertySetter(readString),
     'TileMatrixSetLimits': makeObjectPropertySetter(readTileMatrixLimitsList)
 });
@@ -141,7 +125,7 @@ var TMS_LINKS_PARSERS = makeStructureNS(NAMESPACE_URIS, {
  * @type {Object<string, Object<string, import("../xml.js").Parser>>}
  */
 // @ts-ignore
-var TMS_LIMITS_LIST_PARSERS = makeStructureNS(NAMESPACE_URIS, {
+const TMS_LIMITS_LIST_PARSERS = makeStructureNS(NAMESPACE_URIS, {
     'TileMatrixLimits': makeArrayPusher(readTileMatrixLimits)
 });
 /**
@@ -149,7 +133,7 @@ var TMS_LIMITS_LIST_PARSERS = makeStructureNS(NAMESPACE_URIS, {
  * @type {Object<string, Object<string, import("../xml.js").Parser>>}
  */
 // @ts-ignore
-var TMS_LIMITS_PARSERS = makeStructureNS(NAMESPACE_URIS, {
+const TMS_LIMITS_PARSERS = makeStructureNS(NAMESPACE_URIS, {
     'TileMatrix': makeObjectPropertySetter(readString),
     'MinTileRow': makeObjectPropertySetter(readNonNegativeInteger),
     'MaxTileRow': makeObjectPropertySetter(readNonNegativeInteger),
@@ -161,7 +145,7 @@ var TMS_LIMITS_PARSERS = makeStructureNS(NAMESPACE_URIS, {
  * @type {Object<string, Object<string, import("../xml.js").Parser>>}
  */
 // @ts-ignore
-var DIMENSION_PARSERS = makeStructureNS(NAMESPACE_URIS, {
+const DIMENSION_PARSERS = makeStructureNS(NAMESPACE_URIS, {
     'Default': makeObjectPropertySetter(readString),
     'Value': makeObjectPropertyPusher(readString)
 }, makeStructureNS(OWS_NAMESPACE_URIS, {
@@ -172,7 +156,7 @@ var DIMENSION_PARSERS = makeStructureNS(NAMESPACE_URIS, {
  * @type {Object<string, Object<string, import("../xml.js").Parser>>}
  */
 // @ts-ignore
-var WGS84_BBOX_READERS = makeStructureNS(OWS_NAMESPACE_URIS, {
+const WGS84_BBOX_READERS = makeStructureNS(OWS_NAMESPACE_URIS, {
     'LowerCorner': makeArrayPusher(readCoordinates),
     'UpperCorner': makeArrayPusher(readCoordinates)
 });
@@ -181,7 +165,7 @@ var WGS84_BBOX_READERS = makeStructureNS(OWS_NAMESPACE_URIS, {
  * @type {Object<string, Object<string, import("../xml.js").Parser>>}
  */
 // @ts-ignore
-var TMS_PARSERS = makeStructureNS(NAMESPACE_URIS, {
+const TMS_PARSERS = makeStructureNS(NAMESPACE_URIS, {
     'WellKnownScaleSet': makeObjectPropertySetter(readString),
     'TileMatrix': makeObjectPropertyPusher(readTileMatrix)
 }, makeStructureNS(OWS_NAMESPACE_URIS, {
@@ -193,7 +177,7 @@ var TMS_PARSERS = makeStructureNS(NAMESPACE_URIS, {
  * @type {Object<string, Object<string, import("../xml.js").Parser>>}
  */
 // @ts-ignore
-var TM_PARSERS = makeStructureNS(NAMESPACE_URIS, {
+const TM_PARSERS = makeStructureNS(NAMESPACE_URIS, {
     'TopLeftCorner': makeObjectPropertySetter(readCoordinates),
     'ScaleDenominator': makeObjectPropertySetter(readDecimal),
     'TileWidth': makeObjectPropertySetter(readNonNegativeInteger),
@@ -233,11 +217,11 @@ function readTileMatrixSet(node, objectStack) {
  * @return {Object|undefined} Style object.
  */
 function readStyle(node, objectStack) {
-    var style = pushParseAndPop({}, STYLE_PARSERS, node, objectStack);
+    const style = pushParseAndPop({}, STYLE_PARSERS, node, objectStack);
     if (!style) {
         return undefined;
     }
-    var isDefault = node.getAttribute('isDefault') === 'true';
+    const isDefault = node.getAttribute('isDefault') === 'true';
     style['isDefault'] = isDefault;
     return style;
 }
@@ -263,10 +247,10 @@ function readDimensions(node, objectStack) {
  * @return {Object|undefined} Resource URL object.
  */
 function readResourceUrl(node, objectStack) {
-    var format = node.getAttribute('format');
-    var template = node.getAttribute('template');
-    var resourceType = node.getAttribute('resourceType');
-    var resource = {};
+    const format = node.getAttribute('format');
+    const template = node.getAttribute('template');
+    const resourceType = node.getAttribute('resourceType');
+    const resource = {};
     if (format) {
         resource['format'] = format;
     }
@@ -284,7 +268,7 @@ function readResourceUrl(node, objectStack) {
  * @return {Object|undefined} WGS84 BBox object.
  */
 function readWgs84BoundingBox(node, objectStack) {
-    var coordinates = pushParseAndPop([], WGS84_BBOX_READERS, node, objectStack);
+    const coordinates = pushParseAndPop([], WGS84_BBOX_READERS, node, objectStack);
     if (coordinates.length != 2) {
         return undefined;
     }
@@ -296,7 +280,7 @@ function readWgs84BoundingBox(node, objectStack) {
  * @return {Object|undefined} Legend object.
  */
 function readLegendUrl(node, objectStack) {
-    var legend = {};
+    const legend = {};
     legend['format'] = node.getAttribute('format');
     legend['href'] = readHref(node);
     return legend;
@@ -307,12 +291,12 @@ function readLegendUrl(node, objectStack) {
  * @return {Object|undefined} Coordinates object.
  */
 function readCoordinates(node, objectStack) {
-    var coordinates = readString(node).split(/\s+/);
+    const coordinates = readString(node).split(/\s+/);
     if (!coordinates || coordinates.length != 2) {
         return undefined;
     }
-    var x = +coordinates[0];
-    var y = +coordinates[1];
+    const x = +coordinates[0];
+    const y = +coordinates[1];
     if (isNaN(x) || isNaN(y)) {
         return undefined;
     }

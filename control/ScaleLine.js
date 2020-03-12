@@ -1,16 +1,3 @@
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 /**
  * @module ol/control/ScaleLine
  */
@@ -23,13 +10,13 @@ import ProjUnits from '../proj/Units.js';
 /**
  * @type {string}
  */
-var UNITS_PROP = 'units';
+const UNITS_PROP = 'units';
 /**
  * Units for the scale line. Supported values are `'degrees'`, `'imperial'`,
  * `'nautical'`, `'metric'`, `'us'`.
  * @enum {string}
  */
-export var Units = {
+export const Units = {
     DEGREES: 'degrees',
     IMPERIAL: 'imperial',
     NAUTICAL: 'nautical',
@@ -40,7 +27,7 @@ export var Units = {
  * @const
  * @type {Array<number>}
  */
-var LEADING_DIGITS = [1, 2, 5];
+const LEADING_DIGITS = [1, 2, 5];
 /**
  * @typedef {Object} Options
  * @property {string} [className='ol-scale-line'] CSS Class name.
@@ -70,72 +57,69 @@ var LEADING_DIGITS = [1, 2, 5];
  *
  * @api
  */
-var ScaleLine = /** @class */ (function (_super) {
-    __extends(ScaleLine, _super);
+class ScaleLine extends Control {
     /**
      * @param {Options=} opt_options Scale line options.
      */
-    function ScaleLine(opt_options) {
-        var _this = this;
-        var options = opt_options ? opt_options : {};
-        var className = options.className !== undefined ? options.className :
+    constructor(opt_options) {
+        const options = opt_options ? opt_options : {};
+        const className = options.className !== undefined ? options.className :
             options.bar ? 'ol-scale-bar' : 'ol-scale-line';
-        _this = _super.call(this, {
+        super({
             element: document.createElement('div'),
             render: options.render || render,
             target: options.target
-        }) || this;
+        });
         /**
          * @private
          * @type {HTMLElement}
          */
-        _this.innerElement_ = document.createElement('div');
-        _this.innerElement_.className = className + '-inner';
-        _this.element.className = className + ' ' + CLASS_UNSELECTABLE;
-        _this.element.appendChild(_this.innerElement_);
+        this.innerElement_ = document.createElement('div');
+        this.innerElement_.className = className + '-inner';
+        this.element.className = className + ' ' + CLASS_UNSELECTABLE;
+        this.element.appendChild(this.innerElement_);
         /**
          * @private
          * @type {?import("../View.js").State}
          */
-        _this.viewState_ = null;
+        this.viewState_ = null;
         /**
          * @private
          * @type {number}
          */
-        _this.minWidth_ = options.minWidth !== undefined ? options.minWidth : 64;
+        this.minWidth_ = options.minWidth !== undefined ? options.minWidth : 64;
         /**
          * @private
          * @type {boolean}
          */
-        _this.renderedVisible_ = false;
+        this.renderedVisible_ = false;
         /**
          * @private
          * @type {number|undefined}
          */
-        _this.renderedWidth_ = undefined;
+        this.renderedWidth_ = undefined;
         /**
          * @private
          * @type {string}
          */
-        _this.renderedHTML_ = '';
-        _this.addEventListener(getChangeEventType(UNITS_PROP), _this.handleUnitsChanged_);
-        _this.setUnits(options.units || Units.METRIC);
+        this.renderedHTML_ = '';
+        this.addEventListener(getChangeEventType(UNITS_PROP), this.handleUnitsChanged_);
+        this.setUnits(options.units || Units.METRIC);
         /**
          * @private
          * @type {boolean}
          */
-        _this.scaleBar_ = options.bar || false;
+        this.scaleBar_ = options.bar || false;
         /**
          * @private
          * @type {number}
          */
-        _this.scaleBarSteps_ = options.steps || 4;
+        this.scaleBarSteps_ = options.steps || 4;
         /**
          * @private
          * @type {boolean}
          */
-        _this.scaleBarText_ = options.text || false;
-        return _this;
+        this.scaleBarText_ = options.text || false;
     }
     /**
      * Return the units to use in the scale line.
@@ -144,29 +128,29 @@ var ScaleLine = /** @class */ (function (_super) {
      * @observable
      * @api
      */
-    ScaleLine.prototype.getUnits = function () {
+    getUnits() {
         return this.get(UNITS_PROP);
-    };
+    }
     /**
      * @private
      */
-    ScaleLine.prototype.handleUnitsChanged_ = function () {
+    handleUnitsChanged_() {
         this.updateElement_();
-    };
+    }
     /**
      * Set the units to use in the scale line.
      * @param {Units} units The units to use in the scale line.
      * @observable
      * @api
      */
-    ScaleLine.prototype.setUnits = function (units) {
+    setUnits(units) {
         this.set(UNITS_PROP, units);
-    };
+    }
     /**
      * @private
      */
-    ScaleLine.prototype.updateElement_ = function () {
-        var viewState = this.viewState_;
+    updateElement_() {
+        const viewState = this.viewState_;
         if (!viewState) {
             if (this.renderedVisible_) {
                 this.element.style.display = 'none';
@@ -174,17 +158,17 @@ var ScaleLine = /** @class */ (function (_super) {
             }
             return;
         }
-        var center = viewState.center;
-        var projection = viewState.projection;
-        var units = this.getUnits();
-        var pointResolutionUnits = units == Units.DEGREES ?
+        const center = viewState.center;
+        const projection = viewState.projection;
+        const units = this.getUnits();
+        const pointResolutionUnits = units == Units.DEGREES ?
             ProjUnits.DEGREES :
             ProjUnits.METERS;
-        var pointResolution = getPointResolution(projection, viewState.resolution, center, pointResolutionUnits);
-        var nominalCount = this.minWidth_ * pointResolution;
-        var suffix = '';
+        let pointResolution = getPointResolution(projection, viewState.resolution, center, pointResolutionUnits);
+        let nominalCount = this.minWidth_ * pointResolution;
+        let suffix = '';
         if (units == Units.DEGREES) {
-            var metersPerDegree = METERS_PER_UNIT[ProjUnits.DEGREES];
+            const metersPerDegree = METERS_PER_UNIT[ProjUnits.DEGREES];
             nominalCount *= metersPerDegree;
             if (nominalCount < metersPerDegree / 60) {
                 suffix = '\u2033'; // seconds
@@ -250,11 +234,11 @@ var ScaleLine = /** @class */ (function (_super) {
         else {
             assert(false, 33); // Invalid units
         }
-        var i = 3 * Math.floor(Math.log(this.minWidth_ * pointResolution) / Math.log(10));
-        var count, width, decimalCount;
+        let i = 3 * Math.floor(Math.log(this.minWidth_ * pointResolution) / Math.log(10));
+        let count, width, decimalCount;
         while (true) {
             decimalCount = Math.floor(i / 3);
-            var decimal = Math.pow(10, decimalCount);
+            const decimal = Math.pow(10, decimalCount);
             count = LEADING_DIGITS[((i % 3) + 3) % 3] * decimal;
             width = Math.round(count / pointResolution);
             if (isNaN(width)) {
@@ -267,7 +251,7 @@ var ScaleLine = /** @class */ (function (_super) {
             }
             ++i;
         }
-        var html;
+        let html;
         if (this.scaleBar_) {
             html = this.createScaleBar(width, count, suffix);
         }
@@ -286,7 +270,7 @@ var ScaleLine = /** @class */ (function (_super) {
             this.element.style.display = '';
             this.renderedVisible_ = true;
         }
-    };
+    }
     /**
      * @private
      * @param {number} width The current width of the scalebar.
@@ -294,12 +278,12 @@ var ScaleLine = /** @class */ (function (_super) {
      * @param {string} suffix The suffix to append to the scale text.
      * @returns {string} The stringified HTML of the scalebar.
      */
-    ScaleLine.prototype.createScaleBar = function (width, scale, suffix) {
-        var mapScale = '1 : ' + Math.round(this.getScaleForResolution()).toLocaleString();
-        var scaleSteps = [];
-        var stepWidth = width / this.scaleBarSteps_;
-        var backgroundColor = '#ffffff';
-        for (var i = 0; i < this.scaleBarSteps_; i++) {
+    createScaleBar(width, scale, suffix) {
+        const mapScale = '1 : ' + Math.round(this.getScaleForResolution()).toLocaleString();
+        const scaleSteps = [];
+        const stepWidth = width / this.scaleBarSteps_;
+        let backgroundColor = '#ffffff';
+        for (let i = 0; i < this.scaleBarSteps_; i++) {
             if (i === 0) {
                 // create the first marker at position 0
                 scaleSteps.push(this.createMarker('absolute', i));
@@ -330,7 +314,7 @@ var ScaleLine = /** @class */ (function (_super) {
                 backgroundColor = '#ffffff';
             }
         }
-        var scaleBarText;
+        let scaleBarText;
         if (this.scaleBarText_) {
             scaleBarText = '<div ' +
                 'class="ol-scale-text" ' +
@@ -341,27 +325,27 @@ var ScaleLine = /** @class */ (function (_super) {
         else {
             scaleBarText = '';
         }
-        var container = '<div ' +
+        const container = '<div ' +
             'style="display: flex;">' +
             scaleBarText +
             scaleSteps.join('') +
             '</div>';
         return container;
-    };
+    }
     /**
      * Creates a marker at given position
      * @param {string} position - The position, absolute or relative
      * @param {number} i - The iterator
      * @returns {string} The stringified div containing the marker
      */
-    ScaleLine.prototype.createMarker = function (position, i) {
-        var top = position === 'absolute' ? 3 : -10;
+    createMarker(position, i) {
+        const top = position === 'absolute' ? 3 : -10;
         return '<div ' +
             'class="ol-scale-step-marker" ' +
             'style="position: ' + position + ';' +
             'top: ' + top + 'px;"' +
             '></div>';
-    };
+    }
     /**
      * Creates the label for a marker marker at given position
      * @param {number} i - The iterator
@@ -371,11 +355,11 @@ var ScaleLine = /** @class */ (function (_super) {
      * @param {string} suffix - The suffix for the scale
      * @returns {string} The stringified div containing the step text
      */
-    ScaleLine.prototype.createStepText = function (i, width, isLast, scale, suffix) {
-        var length = i === 0 ? 0 : Math.round((scale / this.scaleBarSteps_ * i) * 100) / 100;
-        var lengthString = length + (i === 0 ? '' : ' ' + suffix);
-        var margin = i === 0 ? -3 : width / this.scaleBarSteps_ * -1;
-        var minWidth = i === 0 ? 0 : width / this.scaleBarSteps_ * 2;
+    createStepText(i, width, isLast, scale, suffix) {
+        const length = i === 0 ? 0 : Math.round((scale / this.scaleBarSteps_ * i) * 100) / 100;
+        const lengthString = length + (i === 0 ? '' : ' ' + suffix);
+        const margin = i === 0 ? -3 : width / this.scaleBarSteps_ * -1;
+        const minWidth = i === 0 ? 0 : width / this.scaleBarSteps_ * 2;
         return '<div ' +
             'class="ol-scale-step-text" ' +
             'style="' +
@@ -386,27 +370,26 @@ var ScaleLine = /** @class */ (function (_super) {
             '>' +
             lengthString +
             '</div>';
-    };
+    }
     /**
      * Returns the appropriate scale for the given resolution and units.
      * @return {number} The appropriate scale.
      */
-    ScaleLine.prototype.getScaleForResolution = function () {
-        var resolution = this.getMap().getView().getResolution();
-        var dpi = 25.4 / 0.28;
-        var mpu = this.viewState_.projection.getMetersPerUnit();
-        var inchesPerMeter = 39.37;
+    getScaleForResolution() {
+        const resolution = this.getMap().getView().getResolution();
+        const dpi = 25.4 / 0.28;
+        const mpu = this.viewState_.projection.getMetersPerUnit();
+        const inchesPerMeter = 39.37;
         return parseFloat(resolution.toString()) * mpu * inchesPerMeter * dpi;
-    };
-    return ScaleLine;
-}(Control));
+    }
+}
 /**
  * Update the scale line element.
  * @param {import("../MapEvent.js").default} mapEvent Map event.
  * @this {ScaleLine}
  */
 export function render(mapEvent) {
-    var frameState = mapEvent.frameState;
+    const frameState = mapEvent.frameState;
     if (!frameState) {
         this.viewState_ = null;
     }

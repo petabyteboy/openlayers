@@ -1,19 +1,6 @@
 /**
  * @module ol/source/BingMaps
  */
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 import { createFromTileUrlFunctions } from '../tileurlfunction.js';
 import { applyTransform, intersects } from '../extent.js';
 import { jsonp as requestJSONP } from '../net.js';
@@ -27,10 +14,10 @@ import { createXYZ, extentFromProjection } from '../tilegrid.js';
  * @return {string} Quad key.
  */
 export function quadKey(tileCoord) {
-    var z = tileCoord[0];
-    var digits = new Array(z);
-    var mask = 1 << (z - 1);
-    var i, charCode;
+    const z = tileCoord[0];
+    const digits = new Array(z);
+    let mask = 1 << (z - 1);
+    let i, charCode;
     for (i = 0; i < z; ++i) {
         // 48 is charCode for 0 - '0'.charCodeAt(0)
         charCode = 48;
@@ -51,7 +38,7 @@ export function quadKey(tileCoord) {
  * @const
  * @type {string}
  */
-var TOS_ATTRIBUTION = '<a class="ol-attribution-bing-tos" ' +
+const TOS_ATTRIBUTION = '<a class="ol-attribution-bing-tos" ' +
     'href="https://www.microsoft.com/maps/product/terms.html" target="_blank">' +
     'Terms of Use</a>';
 /**
@@ -111,15 +98,13 @@ var TOS_ATTRIBUTION = '<a class="ol-attribution-bing-tos" ' +
  * Layer source for Bing Maps tile data.
  * @api
  */
-var BingMaps = /** @class */ (function (_super) {
-    __extends(BingMaps, _super);
+class BingMaps extends TileImage {
     /**
      * @param {Options} options Bing Maps options.
      */
-    function BingMaps(options) {
-        var _this = this;
-        var hidpi = options.hidpi !== undefined ? options.hidpi : false;
-        _this = _super.call(this, {
+    constructor(options) {
+        const hidpi = options.hidpi !== undefined ? options.hidpi : false;
+        super({
             cacheSize: options.cacheSize,
             crossOrigin: 'anonymous',
             opaque: true,
@@ -130,38 +115,37 @@ var BingMaps = /** @class */ (function (_super) {
             tilePixelRatio: hidpi ? 2 : 1,
             wrapX: options.wrapX !== undefined ? options.wrapX : true,
             transition: options.transition
-        }) || this;
+        });
         /**
          * @private
          * @type {boolean}
          */
-        _this.hidpi_ = hidpi;
+        this.hidpi_ = hidpi;
         /**
          * @private
          * @type {string}
          */
-        _this.culture_ = options.culture !== undefined ? options.culture : 'en-us';
+        this.culture_ = options.culture !== undefined ? options.culture : 'en-us';
         /**
          * @private
          * @type {number}
          */
-        _this.maxZoom_ = options.maxZoom !== undefined ? options.maxZoom : -1;
+        this.maxZoom_ = options.maxZoom !== undefined ? options.maxZoom : -1;
         /**
          * @private
          * @type {string}
          */
-        _this.apiKey_ = options.key;
+        this.apiKey_ = options.key;
         /**
          * @private
          * @type {string}
          */
-        _this.imagerySet_ = options.imagerySet;
-        var url = 'https://dev.virtualearth.net/REST/v1/Imagery/Metadata/' +
-            _this.imagerySet_ +
-            '?uriScheme=https&include=ImageryProviders&key=' + _this.apiKey_ +
-            '&c=' + _this.culture_;
-        requestJSONP(url, _this.handleImageryMetadataResponse.bind(_this), undefined, 'jsonp');
-        return _this;
+        this.imagerySet_ = options.imagerySet;
+        const url = 'https://dev.virtualearth.net/REST/v1/Imagery/Metadata/' +
+            this.imagerySet_ +
+            '?uriScheme=https&include=ImageryProviders&key=' + this.apiKey_ +
+            '&c=' + this.culture_;
+        requestJSONP(url, this.handleImageryMetadataResponse.bind(this), undefined, 'jsonp');
     }
     /**
      * Get the api key used for this source.
@@ -169,22 +153,22 @@ var BingMaps = /** @class */ (function (_super) {
      * @return {string} The api key.
      * @api
      */
-    BingMaps.prototype.getApiKey = function () {
+    getApiKey() {
         return this.apiKey_;
-    };
+    }
     /**
      * Get the imagery set associated with this source.
      *
      * @return {string} The imagery set.
      * @api
      */
-    BingMaps.prototype.getImagerySet = function () {
+    getImagerySet() {
         return this.imagerySet_;
-    };
+    }
     /**
      * @param {BingMapsImageryMetadataResponse} response Response.
      */
-    BingMaps.prototype.handleImageryMetadataResponse = function (response) {
+    handleImageryMetadataResponse(response) {
         if (response.statusCode != 200 ||
             response.statusDescription != 'OK' ||
             response.authenticationResultCode != 'ValidCredentials' ||
@@ -193,27 +177,27 @@ var BingMaps = /** @class */ (function (_super) {
             this.setState(SourceState.ERROR);
             return;
         }
-        var resource = response.resourceSets[0].resources[0];
-        var maxZoom = this.maxZoom_ == -1 ? resource.zoomMax : this.maxZoom_;
-        var sourceProjection = this.getProjection();
-        var extent = extentFromProjection(sourceProjection);
-        var scale = this.hidpi_ ? 2 : 1;
-        var tileSize = resource.imageWidth == resource.imageHeight ?
+        const resource = response.resourceSets[0].resources[0];
+        const maxZoom = this.maxZoom_ == -1 ? resource.zoomMax : this.maxZoom_;
+        const sourceProjection = this.getProjection();
+        const extent = extentFromProjection(sourceProjection);
+        const scale = this.hidpi_ ? 2 : 1;
+        const tileSize = resource.imageWidth == resource.imageHeight ?
             resource.imageWidth / scale :
             [resource.imageWidth / scale, resource.imageHeight / scale];
-        var tileGrid = createXYZ({
+        const tileGrid = createXYZ({
             extent: extent,
             minZoom: resource.zoomMin,
             maxZoom: maxZoom,
             tileSize: tileSize
         });
         this.tileGrid = tileGrid;
-        var culture = this.culture_;
-        var hidpi = this.hidpi_;
+        const culture = this.culture_;
+        const hidpi = this.hidpi_;
         this.tileUrlFunction = createFromTileUrlFunctions(resource.imageUrlSubdomains.map(function (subdomain) {
             /** @type {import('../tilecoord.js').TileCoord} */
-            var quadKeyTileCoord = [0, 0, 0];
-            var imageUrl = resource.imageUrl
+            const quadKeyTileCoord = [0, 0, 0];
+            const imageUrl = resource.imageUrl
                 .replace('{subdomain}', subdomain)
                 .replace('{culture}', culture);
             return (
@@ -229,7 +213,7 @@ var BingMaps = /** @class */ (function (_super) {
                 }
                 else {
                     createOrUpdate(tileCoord[0], tileCoord[1], tileCoord[2], quadKeyTileCoord);
-                    var url = imageUrl;
+                    let url = imageUrl;
                     if (hidpi) {
                         url += '&dpi=d1&device=mobile';
                     }
@@ -238,24 +222,24 @@ var BingMaps = /** @class */ (function (_super) {
             });
         }));
         if (resource.imageryProviders) {
-            var transform_1 = getTransformFromProjections(getProjection('EPSG:4326'), this.getProjection());
+            const transform = getTransformFromProjections(getProjection('EPSG:4326'), this.getProjection());
             this.setAttributions(function (frameState) {
-                var attributions = [];
-                var viewState = frameState.viewState;
-                var tileGrid = this.getTileGrid();
-                var z = tileGrid.getZForResolution(viewState.resolution, this.zDirection);
-                var tileCoord = tileGrid.getTileCoordForCoordAndZ(viewState.center, z);
-                var zoom = tileCoord[0];
+                const attributions = [];
+                const viewState = frameState.viewState;
+                const tileGrid = this.getTileGrid();
+                const z = tileGrid.getZForResolution(viewState.resolution, this.zDirection);
+                const tileCoord = tileGrid.getTileCoordForCoordAndZ(viewState.center, z);
+                const zoom = tileCoord[0];
                 resource.imageryProviders.map(function (imageryProvider) {
-                    var intersecting = false;
-                    var coverageAreas = imageryProvider.coverageAreas;
-                    for (var i = 0, ii = coverageAreas.length; i < ii; ++i) {
-                        var coverageArea = coverageAreas[i];
+                    let intersecting = false;
+                    const coverageAreas = imageryProvider.coverageAreas;
+                    for (let i = 0, ii = coverageAreas.length; i < ii; ++i) {
+                        const coverageArea = coverageAreas[i];
                         if (zoom >= coverageArea.zoomMin && zoom <= coverageArea.zoomMax) {
-                            var bbox = coverageArea.bbox;
-                            var epsg4326Extent = [bbox[1], bbox[0], bbox[3], bbox[2]];
-                            var extent_1 = applyTransform(epsg4326Extent, transform_1);
-                            if (intersects(extent_1, frameState.extent)) {
+                            const bbox = coverageArea.bbox;
+                            const epsg4326Extent = [bbox[1], bbox[0], bbox[3], bbox[2]];
+                            const extent = applyTransform(epsg4326Extent, transform);
+                            if (intersects(extent, frameState.extent)) {
                                 intersecting = true;
                                 break;
                             }
@@ -270,8 +254,7 @@ var BingMaps = /** @class */ (function (_super) {
             }.bind(this));
         }
         this.setState(SourceState.READY);
-    };
-    return BingMaps;
-}(TileImage));
+    }
+}
 export default BingMaps;
 //# sourceMappingURL=BingMaps.js.map

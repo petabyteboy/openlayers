@@ -1,16 +1,3 @@
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 /**
  * @module ol/format/Polyline
  */
@@ -44,61 +31,59 @@ import { get as getProjection } from '../proj.js';
  *
  * @api
  */
-var Polyline = /** @class */ (function (_super) {
-    __extends(Polyline, _super);
+class Polyline extends TextFeature {
     /**
      * @param {Options=} opt_options Optional configuration object.
      */
-    function Polyline(opt_options) {
-        var _this = _super.call(this) || this;
-        var options = opt_options ? opt_options : {};
+    constructor(opt_options) {
+        super();
+        const options = opt_options ? opt_options : {};
         /**
          * @inheritDoc
          */
-        _this.dataProjection = getProjection('EPSG:4326');
+        this.dataProjection = getProjection('EPSG:4326');
         /**
          * @private
          * @type {number}
          */
-        _this.factor_ = options.factor ? options.factor : 1e5;
+        this.factor_ = options.factor ? options.factor : 1e5;
         /**
          * @private
          * @type {GeometryLayout}
          */
-        _this.geometryLayout_ = options.geometryLayout ?
+        this.geometryLayout_ = options.geometryLayout ?
             options.geometryLayout : GeometryLayout.XY;
-        return _this;
     }
     /**
      * @inheritDoc
      */
-    Polyline.prototype.readFeatureFromText = function (text, opt_options) {
-        var geometry = this.readGeometryFromText(text, opt_options);
+    readFeatureFromText(text, opt_options) {
+        const geometry = this.readGeometryFromText(text, opt_options);
         return new Feature(geometry);
-    };
+    }
     /**
      * @inheritDoc
      */
-    Polyline.prototype.readFeaturesFromText = function (text, opt_options) {
-        var feature = this.readFeatureFromText(text, opt_options);
+    readFeaturesFromText(text, opt_options) {
+        const feature = this.readFeatureFromText(text, opt_options);
         return [feature];
-    };
+    }
     /**
      * @inheritDoc
      */
-    Polyline.prototype.readGeometryFromText = function (text, opt_options) {
-        var stride = getStrideForLayout(this.geometryLayout_);
-        var flatCoordinates = decodeDeltas(text, stride, this.factor_);
+    readGeometryFromText(text, opt_options) {
+        const stride = getStrideForLayout(this.geometryLayout_);
+        const flatCoordinates = decodeDeltas(text, stride, this.factor_);
         flipXY(flatCoordinates, 0, flatCoordinates.length, stride, flatCoordinates);
-        var coordinates = inflateCoordinates(flatCoordinates, 0, flatCoordinates.length, stride);
-        var lineString = new LineString(coordinates, this.geometryLayout_);
+        const coordinates = inflateCoordinates(flatCoordinates, 0, flatCoordinates.length, stride);
+        const lineString = new LineString(coordinates, this.geometryLayout_);
         return transformGeometryWithOptions(lineString, false, this.adaptOptions(opt_options));
-    };
+    }
     /**
      * @inheritDoc
      */
-    Polyline.prototype.writeFeatureText = function (feature, opt_options) {
-        var geometry = feature.getGeometry();
+    writeFeatureText(feature, opt_options) {
+        const geometry = feature.getGeometry();
         if (geometry) {
             return this.writeGeometryText(geometry, opt_options);
         }
@@ -106,26 +91,25 @@ var Polyline = /** @class */ (function (_super) {
             assert(false, 40); // Expected `feature` to have a geometry
             return '';
         }
-    };
+    }
     /**
      * @inheritDoc
      */
-    Polyline.prototype.writeFeaturesText = function (features, opt_options) {
+    writeFeaturesText(features, opt_options) {
         return this.writeFeatureText(features[0], opt_options);
-    };
+    }
     /**
      * @inheritDoc
      */
-    Polyline.prototype.writeGeometryText = function (geometry, opt_options) {
+    writeGeometryText(geometry, opt_options) {
         geometry = /** @type {LineString} */
             (transformGeometryWithOptions(geometry, true, this.adaptOptions(opt_options)));
-        var flatCoordinates = geometry.getFlatCoordinates();
-        var stride = geometry.getStride();
+        const flatCoordinates = geometry.getFlatCoordinates();
+        const stride = geometry.getStride();
         flipXY(flatCoordinates, 0, flatCoordinates.length, stride, flatCoordinates);
         return encodeDeltas(flatCoordinates, stride, this.factor_);
-    };
-    return Polyline;
-}(TextFeature));
+    }
+}
 /**
  * Encode a list of n-dimensional points and return an encoded string
  *
@@ -140,16 +124,16 @@ var Polyline = /** @class */ (function (_super) {
  * @api
  */
 export function encodeDeltas(numbers, stride, opt_factor) {
-    var factor = opt_factor ? opt_factor : 1e5;
-    var d;
-    var lastNumbers = new Array(stride);
+    const factor = opt_factor ? opt_factor : 1e5;
+    let d;
+    const lastNumbers = new Array(stride);
     for (d = 0; d < stride; ++d) {
         lastNumbers[d] = 0;
     }
-    for (var i = 0, ii = numbers.length; i < ii;) {
+    for (let i = 0, ii = numbers.length; i < ii;) {
         for (d = 0; d < stride; ++d, ++i) {
-            var num = numbers[i];
-            var delta = num - lastNumbers[d];
+            const num = numbers[i];
+            const delta = num - lastNumbers[d];
             lastNumbers[d] = num;
             numbers[i] = delta;
         }
@@ -168,15 +152,15 @@ export function encodeDeltas(numbers, stride, opt_factor) {
  * @api
  */
 export function decodeDeltas(encoded, stride, opt_factor) {
-    var factor = opt_factor ? opt_factor : 1e5;
-    var d;
+    const factor = opt_factor ? opt_factor : 1e5;
+    let d;
     /** @type {Array<number>} */
-    var lastNumbers = new Array(stride);
+    const lastNumbers = new Array(stride);
     for (d = 0; d < stride; ++d) {
         lastNumbers[d] = 0;
     }
-    var numbers = decodeFloats(encoded, factor);
-    for (var i = 0, ii = numbers.length; i < ii;) {
+    const numbers = decodeFloats(encoded, factor);
+    for (let i = 0, ii = numbers.length; i < ii;) {
         for (d = 0; d < stride; ++d, ++i) {
             lastNumbers[d] += numbers[i];
             numbers[i] = lastNumbers[d];
@@ -197,8 +181,8 @@ export function decodeDeltas(encoded, stride, opt_factor) {
  * @api
  */
 export function encodeFloats(numbers, opt_factor) {
-    var factor = opt_factor ? opt_factor : 1e5;
-    for (var i = 0, ii = numbers.length; i < ii; ++i) {
+    const factor = opt_factor ? opt_factor : 1e5;
+    for (let i = 0, ii = numbers.length; i < ii; ++i) {
         numbers[i] = Math.round(numbers[i] * factor);
     }
     return encodeSignedIntegers(numbers);
@@ -213,9 +197,9 @@ export function encodeFloats(numbers, opt_factor) {
  * @api
  */
 export function decodeFloats(encoded, opt_factor) {
-    var factor = opt_factor ? opt_factor : 1e5;
-    var numbers = decodeSignedIntegers(encoded);
-    for (var i = 0, ii = numbers.length; i < ii; ++i) {
+    const factor = opt_factor ? opt_factor : 1e5;
+    const numbers = decodeSignedIntegers(encoded);
+    for (let i = 0, ii = numbers.length; i < ii; ++i) {
         numbers[i] /= factor;
     }
     return numbers;
@@ -229,8 +213,8 @@ export function decodeFloats(encoded, opt_factor) {
  * @return {string} The encoded string.
  */
 export function encodeSignedIntegers(numbers) {
-    for (var i = 0, ii = numbers.length; i < ii; ++i) {
-        var num = numbers[i];
+    for (let i = 0, ii = numbers.length; i < ii; ++i) {
+        const num = numbers[i];
         numbers[i] = (num < 0) ? ~(num << 1) : (num << 1);
     }
     return encodeUnsignedIntegers(numbers);
@@ -242,9 +226,9 @@ export function encodeSignedIntegers(numbers) {
  * @return {Array<number>} A list of signed integers.
  */
 export function decodeSignedIntegers(encoded) {
-    var numbers = decodeUnsignedIntegers(encoded);
-    for (var i = 0, ii = numbers.length; i < ii; ++i) {
-        var num = numbers[i];
+    const numbers = decodeUnsignedIntegers(encoded);
+    for (let i = 0, ii = numbers.length; i < ii; ++i) {
+        const num = numbers[i];
         numbers[i] = (num & 1) ? ~(num >> 1) : (num >> 1);
     }
     return numbers;
@@ -256,8 +240,8 @@ export function decodeSignedIntegers(encoded) {
  * @return {string} The encoded string.
  */
 export function encodeUnsignedIntegers(numbers) {
-    var encoded = '';
-    for (var i = 0, ii = numbers.length; i < ii; ++i) {
+    let encoded = '';
+    for (let i = 0, ii = numbers.length; i < ii; ++i) {
         encoded += encodeUnsignedInteger(numbers[i]);
     }
     return encoded;
@@ -269,11 +253,11 @@ export function encodeUnsignedIntegers(numbers) {
  * @return {Array<number>} A list of unsigned integers.
  */
 export function decodeUnsignedIntegers(encoded) {
-    var numbers = [];
-    var current = 0;
-    var shift = 0;
-    for (var i = 0, ii = encoded.length; i < ii; ++i) {
-        var b = encoded.charCodeAt(i) - 63;
+    const numbers = [];
+    let current = 0;
+    let shift = 0;
+    for (let i = 0, ii = encoded.length; i < ii; ++i) {
+        const b = encoded.charCodeAt(i) - 63;
         current |= (b & 0x1f) << shift;
         if (b < 0x20) {
             numbers.push(current);
@@ -293,7 +277,7 @@ export function decodeUnsignedIntegers(encoded) {
  * @return {string} The encoded string.
  */
 export function encodeUnsignedInteger(num) {
-    var value, encoded = '';
+    let value, encoded = '';
     while (num >= 0x20) {
         value = (0x20 | (num & 0x1f)) + 63;
         encoded += String.fromCharCode(value);

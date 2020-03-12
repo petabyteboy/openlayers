@@ -1,16 +1,3 @@
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 /**
  * @module ol/layer/Layer
  */
@@ -94,108 +81,105 @@ import { assert } from '../asserts.js';
  * @template {import("../source/Source.js").default} SourceType
  * @api
  */
-var Layer = /** @class */ (function (_super) {
-    __extends(Layer, _super);
+class Layer extends BaseLayer {
     /**
      * @param {Options} options Layer options.
      */
-    function Layer(options) {
-        var _this = this;
-        var baseOptions = assign({}, options);
+    constructor(options) {
+        const baseOptions = assign({}, options);
         delete baseOptions.source;
-        _this = _super.call(this, baseOptions) || this;
+        super(baseOptions);
         /**
          * @private
          * @type {?import("../events.js").EventsKey}
          */
-        _this.mapPrecomposeKey_ = null;
+        this.mapPrecomposeKey_ = null;
         /**
          * @private
          * @type {?import("../events.js").EventsKey}
          */
-        _this.mapRenderKey_ = null;
+        this.mapRenderKey_ = null;
         /**
          * @private
          * @type {?import("../events.js").EventsKey}
          */
-        _this.sourceChangeKey_ = null;
+        this.sourceChangeKey_ = null;
         /**
          * @private
          * @type {import("../renderer/Layer.js").default}
          */
-        _this.renderer_ = null;
+        this.renderer_ = null;
         // Overwrite default render method with a custom one
         if (options.render) {
-            _this.render = options.render;
+            this.render = options.render;
         }
         if (options.map) {
-            _this.setMap(options.map);
+            this.setMap(options.map);
         }
-        _this.addEventListener(getChangeEventType(LayerProperty.SOURCE), _this.handleSourcePropertyChange_);
-        var source = options.source ? /** @type {SourceType} */ (options.source) : null;
-        _this.setSource(source);
-        return _this;
+        this.addEventListener(getChangeEventType(LayerProperty.SOURCE), this.handleSourcePropertyChange_);
+        const source = options.source ? /** @type {SourceType} */ (options.source) : null;
+        this.setSource(source);
     }
     /**
      * @inheritDoc
      */
-    Layer.prototype.getLayersArray = function (opt_array) {
-        var array = opt_array ? opt_array : [];
+    getLayersArray(opt_array) {
+        const array = opt_array ? opt_array : [];
         array.push(this);
         return array;
-    };
+    }
     /**
      * @inheritDoc
      */
-    Layer.prototype.getLayerStatesArray = function (opt_states) {
-        var states = opt_states ? opt_states : [];
+    getLayerStatesArray(opt_states) {
+        const states = opt_states ? opt_states : [];
         states.push(this.getLayerState());
         return states;
-    };
+    }
     /**
      * Get the layer source.
      * @return {SourceType} The layer source (or `null` if not yet set).
      * @observable
      * @api
      */
-    Layer.prototype.getSource = function () {
+    getSource() {
         return /** @type {SourceType} */ (this.get(LayerProperty.SOURCE)) || null;
-    };
+    }
     /**
       * @inheritDoc
       */
-    Layer.prototype.getSourceState = function () {
-        var source = this.getSource();
+    getSourceState() {
+        const source = this.getSource();
         return !source ? SourceState.UNDEFINED : source.getState();
-    };
+    }
     /**
      * @private
      */
-    Layer.prototype.handleSourceChange_ = function () {
+    handleSourceChange_() {
         this.changed();
-    };
+    }
     /**
      * @private
      */
-    Layer.prototype.handleSourcePropertyChange_ = function () {
+    handleSourcePropertyChange_() {
         if (this.sourceChangeKey_) {
             unlistenByKey(this.sourceChangeKey_);
             this.sourceChangeKey_ = null;
         }
-        var source = this.getSource();
+        const source = this.getSource();
         if (source) {
             this.sourceChangeKey_ = listen(source, EventType.CHANGE, this.handleSourceChange_, this);
         }
         this.changed();
-    };
+    }
     /**
      * @param {import("../pixel").Pixel} pixel Pixel.
      * @return {Promise<Array<import("../Feature").default>>} Promise that resolves with
      * an array of features.
      */
-    Layer.prototype.getFeatures = function (pixel) {
+    getFeatures(pixel) {
         return this.renderer_.getFeatures(pixel);
-    };
+    }
     /**
      * In charge to manage the rendering of the layer. One layer type is
      * bounded with one layer renderer.
@@ -204,12 +188,12 @@ var Layer = /** @class */ (function (_super) {
      * for rendering its content.
      * @return {HTMLElement} The rendered element.
      */
-    Layer.prototype.render = function (frameState, target) {
-        var layerRenderer = this.getRenderer();
+    render(frameState, target) {
+        const layerRenderer = this.getRenderer();
         if (layerRenderer.prepareFrame(frameState)) {
             return layerRenderer.renderFrame(frameState, target);
         }
-    };
+    }
     /**
      * Sets the layer to be rendered on top of other layers on a map. The map will
      * not manage this layer in its layers collection, and the callback in
@@ -222,7 +206,7 @@ var Layer = /** @class */ (function (_super) {
      * @param {import("../PluggableMap.js").default} map Map.
      * @api
      */
-    Layer.prototype.setMap = function (map) {
+    setMap(map) {
         if (this.mapPrecomposeKey_) {
             unlistenByKey(this.mapPrecomposeKey_);
             this.mapPrecomposeKey_ = null;
@@ -236,9 +220,9 @@ var Layer = /** @class */ (function (_super) {
         }
         if (map) {
             this.mapPrecomposeKey_ = listen(map, RenderEventType.PRECOMPOSE, function (evt) {
-                var renderEvent = /** @type {import("../render/Event.js").default} */ (evt);
-                var layerStatesArray = renderEvent.frameState.layerStatesArray;
-                var layerState = this.getLayerState(false);
+                const renderEvent = /** @type {import("../render/Event.js").default} */ (evt);
+                const layerStatesArray = renderEvent.frameState.layerStatesArray;
+                const layerState = this.getLayerState(false);
                 // A layer can only be added to the map once. Use either `layer.setMap()` or `map.addLayer()`, not both.
                 assert(!layerStatesArray.some(function (arrayLayerState) {
                     return arrayLayerState.layer === layerState.layer;
@@ -248,49 +232,48 @@ var Layer = /** @class */ (function (_super) {
             this.mapRenderKey_ = listen(this, EventType.CHANGE, map.render, map);
             this.changed();
         }
-    };
+    }
     /**
      * Set the layer source.
      * @param {SourceType} source The layer source.
      * @observable
      * @api
      */
-    Layer.prototype.setSource = function (source) {
+    setSource(source) {
         this.set(LayerProperty.SOURCE, source);
-    };
+    }
     /**
      * Get the renderer for this layer.
      * @return {import("../renderer/Layer.js").default} The layer renderer.
      */
-    Layer.prototype.getRenderer = function () {
+    getRenderer() {
         if (!this.renderer_) {
             this.renderer_ = this.createRenderer();
         }
         return this.renderer_;
-    };
+    }
     /**
      * @return {boolean} The layer has a renderer.
      */
-    Layer.prototype.hasRenderer = function () {
+    hasRenderer() {
         return !!this.renderer_;
-    };
+    }
     /**
      * Create a renderer for this layer.
      * @return {import("../renderer/Layer.js").default} A layer renderer.
      * @protected
      */
-    Layer.prototype.createRenderer = function () {
+    createRenderer() {
         return null;
-    };
+    }
     /**
      * @inheritDoc
      */
-    Layer.prototype.disposeInternal = function () {
+    disposeInternal() {
         this.setSource(null);
-        _super.prototype.disposeInternal.call(this);
-    };
-    return Layer;
-}(BaseLayer));
+        super.disposeInternal();
+    }
+}
 /**
  * Return `true` if the layer is visible and if the provided view state
  * has resolution and zoom levels that are in range of the layer's min/max.
@@ -302,11 +285,11 @@ export function inView(layerState, viewState) {
     if (!layerState.visible) {
         return false;
     }
-    var resolution = viewState.resolution;
+    const resolution = viewState.resolution;
     if (resolution < layerState.minResolution || resolution >= layerState.maxResolution) {
         return false;
     }
-    var zoom = viewState.zoom;
+    const zoom = viewState.zoom;
     return zoom > layerState.minZoom && zoom <= layerState.maxZoom;
 }
 export default Layer;

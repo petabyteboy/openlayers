@@ -1,16 +1,3 @@
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 /**
  * @module ol/format/TopoJSON
  */
@@ -64,53 +51,51 @@ import { get as getProjection } from '../proj.js';
  *
  * @api
  */
-var TopoJSON = /** @class */ (function (_super) {
-    __extends(TopoJSON, _super);
+class TopoJSON extends JSONFeature {
     /**
      * @param {Options=} opt_options Options.
      */
-    function TopoJSON(opt_options) {
-        var _this = _super.call(this) || this;
-        var options = opt_options ? opt_options : {};
+    constructor(opt_options) {
+        super();
+        const options = opt_options ? opt_options : {};
         /**
          * @private
          * @type {string|undefined}
          */
-        _this.layerName_ = options.layerName;
+        this.layerName_ = options.layerName;
         /**
          * @private
          * @type {?Array<string>}
          */
-        _this.layers_ = options.layers ? options.layers : null;
+        this.layers_ = options.layers ? options.layers : null;
         /**
          * @inheritDoc
          */
-        _this.dataProjection = getProjection(options.dataProjection ?
+        this.dataProjection = getProjection(options.dataProjection ?
             options.dataProjection : 'EPSG:4326');
-        return _this;
     }
     /**
      * @inheritDoc
      */
-    TopoJSON.prototype.readFeaturesFromObject = function (object, opt_options) {
+    readFeaturesFromObject(object, opt_options) {
         if (object.type == 'Topology') {
-            var topoJSONTopology = /** @type {TopoJSONTopology} */ (object);
-            var transform = void 0, scale = null, translate = null;
+            const topoJSONTopology = /** @type {TopoJSONTopology} */ (object);
+            let transform, scale = null, translate = null;
             if (topoJSONTopology['transform']) {
                 transform = topoJSONTopology['transform'];
                 scale = transform['scale'];
                 translate = transform['translate'];
             }
-            var arcs = topoJSONTopology['arcs'];
+            const arcs = topoJSONTopology['arcs'];
             if (transform) {
                 transformArcs(arcs, scale, translate);
             }
             /** @type {Array<Feature>} */
-            var features = [];
-            var topoJSONFeatures = topoJSONTopology['objects'];
-            var property = this.layerName_;
-            var feature = void 0;
-            for (var objectName in topoJSONFeatures) {
+            const features = [];
+            const topoJSONFeatures = topoJSONTopology['objects'];
+            const property = this.layerName_;
+            let feature;
+            for (const objectName in topoJSONFeatures) {
                 if (this.layers_ && this.layers_.indexOf(objectName) == -1) {
                     continue;
                 }
@@ -128,20 +113,19 @@ var TopoJSON = /** @class */ (function (_super) {
         else {
             return [];
         }
-    };
+    }
     /**
      * @inheritDoc
      */
-    TopoJSON.prototype.readProjectionFromObject = function (object) {
+    readProjectionFromObject(object) {
         return this.dataProjection;
-    };
-    return TopoJSON;
-}(JSONFeature));
+    }
+}
 /**
  * @const
  * @type {Object<string, function(TopoJSONGeometry, Array, ...Array=): import("../geom/Geometry.js").default>}
  */
-var GEOMETRY_READERS = {
+const GEOMETRY_READERS = {
     'Point': readPointGeometry,
     'LineString': readLineStringGeometry,
     'Polygon': readPolygonGeometry,
@@ -159,9 +143,9 @@ var GEOMETRY_READERS = {
  */
 function concatenateArcs(indices, arcs) {
     /** @type {Array<import("../coordinate.js").Coordinate>} */
-    var coordinates = [];
-    var index, arc;
-    for (var i = 0, ii = indices.length; i < ii; ++i) {
+    const coordinates = [];
+    let index, arc;
+    for (let i = 0, ii = indices.length; i < ii; ++i) {
         index = indices[i];
         if (i > 0) {
             // splicing together arcs, discard last point
@@ -178,7 +162,7 @@ function concatenateArcs(indices, arcs) {
         coordinates.push.apply(coordinates, arc);
     }
     // provide fresh copies of coordinate arrays
-    for (var j = 0, jj = coordinates.length; j < jj; ++j) {
+    for (let j = 0, jj = coordinates.length; j < jj; ++j) {
         coordinates[j] = coordinates[j].slice();
     }
     return coordinates;
@@ -192,7 +176,7 @@ function concatenateArcs(indices, arcs) {
  * @return {Point} Geometry.
  */
 function readPointGeometry(object, scale, translate) {
-    var coordinates = object['coordinates'];
+    const coordinates = object['coordinates'];
     if (scale && translate) {
         transformVertex(coordinates, scale, translate);
     }
@@ -207,9 +191,9 @@ function readPointGeometry(object, scale, translate) {
  * @return {MultiPoint} Geometry.
  */
 function readMultiPointGeometry(object, scale, translate) {
-    var coordinates = object['coordinates'];
+    const coordinates = object['coordinates'];
     if (scale && translate) {
-        for (var i = 0, ii = coordinates.length; i < ii; ++i) {
+        for (let i = 0, ii = coordinates.length; i < ii; ++i) {
             transformVertex(coordinates[i], scale, translate);
         }
     }
@@ -223,7 +207,7 @@ function readMultiPointGeometry(object, scale, translate) {
  * @return {LineString} Geometry.
  */
 function readLineStringGeometry(object, arcs) {
-    var coordinates = concatenateArcs(object['arcs'], arcs);
+    const coordinates = concatenateArcs(object['arcs'], arcs);
     return new LineString(coordinates);
 }
 /**
@@ -234,8 +218,8 @@ function readLineStringGeometry(object, arcs) {
  * @return {MultiLineString} Geometry.
  */
 function readMultiLineStringGeometry(object, arcs) {
-    var coordinates = [];
-    for (var i = 0, ii = object['arcs'].length; i < ii; ++i) {
+    const coordinates = [];
+    for (let i = 0, ii = object['arcs'].length; i < ii; ++i) {
         coordinates[i] = concatenateArcs(object['arcs'][i], arcs);
     }
     return new MultiLineString(coordinates);
@@ -248,8 +232,8 @@ function readMultiLineStringGeometry(object, arcs) {
  * @return {Polygon} Geometry.
  */
 function readPolygonGeometry(object, arcs) {
-    var coordinates = [];
-    for (var i = 0, ii = object['arcs'].length; i < ii; ++i) {
+    const coordinates = [];
+    for (let i = 0, ii = object['arcs'].length; i < ii; ++i) {
         coordinates[i] = concatenateArcs(object['arcs'][i], arcs);
     }
     return new Polygon(coordinates);
@@ -262,12 +246,12 @@ function readPolygonGeometry(object, arcs) {
  * @return {MultiPolygon} Geometry.
  */
 function readMultiPolygonGeometry(object, arcs) {
-    var coordinates = [];
-    for (var i = 0, ii = object['arcs'].length; i < ii; ++i) {
+    const coordinates = [];
+    for (let i = 0, ii = object['arcs'].length; i < ii; ++i) {
         // for each polygon
-        var polyArray = object['arcs'][i];
-        var ringCoords = [];
-        for (var j = 0, jj = polyArray.length; j < jj; ++j) {
+        const polyArray = object['arcs'][i];
+        const ringCoords = [];
+        for (let j = 0, jj = polyArray.length; j < jj; ++j) {
             // for each ring
             ringCoords[j] = concatenateArcs(polyArray[j], arcs);
         }
@@ -290,9 +274,9 @@ function readMultiPolygonGeometry(object, arcs) {
  * @return {Array<Feature>} Array of features.
  */
 function readFeaturesFromGeometryCollection(collection, arcs, scale, translate, property, name, opt_options) {
-    var geometries = collection['geometries'];
-    var features = [];
-    for (var i = 0, ii = geometries.length; i < ii; ++i) {
+    const geometries = collection['geometries'];
+    const features = [];
+    for (let i = 0, ii = geometries.length; i < ii; ++i) {
         features[i] = readFeatureFromGeometry(geometries[i], arcs, scale, translate, property, name, opt_options);
     }
     return features;
@@ -311,21 +295,21 @@ function readFeaturesFromGeometryCollection(collection, arcs, scale, translate, 
  * @return {Feature} Feature.
  */
 function readFeatureFromGeometry(object, arcs, scale, translate, property, name, opt_options) {
-    var geometry;
-    var type = object.type;
-    var geometryReader = GEOMETRY_READERS[type];
+    let geometry;
+    const type = object.type;
+    const geometryReader = GEOMETRY_READERS[type];
     if ((type === 'Point') || (type === 'MultiPoint')) {
         geometry = geometryReader(object, scale, translate);
     }
     else {
         geometry = geometryReader(object, arcs);
     }
-    var feature = new Feature();
+    const feature = new Feature();
     feature.setGeometry(transformGeometryWithOptions(geometry, false, opt_options));
     if (object.id !== undefined) {
         feature.setId(object.id);
     }
-    var properties = object.properties;
+    let properties = object.properties;
     if (property) {
         if (!properties) {
             properties = {};
@@ -346,7 +330,7 @@ function readFeatureFromGeometry(object, arcs, scale, translate, property, name,
  * @param {Array<number>} translate Translation for each dimension.
  */
 function transformArcs(arcs, scale, translate) {
-    for (var i = 0, ii = arcs.length; i < ii; ++i) {
+    for (let i = 0, ii = arcs.length; i < ii; ++i) {
         transformArc(arcs[i], scale, translate);
     }
 }
@@ -358,10 +342,10 @@ function transformArcs(arcs, scale, translate) {
  * @param {Array<number>} translate Translation for each dimension.
  */
 function transformArc(arc, scale, translate) {
-    var x = 0;
-    var y = 0;
-    for (var i = 0, ii = arc.length; i < ii; ++i) {
-        var vertex = arc[i];
+    let x = 0;
+    let y = 0;
+    for (let i = 0, ii = arc.length; i < ii; ++i) {
+        const vertex = arc[i];
         x += vertex[0];
         y += vertex[1];
         vertex[0] = x;

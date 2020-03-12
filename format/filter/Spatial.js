@@ -1,16 +1,3 @@
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 /**
  * @module ol/format/filter/Spatial
  */
@@ -23,8 +10,7 @@ import Filter from './Filter.js';
  *
  * @abstract
  */
-var Spatial = /** @class */ (function (_super) {
-    __extends(Spatial, _super);
+class Spatial extends Filter {
     /**
      * @param {!string} tagName The XML tag name for this filter.
      * @param {!string} geometryName Geometry name to use.
@@ -32,23 +18,21 @@ var Spatial = /** @class */ (function (_super) {
      * @param {string=} opt_srsName SRS name. No srsName attribute will be
      *    set on geometries when this is not provided.
      */
-    function Spatial(tagName, geometryName, geometry, opt_srsName) {
-        var _this = _super.call(this, tagName) || this;
+    constructor(tagName, geometryName, geometry, opt_srsName) {
+        super(tagName);
         /**
          * @type {!string}
          */
-        _this.geometryName = geometryName || 'the_geom';
+        this.geometryName = geometryName || 'the_geom';
         /**
          * @type {import("../../geom/Geometry.js").default}
          */
-        _this.geometry = geometry;
+        this.geometry = geometry;
         /**
          * @type {string|undefined}
          */
-        _this.srsName = opt_srsName;
-        return _this;
+        this.srsName = opt_srsName;
     }
-    return Spatial;
-}(Filter));
+}
 export default Spatial;
 //# sourceMappingURL=Spatial.js.map

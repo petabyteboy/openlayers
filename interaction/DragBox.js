@@ -1,16 +1,3 @@
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 /**
  * @module ol/interaction/DragBox
  */
@@ -43,7 +30,7 @@ import RenderBox from '../render/Box.js';
 /**
  * @enum {string}
  */
-var DragBoxEventType = {
+const DragBoxEventType = {
     /**
      * Triggered upon drag box start.
      * @event DragBoxEvent#boxstart
@@ -68,32 +55,29 @@ var DragBoxEventType = {
  * Events emitted by {@link module:ol/interaction/DragBox~DragBox} instances are instances of
  * this type.
  */
-var DragBoxEvent = /** @class */ (function (_super) {
-    __extends(DragBoxEvent, _super);
+class DragBoxEvent extends Event {
     /**
      * @param {string} type The event type.
      * @param {import("../coordinate.js").Coordinate} coordinate The event coordinate.
      * @param {import("../MapBrowserEvent.js").default} mapBrowserEvent Originating event.
      */
-    function DragBoxEvent(type, coordinate, mapBrowserEvent) {
-        var _this = _super.call(this, type) || this;
+    constructor(type, coordinate, mapBrowserEvent) {
+        super(type);
         /**
          * The coordinate of the drag event.
          * @const
          * @type {import("../coordinate.js").Coordinate}
          * @api
          */
-        _this.coordinate = coordinate;
+        this.coordinate = coordinate;
         /**
          * @const
          * @type {import("../MapBrowserEvent.js").default}
          * @api
          */
-        _this.mapBrowserEvent = mapBrowserEvent;
-        return _this;
+        this.mapBrowserEvent = mapBrowserEvent;
     }
-    return DragBoxEvent;
-}(Event));
+}
 /**
  * @classdesc
  * Allows the user to draw a vector box by clicking and dragging on the map,
@@ -106,47 +90,45 @@ var DragBoxEvent = /** @class */ (function (_super) {
  * @fires DragBoxEvent
  * @api
  */
-var DragBox = /** @class */ (function (_super) {
-    __extends(DragBox, _super);
+class DragBox extends PointerInteraction {
     /**
      * @param {Options=} opt_options Options.
      */
-    function DragBox(opt_options) {
-        var _this = _super.call(this) || this;
-        var options = opt_options ? opt_options : {};
+    constructor(opt_options) {
+        super();
+        const options = opt_options ? opt_options : {};
         /**
          * @type {import("../render/Box.js").default}
          * @private
          */
-        _this.box_ = new RenderBox(options.className || 'ol-dragbox');
+        this.box_ = new RenderBox(options.className || 'ol-dragbox');
         /**
          * @type {number}
          * @private
          */
-        _this.minArea_ = options.minArea !== undefined ? options.minArea : 64;
+        this.minArea_ = options.minArea !== undefined ? options.minArea : 64;
         /**
          * Function to execute just before `onboxend` is fired
          * @type {function(this:DragBox, import("../MapBrowserEvent.js").default): void}
          * @private
          */
-        _this.onBoxEnd_ = options.onBoxEnd ? options.onBoxEnd : VOID;
+        this.onBoxEnd_ = options.onBoxEnd ? options.onBoxEnd : VOID;
         /**
          * @type {import("../pixel.js").Pixel}
          * @private
          */
-        _this.startPixel_ = null;
+        this.startPixel_ = null;
         /**
          * @private
          * @type {import("../events/condition.js").Condition}
          */
-        _this.condition_ = options.condition ? options.condition : mouseActionButton;
+        this.condition_ = options.condition ? options.condition : mouseActionButton;
         /**
          * @private
          * @type {EndCondition}
          */
-        _this.boxEndCondition_ = options.boxEndCondition ?
-            options.boxEndCondition : _this.defaultBoxEndCondition;
-        return _this;
+        this.boxEndCondition_ = options.boxEndCondition ?
+            options.boxEndCondition : this.defaultBoxEndCondition;
     }
     /**
      * The default condition for determining whether the boxend event
@@ -157,41 +139,41 @@ var DragBox = /** @class */ (function (_super) {
      * @param {import("../pixel.js").Pixel} endPixel The end pixel of the box.
      * @return {boolean} Whether or not the boxend condition should be fired.
      */
-    DragBox.prototype.defaultBoxEndCondition = function (mapBrowserEvent, startPixel, endPixel) {
-        var width = endPixel[0] - startPixel[0];
-        var height = endPixel[1] - startPixel[1];
+    defaultBoxEndCondition(mapBrowserEvent, startPixel, endPixel) {
+        const width = endPixel[0] - startPixel[0];
+        const height = endPixel[1] - startPixel[1];
         return width * width + height * height >= this.minArea_;
-    };
+    }
     /**
      * Returns geometry of last drawn box.
      * @return {import("../geom/Polygon.js").default} Geometry.
      * @api
      */
-    DragBox.prototype.getGeometry = function () {
+    getGeometry() {
         return this.box_.getGeometry();
-    };
+    }
     /**
      * @inheritDoc
      */
-    DragBox.prototype.handleDragEvent = function (mapBrowserEvent) {
+    handleDragEvent(mapBrowserEvent) {
         this.box_.setPixels(this.startPixel_, mapBrowserEvent.pixel);
         this.dispatchEvent(new DragBoxEvent(DragBoxEventType.BOXDRAG, mapBrowserEvent.coordinate, mapBrowserEvent));
-    };
+    }
     /**
      * @inheritDoc
      */
-    DragBox.prototype.handleUpEvent = function (mapBrowserEvent) {
+    handleUpEvent(mapBrowserEvent) {
         this.box_.setMap(null);
         if (this.boxEndCondition_(mapBrowserEvent, this.startPixel_, mapBrowserEvent.pixel)) {
             this.onBoxEnd_(mapBrowserEvent);
             this.dispatchEvent(new DragBoxEvent(DragBoxEventType.BOXEND, mapBrowserEvent.coordinate, mapBrowserEvent));
         }
         return false;
-    };
+    }
     /**
      * @inheritDoc
      */
-    DragBox.prototype.handleDownEvent = function (mapBrowserEvent) {
+    handleDownEvent(mapBrowserEvent) {
         if (this.condition_(mapBrowserEvent)) {
             this.startPixel_ = mapBrowserEvent.pixel;
             this.box_.setMap(mapBrowserEvent.map);
@@ -202,8 +184,7 @@ var DragBox = /** @class */ (function (_super) {
         else {
             return false;
         }
-    };
-    return DragBox;
-}(PointerInteraction));
+    }
+}
 export default DragBox;
 //# sourceMappingURL=DragBox.js.map

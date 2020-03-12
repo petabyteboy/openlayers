@@ -56,8 +56,8 @@ import Units from '../proj/Units.js';
  * @abstract
  * @api
  */
-var FeatureFormat = /** @class */ (function () {
-    function FeatureFormat() {
+class FeatureFormat {
+    constructor() {
         /**
          * @protected
          * @type {import("../proj/Projection.js").default}
@@ -76,10 +76,10 @@ var FeatureFormat = /** @class */ (function () {
      * @return {ReadOptions|undefined} Options.
      * @protected
      */
-    FeatureFormat.prototype.getReadOptions = function (source, opt_options) {
-        var options;
+    getReadOptions(source, opt_options) {
+        let options;
         if (opt_options) {
-            var dataProjection = opt_options.dataProjection ?
+            let dataProjection = opt_options.dataProjection ?
                 getProjection(opt_options.dataProjection) : this.readProjection(source);
             if (opt_options.extent &&
                 dataProjection && dataProjection.getUnits() === Units.TILE_PIXELS) {
@@ -92,7 +92,7 @@ var FeatureFormat = /** @class */ (function () {
             };
         }
         return this.adaptOptions(options);
-    };
+    }
     /**
      * Sets the `dataProjection` on the options, if no `dataProjection`
      * is set.
@@ -102,19 +102,19 @@ var FeatureFormat = /** @class */ (function () {
      * @return {WriteOptions|ReadOptions|undefined}
      *     Updated options.
      */
-    FeatureFormat.prototype.adaptOptions = function (options) {
+    adaptOptions(options) {
         return assign({
             dataProjection: this.dataProjection,
             featureProjection: this.defaultFeatureProjection
         }, options);
-    };
+    }
     /**
      * @abstract
      * @return {import("./FormatType.js").default} Format.
      */
-    FeatureFormat.prototype.getType = function () {
+    getType() {
         return abstract();
-    };
+    }
     /**
      * Read a single feature from a source.
      *
@@ -123,9 +123,9 @@ var FeatureFormat = /** @class */ (function () {
      * @param {ReadOptions=} opt_options Read options.
      * @return {import("../Feature.js").FeatureLike} Feature.
      */
-    FeatureFormat.prototype.readFeature = function (source, opt_options) {
+    readFeature(source, opt_options) {
         return abstract();
-    };
+    }
     /**
      * Read all features from a source.
      *
@@ -134,9 +134,9 @@ var FeatureFormat = /** @class */ (function () {
      * @param {ReadOptions=} opt_options Read options.
      * @return {Array<import("../Feature.js").FeatureLike>} Features.
      */
-    FeatureFormat.prototype.readFeatures = function (source, opt_options) {
+    readFeatures(source, opt_options) {
         return abstract();
-    };
+    }
     /**
      * Read a single geometry from a source.
      *
@@ -145,9 +145,9 @@ var FeatureFormat = /** @class */ (function () {
      * @param {ReadOptions=} opt_options Read options.
      * @return {import("../geom/Geometry.js").default} Geometry.
      */
-    FeatureFormat.prototype.readGeometry = function (source, opt_options) {
+    readGeometry(source, opt_options) {
         return abstract();
-    };
+    }
     /**
      * Read the projection from a source.
      *
@@ -155,9 +155,9 @@ var FeatureFormat = /** @class */ (function () {
      * @param {Document|Node|Object|string} source Source.
      * @return {import("../proj/Projection.js").default} Projection.
      */
-    FeatureFormat.prototype.readProjection = function (source) {
+    readProjection(source) {
         return abstract();
-    };
+    }
     /**
      * Encode a feature in this format.
      *
@@ -166,9 +166,9 @@ var FeatureFormat = /** @class */ (function () {
      * @param {WriteOptions=} opt_options Write options.
      * @return {string} Result.
      */
-    FeatureFormat.prototype.writeFeature = function (feature, opt_options) {
+    writeFeature(feature, opt_options) {
         return abstract();
-    };
+    }
     /**
      * Encode an array of features in this format.
      *
@@ -177,9 +177,9 @@ var FeatureFormat = /** @class */ (function () {
      * @param {WriteOptions=} opt_options Write options.
      * @return {string} Result.
      */
-    FeatureFormat.prototype.writeFeatures = function (features, opt_options) {
+    writeFeatures(features, opt_options) {
         return abstract();
-    };
+    }
     /**
      * Write a single geometry in this format.
      *
@@ -188,11 +188,10 @@ var FeatureFormat = /** @class */ (function () {
      * @param {WriteOptions=} opt_options Write options.
      * @return {string} Result.
      */
-    FeatureFormat.prototype.writeGeometry = function (geometry, opt_options) {
+    writeGeometry(geometry, opt_options) {
         return abstract();
-    };
-    return FeatureFormat;
-}());
+    }
+}
 export default FeatureFormat;
 /**
  * @param {import("../geom/Geometry.js").default} geometry Geometry.
@@ -201,9 +200,9 @@ export default FeatureFormat;
  * @return {import("../geom/Geometry.js").default} Transformed geometry.
  */
 export function transformGeometryWithOptions(geometry, write, opt_options) {
-    var featureProjection = opt_options ? getProjection(opt_options.featureProjection) : null;
-    var dataProjection = opt_options ? getProjection(opt_options.dataProjection) : null;
-    var transformed;
+    const featureProjection = opt_options ? getProjection(opt_options.featureProjection) : null;
+    const dataProjection = opt_options ? getProjection(opt_options.dataProjection) : null;
+    let transformed;
     if (featureProjection && dataProjection && !equivalentProjection(featureProjection, dataProjection)) {
         transformed = (write ? geometry.clone() : geometry).transform(write ? featureProjection : dataProjection, write ? dataProjection : featureProjection);
     }
@@ -211,15 +210,15 @@ export function transformGeometryWithOptions(geometry, write, opt_options) {
         transformed = geometry;
     }
     if (write && opt_options && /** @type {WriteOptions} */ (opt_options).decimals !== undefined) {
-        var power_1 = Math.pow(10, /** @type {WriteOptions} */ (opt_options).decimals);
+        const power = Math.pow(10, /** @type {WriteOptions} */ (opt_options).decimals);
         // if decimals option on write, round each coordinate appropriately
         /**
          * @param {Array<number>} coordinates Coordinates.
          * @return {Array<number>} Transformed coordinates.
          */
-        var transform = function (coordinates) {
-            for (var i = 0, ii = coordinates.length; i < ii; ++i) {
-                coordinates[i] = Math.round(coordinates[i] * power_1) / power_1;
+        const transform = function (coordinates) {
+            for (let i = 0, ii = coordinates.length; i < ii; ++i) {
+                coordinates[i] = Math.round(coordinates[i] * power) / power;
             }
             return coordinates;
         };
@@ -236,8 +235,8 @@ export function transformGeometryWithOptions(geometry, write, opt_options) {
  * @return {import("../extent.js").Extent} Transformed extent.
  */
 export function transformExtentWithOptions(extent, opt_options) {
-    var featureProjection = opt_options ? getProjection(opt_options.featureProjection) : null;
-    var dataProjection = opt_options ? getProjection(opt_options.dataProjection) : null;
+    const featureProjection = opt_options ? getProjection(opt_options.featureProjection) : null;
+    const dataProjection = opt_options ? getProjection(opt_options.dataProjection) : null;
     if (featureProjection && dataProjection && !equivalentProjection(featureProjection, dataProjection)) {
         return transformExtent(extent, dataProjection, featureProjection);
     }

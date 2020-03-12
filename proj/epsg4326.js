@@ -1,16 +1,3 @@
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 /**
  * @module ol/proj/epsg4326
  */
@@ -22,19 +9,19 @@ import Units from './Units.js';
  * @const
  * @type {number}
  */
-export var RADIUS = 6378137;
+export const RADIUS = 6378137;
 /**
  * Extent of the EPSG:4326 projection which is the whole world.
  *
  * @const
  * @type {import("../extent.js").Extent}
  */
-export var EXTENT = [-180, -90, 180, 90];
+export const EXTENT = [-180, -90, 180, 90];
 /**
  * @const
  * @type {number}
  */
-export var METERS_PER_UNIT = Math.PI * RADIUS / 180;
+export const METERS_PER_UNIT = Math.PI * RADIUS / 180;
 /**
  * @classdesc
  * Projection object for WGS84 geographic coordinates (EPSG:4326).
@@ -43,14 +30,13 @@ export var METERS_PER_UNIT = Math.PI * RADIUS / 180;
  * The EPSG registry defines 4326 as a CRS for Latitude,Longitude (y,x).
  * OpenLayers treats EPSG:4326 as a pseudo-projection, with x,y coordinates.
  */
-var EPSG4326Projection = /** @class */ (function (_super) {
-    __extends(EPSG4326Projection, _super);
+class EPSG4326Projection extends Projection {
     /**
      * @param {string} code Code.
      * @param {string=} opt_axisOrientation Axis orientation.
      */
-    function EPSG4326Projection(code, opt_axisOrientation) {
-        return _super.call(this, {
+    constructor(code, opt_axisOrientation) {
+        super({
             code: code,
             units: Units.DEGREES,
             extent: EXTENT,
@@ -58,17 +44,16 @@ var EPSG4326Projection = /** @class */ (function (_super) {
             global: true,
             metersPerUnit: METERS_PER_UNIT,
             worldExtent: EXTENT
-        }) || this;
+        });
     }
-    return EPSG4326Projection;
-}(Projection));
+}
 /**
  * Projections equal to EPSG:4326.
  *
  * @const
  * @type {Array<import("./Projection.js").default>}
  */
-export var PROJECTIONS = [
+export const PROJECTIONS = [
     new EPSG4326Projection('CRS:84'),
     new EPSG4326Projection('EPSG:4326', 'neu'),
     new EPSG4326Projection('urn:ogc:def:crs:EPSG::4326', 'neu'),

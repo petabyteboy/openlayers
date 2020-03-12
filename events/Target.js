@@ -1,16 +1,3 @@
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 /**
  * @module ol/events/Target
  */
@@ -36,44 +23,42 @@ import { clear } from '../obj.js';
  *    more listeners after this one will be called. Same as when the listener
  *    returns false.
  */
-var Target = /** @class */ (function (_super) {
-    __extends(Target, _super);
+class Target extends Disposable {
     /**
      * @param {*=} opt_target Default event target for dispatched events.
      */
-    function Target(opt_target) {
-        var _this = _super.call(this) || this;
+    constructor(opt_target) {
+        super();
         /**
          * @private
          * @type {*}
          */
-        _this.eventTarget_ = opt_target;
+        this.eventTarget_ = opt_target;
         /**
          * @private
          * @type {!Object<string, number>}
          */
-        _this.pendingRemovals_ = {};
+        this.pendingRemovals_ = {};
         /**
          * @private
          * @type {!Object<string, number>}
          */
-        _this.dispatching_ = {};
+        this.dispatching_ = {};
         /**
          * @private
          * @type {!Object<string, Array<import("../events.js").Listener>>}
          */
-        _this.listeners_ = {};
-        return _this;
+        this.listeners_ = {};
     }
     /**
      * @param {string} type Type.
      * @param {import("../events.js").Listener} listener Listener.
      */
-    Target.prototype.addEventListener = function (type, listener) {
+    addEventListener(type, listener) {
         if (!type || !listener) {
             return;
         }
-        var listeners = this.listeners_[type];
+        let listeners = this.listeners_[type];
         if (!listeners) {
             listeners = [];
             this.listeners_[type] = listeners;
@@ -81,7 +66,7 @@ var Target = /** @class */ (function (_super) {
         if (listeners.indexOf(listener) === -1) {
             listeners.push(listener);
         }
-    };
+    }
     /**
      * Dispatches an event and calls all listeners listening for events
      * of this type. The event parameter can either be a string or an
@@ -92,22 +77,22 @@ var Target = /** @class */ (function (_super) {
      *     event object or if any of the listeners returned false.
      * @api
      */
-    Target.prototype.dispatchEvent = function (event) {
+    dispatchEvent(event) {
         /** @type {import("./Event.js").default|Event} */
-        var evt = typeof event === 'string' ? new Event(event) : event;
-        var type = evt.type;
+        const evt = typeof event === 'string' ? new Event(event) : event;
+        const type = evt.type;
         if (!evt.target) {
             evt.target = this.eventTarget_ || this;
         }
-        var listeners = this.listeners_[type];
-        var propagate;
+        const listeners = this.listeners_[type];
+        let propagate;
         if (listeners) {
             if (!(type in this.dispatching_)) {
                 this.dispatching_[type] = 0;
                 this.pendingRemovals_[type] = 0;
             }
             ++this.dispatching_[type];
-            for (var i = 0, ii = listeners.length; i < ii; ++i) {
+            for (let i = 0, ii = listeners.length; i < ii; ++i) {
                 if ('handleEvent' in listeners[i]) {
                     propagate = /** @type {import("../events.js").ListenerObject} */ (listeners[i]).handleEvent(evt);
                 }
@@ -121,7 +106,7 @@ var Target = /** @class */ (function (_super) {
             }
             --this.dispatching_[type];
             if (this.dispatching_[type] === 0) {
-                var pendingRemovals = this.pendingRemovals_[type];
+                let pendingRemovals = this.pendingRemovals_[type];
                 delete this.pendingRemovals_[type];
                 while (pendingRemovals--) {
                     this.removeEventListener(type, VOID);
@@ -130,13 +115,13 @@ var Target = /** @class */ (function (_super) {
             }
             return propagate;
         }
-    };
+    }
     /**
      * @inheritDoc
      */
-    Target.prototype.disposeInternal = function () {
+    disposeInternal() {
         clear(this.listeners_);
-    };
+    }
     /**
      * Get the listeners for a specified event type. Listeners are returned in the
      * order that they will be called in.
@@ -144,27 +129,27 @@ var Target = /** @class */ (function (_super) {
      * @param {string} type Type.
      * @return {Array<import("../events.js").Listener>} Listeners.
      */
-    Target.prototype.getListeners = function (type) {
+    getListeners(type) {
         return this.listeners_[type];
-    };
+    }
     /**
      * @param {string=} opt_type Type. If not provided,
      *     `true` will be returned if this event target has any listeners.
      * @return {boolean} Has listeners.
      */
-    Target.prototype.hasListener = function (opt_type) {
+    hasListener(opt_type) {
         return opt_type ?
             opt_type in this.listeners_ :
             Object.keys(this.listeners_).length > 0;
-    };
+    }
     /**
      * @param {string} type Type.
      * @param {import("../events.js").Listener} listener Listener.
      */
-    Target.prototype.removeEventListener = function (type, listener) {
-        var listeners = this.listeners_[type];
+    removeEventListener(type, listener) {
+        const listeners = this.listeners_[type];
         if (listeners) {
-            var index = listeners.indexOf(listener);
+            const index = listeners.indexOf(listener);
             if (index !== -1) {
                 if (type in this.pendingRemovals_) {
                     // make listener a no-op, and remove later in #dispatchEvent()
@@ -179,8 +164,7 @@ var Target = /** @class */ (function (_super) {
                 }
             }
         }
-    };
-    return Target;
-}(Disposable));
+    }
+}
 export default Target;
 //# sourceMappingURL=Target.js.map

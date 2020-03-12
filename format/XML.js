@@ -8,9 +8,7 @@ import { isDocument, parse } from '../xml.js';
  *
  * @abstract
  */
-var XML = /** @class */ (function () {
-    function XML() {
-    }
+class XML {
     /**
      * Read the source document.
      *
@@ -18,12 +16,12 @@ var XML = /** @class */ (function () {
      * @return {Object} An object representing the source.
      * @api
      */
-    XML.prototype.read = function (source) {
+    read(source) {
         if (!source) {
             return null;
         }
         else if (typeof source === 'string') {
-            var doc = parse(source);
+            const doc = parse(source);
             return this.readFromDocument(doc);
         }
         else if (isDocument(source)) {
@@ -32,20 +30,19 @@ var XML = /** @class */ (function () {
         else {
             return this.readFromNode(/** @type {Element} */ (source));
         }
-    };
+    }
     /**
      * @abstract
      * @param {Document} doc Document.
      * @return {Object} Object
      */
-    XML.prototype.readFromDocument = function (doc) { };
+    readFromDocument(doc) { }
     /**
      * @abstract
      * @param {Element} node Node.
      * @return {Object} Object
      */
-    XML.prototype.readFromNode = function (node) { };
-    return XML;
-}());
+    readFromNode(node) { }
+}
 export default XML;
 //# sourceMappingURL=XML.js.map

@@ -23,12 +23,12 @@
  * the options; they will not return the default.
  * @api
  */
-var Stroke = /** @class */ (function () {
+class Stroke {
     /**
      * @param {Options=} opt_options Options.
      */
-    function Stroke(opt_options) {
-        var options = opt_options || {};
+    constructor(opt_options) {
+        const options = opt_options || {};
         /**
          * @private
          * @type {import("../color.js").Color|import("../colorlike.js").ColorLike}
@@ -70,8 +70,8 @@ var Stroke = /** @class */ (function () {
      * @return {Stroke} The cloned style.
      * @api
      */
-    Stroke.prototype.clone = function () {
-        var color = this.getColor();
+    clone() {
+        const color = this.getColor();
         return new Stroke({
             color: Array.isArray(color) ? color.slice() : color || undefined,
             lineCap: this.getLineCap(),
@@ -81,81 +81,81 @@ var Stroke = /** @class */ (function () {
             miterLimit: this.getMiterLimit(),
             width: this.getWidth()
         });
-    };
+    }
     /**
      * Get the stroke color.
      * @return {import("../color.js").Color|import("../colorlike.js").ColorLike} Color.
      * @api
      */
-    Stroke.prototype.getColor = function () {
+    getColor() {
         return this.color_;
-    };
+    }
     /**
      * Get the line cap type for the stroke.
      * @return {CanvasLineCap|undefined} Line cap.
      * @api
      */
-    Stroke.prototype.getLineCap = function () {
+    getLineCap() {
         return this.lineCap_;
-    };
+    }
     /**
      * Get the line dash style for the stroke.
      * @return {Array<number>} Line dash.
      * @api
      */
-    Stroke.prototype.getLineDash = function () {
+    getLineDash() {
         return this.lineDash_;
-    };
+    }
     /**
      * Get the line dash offset for the stroke.
      * @return {number|undefined} Line dash offset.
      * @api
      */
-    Stroke.prototype.getLineDashOffset = function () {
+    getLineDashOffset() {
         return this.lineDashOffset_;
-    };
+    }
     /**
      * Get the line join type for the stroke.
      * @return {CanvasLineJoin|undefined} Line join.
      * @api
      */
-    Stroke.prototype.getLineJoin = function () {
+    getLineJoin() {
         return this.lineJoin_;
-    };
+    }
     /**
      * Get the miter limit for the stroke.
      * @return {number|undefined} Miter limit.
      * @api
      */
-    Stroke.prototype.getMiterLimit = function () {
+    getMiterLimit() {
         return this.miterLimit_;
-    };
+    }
     /**
      * Get the stroke width.
      * @return {number|undefined} Width.
      * @api
      */
-    Stroke.prototype.getWidth = function () {
+    getWidth() {
         return this.width_;
-    };
+    }
     /**
      * Set the color.
      *
      * @param {import("../color.js").Color|import("../colorlike.js").ColorLike} color Color.
      * @api
      */
-    Stroke.prototype.setColor = function (color) {
+    setColor(color) {
         this.color_ = color;
-    };
+    }
     /**
      * Set the line cap.
      *
      * @param {CanvasLineCap|undefined} lineCap Line cap.
      * @api
      */
-    Stroke.prototype.setLineCap = function (lineCap) {
+    setLineCap(lineCap) {
         this.lineCap_ = lineCap;
-    };
+    }
     /**
      * Set the line dash.
      *
@@ -168,46 +168,45 @@ var Stroke = /** @class */ (function () {
      * @param {Array<number>} lineDash Line dash.
      * @api
      */
-    Stroke.prototype.setLineDash = function (lineDash) {
+    setLineDash(lineDash) {
         this.lineDash_ = lineDash;
-    };
+    }
     /**
      * Set the line dash offset.
      *
      * @param {number|undefined} lineDashOffset Line dash offset.
      * @api
      */
-    Stroke.prototype.setLineDashOffset = function (lineDashOffset) {
+    setLineDashOffset(lineDashOffset) {
         this.lineDashOffset_ = lineDashOffset;
-    };
+    }
     /**
      * Set the line join.
      *
      * @param {CanvasLineJoin|undefined} lineJoin Line join.
      * @api
      */
-    Stroke.prototype.setLineJoin = function (lineJoin) {
+    setLineJoin(lineJoin) {
         this.lineJoin_ = lineJoin;
-    };
+    }
     /**
      * Set the miter limit.
      *
      * @param {number|undefined} miterLimit Miter limit.
      * @api
      */
-    Stroke.prototype.setMiterLimit = function (miterLimit) {
+    setMiterLimit(miterLimit) {
         this.miterLimit_ = miterLimit;
-    };
+    }
     /**
      * Set the width.
      *
      * @param {number|undefined} width Width.
      * @api
      */
-    Stroke.prototype.setWidth = function (width) {
+    setWidth(width) {
         this.width_ = width;
-    };
-    return Stroke;
-}());
+    }
+}
 export default Stroke;
 //# sourceMappingURL=Stroke.js.map

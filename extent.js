@@ -17,8 +17,8 @@ import Relationship from './extent/Relationship.js';
  * @api
  */
 export function boundingExtent(coordinates) {
-    var extent = createEmpty();
-    for (var i = 0, ii = coordinates.length; i < ii; ++i) {
+    const extent = createEmpty();
+    for (let i = 0, ii = coordinates.length; i < ii; ++i) {
         extendCoordinate(extent, coordinates[i]);
     }
     return extent;
@@ -31,10 +31,10 @@ export function boundingExtent(coordinates) {
  * @return {Extent} Extent.
  */
 function _boundingExtentXYs(xs, ys, opt_extent) {
-    var minX = Math.min.apply(null, xs);
-    var minY = Math.min.apply(null, ys);
-    var maxX = Math.max.apply(null, xs);
-    var maxY = Math.max.apply(null, ys);
+    const minX = Math.min.apply(null, xs);
+    const minY = Math.min.apply(null, ys);
+    const maxX = Math.max.apply(null, xs);
+    const maxY = Math.max.apply(null, ys);
     return createOrUpdate(minX, minY, maxX, maxY, opt_extent);
 }
 /**
@@ -88,7 +88,7 @@ export function clone(extent, opt_extent) {
  * @return {number} Closest squared distance.
  */
 export function closestSquaredDistanceXY(extent, x, y) {
-    var dx, dy;
+    let dx, dy;
     if (x < extent[0]) {
         dx = extent[0] - x;
     }
@@ -156,13 +156,13 @@ export function containsXY(extent, x, y) {
  *     import("./extent/Relationship.js").Relationship).
  */
 export function coordinateRelationship(extent, coordinate) {
-    var minX = extent[0];
-    var minY = extent[1];
-    var maxX = extent[2];
-    var maxY = extent[3];
-    var x = coordinate[0];
-    var y = coordinate[1];
-    var relationship = Relationship.UNKNOWN;
+    const minX = extent[0];
+    const minY = extent[1];
+    const maxX = extent[2];
+    const maxY = extent[3];
+    const x = coordinate[0];
+    const y = coordinate[1];
+    let relationship = Relationship.UNKNOWN;
     if (x < minX) {
         relationship = relationship | Relationship.LEFT;
     }
@@ -223,8 +223,8 @@ export function createOrUpdateEmpty(opt_extent) {
  * @return {Extent} Extent.
  */
 export function createOrUpdateFromCoordinate(coordinate, opt_extent) {
-    var x = coordinate[0];
-    var y = coordinate[1];
+    const x = coordinate[0];
+    const y = coordinate[1];
     return createOrUpdate(x, y, x, y, opt_extent);
 }
 /**
@@ -233,7 +233,7 @@ export function createOrUpdateFromCoordinate(coordinate, opt_extent) {
  * @return {Extent} Extent.
  */
 export function createOrUpdateFromCoordinates(coordinates, opt_extent) {
-    var extent = createOrUpdateEmpty(opt_extent);
+    const extent = createOrUpdateEmpty(opt_extent);
     return extendCoordinates(extent, coordinates);
 }
 /**
@@ -245,7 +245,7 @@ export function createOrUpdateFromCoordinates(coordinates, opt_extent) {
  * @return {Extent} Extent.
  */
 export function createOrUpdateFromFlatCoordinates(flatCoordinates, offset, end, stride, opt_extent) {
-    var extent = createOrUpdateEmpty(opt_extent);
+    const extent = createOrUpdateEmpty(opt_extent);
     return extendFlatCoordinates(extent, flatCoordinates, offset, end, stride);
 }
 /**
@@ -254,7 +254,7 @@ export function createOrUpdateFromFlatCoordinates(flatCoordinates, offset, end, 
  * @return {Extent} Extent.
  */
 export function createOrUpdateFromRings(rings, opt_extent) {
-    var extent = createOrUpdateEmpty(opt_extent);
+    const extent = createOrUpdateEmpty(opt_extent);
     return extendRings(extent, rings);
 }
 /**
@@ -314,7 +314,7 @@ export function extendCoordinate(extent, coordinate) {
  * @return {Extent} Extent.
  */
 export function extendCoordinates(extent, coordinates) {
-    for (var i = 0, ii = coordinates.length; i < ii; ++i) {
+    for (let i = 0, ii = coordinates.length; i < ii; ++i) {
         extendCoordinate(extent, coordinates[i]);
     }
     return extent;
@@ -339,7 +339,7 @@ export function extendFlatCoordinates(extent, flatCoordinates, offset, end, stri
  * @return {Extent} Extent.
  */
 export function extendRings(extent, rings) {
-    for (var i = 0, ii = rings.length; i < ii; ++i) {
+    for (let i = 0, ii = rings.length; i < ii; ++i) {
         extendCoordinates(extent, rings[i]);
     }
     return extent;
@@ -365,7 +365,7 @@ export function extendXY(extent, x, y) {
  * @template S
  */
 export function forEachCorner(extent, callback) {
-    var val;
+    let val;
     val = callback(getBottomLeft(extent));
     if (val) {
         return val;
@@ -391,7 +391,7 @@ export function forEachCorner(extent, callback) {
  * @api
  */
 export function getArea(extent) {
-    var area = 0;
+    let area = 0;
     if (!isEmpty(extent)) {
         area = getWidth(extent) * getHeight(extent);
     }
@@ -431,7 +431,7 @@ export function getCenter(extent) {
  * @return {import("./coordinate.js").Coordinate} Corner coordinate.
  */
 export function getCorner(extent, corner) {
-    var coordinate;
+    let coordinate;
     if (corner === Corner.BOTTOM_LEFT) {
         coordinate = getBottomLeft(extent);
     }
@@ -455,10 +455,10 @@ export function getCorner(extent, corner) {
  * @return {number} Enlarged area.
  */
 export function getEnlargedArea(extent1, extent2) {
-    var minX = Math.min(extent1[0], extent2[0]);
-    var minY = Math.min(extent1[1], extent2[1]);
-    var maxX = Math.max(extent1[2], extent2[2]);
-    var maxY = Math.max(extent1[3], extent2[3]);
+    const minX = Math.min(extent1[0], extent2[0]);
+    const minY = Math.min(extent1[1], extent2[1]);
+    const maxX = Math.max(extent1[2], extent2[2]);
+    const maxY = Math.max(extent1[3], extent2[3]);
     return (maxX - minX) * (maxY - minY);
 }
 /**
@@ -470,24 +470,24 @@ export function getEnlargedArea(extent1, extent2) {
  * @return {Extent} Extent.
  */
 export function getForViewAndSize(center, resolution, rotation, size, opt_extent) {
-    var dx = resolution * size[0] / 2;
-    var dy = resolution * size[1] / 2;
-    var cosRotation = Math.cos(rotation);
-    var sinRotation = Math.sin(rotation);
-    var xCos = dx * cosRotation;
-    var xSin = dx * sinRotation;
-    var yCos = dy * cosRotation;
-    var ySin = dy * sinRotation;
-    var x = center[0];
-    var y = center[1];
-    var x0 = x - xCos + ySin;
-    var x1 = x - xCos - ySin;
-    var x2 = x + xCos - ySin;
-    var x3 = x + xCos + ySin;
-    var y0 = y - xSin - yCos;
-    var y1 = y - xSin + yCos;
-    var y2 = y + xSin + yCos;
-    var y3 = y + xSin - yCos;
+    const dx = resolution * size[0] / 2;
+    const dy = resolution * size[1] / 2;
+    const cosRotation = Math.cos(rotation);
+    const sinRotation = Math.sin(rotation);
+    const xCos = dx * cosRotation;
+    const xSin = dx * sinRotation;
+    const yCos = dy * cosRotation;
+    const ySin = dy * sinRotation;
+    const x = center[0];
+    const y = center[1];
+    const x0 = x - xCos + ySin;
+    const x1 = x - xCos - ySin;
+    const x2 = x + xCos - ySin;
+    const x3 = x + xCos + ySin;
+    const y0 = y - xSin - yCos;
+    const y1 = y - xSin + yCos;
+    const y2 = y + xSin + yCos;
+    const y3 = y + xSin - yCos;
     return createOrUpdate(Math.min(x0, x1, x2, x3), Math.min(y0, y1, y2, y3), Math.max(x0, x1, x2, x3), Math.max(y0, y1, y2, y3), opt_extent);
 }
 /**
@@ -505,7 +505,7 @@ export function getHeight(extent) {
  * @return {number} Intersection area.
  */
 export function getIntersectionArea(extent1, extent2) {
-    var intersection = getIntersection(extent1, extent2);
+    const intersection = getIntersection(extent1, extent2);
     return getArea(intersection);
 }
 /**
@@ -517,7 +517,7 @@ export function getIntersectionArea(extent1, extent2) {
  * @api
  */
 export function getIntersection(extent1, extent2, opt_extent) {
-    var intersection = opt_extent ? opt_extent : createEmpty();
+    const intersection = opt_extent ? opt_extent : createEmpty();
     if (intersects(extent1, extent2)) {
         if (extent1[0] > extent2[0]) {
             intersection[0] = extent1[0];
@@ -636,8 +636,8 @@ export function returnOrUpdate(extent, opt_extent) {
  * @param {number} value Value.
  */
 export function scaleFromCenter(extent, value) {
-    var deltaX = ((extent[2] - extent[0]) / 2) * (value - 1);
-    var deltaY = ((extent[3] - extent[1]) / 2) * (value - 1);
+    const deltaX = ((extent[2] - extent[0]) / 2) * (value - 1);
+    const deltaY = ((extent[3] - extent[1]) / 2) * (value - 1);
     extent[0] -= deltaX;
     extent[2] += deltaX;
     extent[1] -= deltaY;
@@ -652,24 +652,24 @@ export function scaleFromCenter(extent, value) {
  * @return {boolean} The segment intersects the extent.
  */
 export function intersectsSegment(extent, start, end) {
-    var intersects = false;
-    var startRel = coordinateRelationship(extent, start);
-    var endRel = coordinateRelationship(extent, end);
+    let intersects = false;
+    const startRel = coordinateRelationship(extent, start);
+    const endRel = coordinateRelationship(extent, end);
     if (startRel === Relationship.INTERSECTING ||
         endRel === Relationship.INTERSECTING) {
         intersects = true;
     }
     else {
-        var minX = extent[0];
-        var minY = extent[1];
-        var maxX = extent[2];
-        var maxY = extent[3];
-        var startX = start[0];
-        var startY = start[1];
-        var endX = end[0];
-        var endY = end[1];
-        var slope = (endY - startY) / (endX - startX);
-        var x = void 0, y = void 0;
+        const minX = extent[0];
+        const minY = extent[1];
+        const maxX = extent[2];
+        const maxY = extent[3];
+        const startX = start[0];
+        const startY = start[1];
+        const endX = end[0];
+        const endY = end[1];
+        const slope = (endY - startY) / (endX - startX);
+        let x, y;
         if (!!(endRel & Relationship.ABOVE) &&
             !(startRel & Relationship.ABOVE)) {
             // potentially intersects top
@@ -709,11 +709,11 @@ export function intersectsSegment(extent, start, end) {
  * @api
  */
 export function applyTransform(extent, transformFn, opt_extent, opt_stops) {
-    var coordinates = [];
+    let coordinates = [];
     if (opt_stops > 1) {
-        var width = extent[2] - extent[0];
-        var height = extent[3] - extent[1];
-        for (var i = 0; i < opt_stops; ++i) {
+        const width = extent[2] - extent[0];
+        const height = extent[3] - extent[1];
+        for (let i = 0; i < opt_stops; ++i) {
             coordinates.push(extent[0] + width * i / opt_stops, extent[1], extent[2], extent[1] + height * i / opt_stops, extent[2] - width * i / opt_stops, extent[3], extent[0], extent[3] - height * i / opt_stops);
         }
     }
@@ -726,9 +726,9 @@ export function applyTransform(extent, transformFn, opt_extent, opt_stops) {
         ];
     }
     transformFn(coordinates, coordinates, 2);
-    var xs = [];
-    var ys = [];
-    for (var i = 0, l = coordinates.length; i < l; i += 2) {
+    const xs = [];
+    const ys = [];
+    for (let i = 0, l = coordinates.length; i < l; i += 2) {
         xs.push(coordinates[i]);
         ys.push(coordinates[i + 1]);
     }

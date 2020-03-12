@@ -44,13 +44,13 @@ export function listen(target, type, listener, opt_this, opt_once) {
         listener = listener.bind(opt_this);
     }
     if (opt_once) {
-        var originalListener_1 = listener;
+        const originalListener = listener;
         listener = function () {
             target.removeEventListener(type, listener);
-            originalListener_1.apply(this, arguments);
+            originalListener.apply(this, arguments);
         };
     }
-    var eventsKey = {
+    const eventsKey = {
         target: target,
         type: type,
         listener: listener

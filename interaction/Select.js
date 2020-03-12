@@ -1,16 +1,3 @@
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 /**
  * @module ol/interaction/Select
  */
@@ -28,7 +15,7 @@ import Collection from '../Collection.js';
 /**
  * @enum {string}
  */
-var SelectEventType = {
+const SelectEventType = {
     /**
      * Triggered when feature(s) has been (de)selected.
      * @event SelectEvent#select
@@ -102,8 +89,7 @@ var SelectEventType = {
  * Events emitted by {@link module:ol/interaction/Select~Select} instances are instances of
  * this type.
  */
-var SelectEvent = /** @class */ (function (_super) {
-    __extends(SelectEvent, _super);
+class SelectEvent extends Event {
     /**
      * @param {SelectEventType} type The event type.
      * @param {Array<import("../Feature.js").default>} selected Selected features.
@@ -111,35 +97,33 @@ var SelectEvent = /** @class */ (function (_super) {
      * @param {import("../MapBrowserEvent.js").default} mapBrowserEvent Associated
      *     {@link module:ol/MapBrowserEvent}.
      */
-    function SelectEvent(type, selected, deselected, mapBrowserEvent) {
-        var _this = _super.call(this, type) || this;
+    constructor(type, selected, deselected, mapBrowserEvent) {
+        super(type);
         /**
          * Selected features array.
          * @type {Array<import("../Feature.js").default>}
          * @api
          */
-        _this.selected = selected;
+        this.selected = selected;
         /**
          * Deselected features array.
          * @type {Array<import("../Feature.js").default>}
          * @api
          */
-        _this.deselected = deselected;
+        this.deselected = deselected;
         /**
          * Associated {@link module:ol/MapBrowserEvent}.
          * @type {import("../MapBrowserEvent.js").default}
          * @api
          */
-        _this.mapBrowserEvent = mapBrowserEvent;
-        return _this;
+        this.mapBrowserEvent = mapBrowserEvent;
     }
-    return SelectEvent;
-}(Event));
+}
 /**
  * Original feature styles to reset to when features are no longer selected.
  * @type {Object.<number, import("../style/Style.js").default|Array.<import("../style/Style.js").default>|import("../style/Style.js").StyleFunction>}
  */
-var originalFeatureStyles = {};
+const originalFeatureStyles = {};
 /**
  * @classdesc
  * Interaction for selecting vector features. By default, selected features are
@@ -155,71 +139,70 @@ var originalFeatureStyles = {};
  * @fires SelectEvent
  * @api
  */
-var Select = /** @class */ (function (_super) {
-    __extends(Select, _super);
+class Select extends Interaction {
     /**
      * @param {Options=} opt_options Options.
      */
-    function Select(opt_options) {
-        var _this = _super.call(this, {
+    constructor(opt_options) {
+        super({
             handleEvent: handleEvent
-        }) || this;
-        var options = opt_options ? opt_options : {};
+        });
+        const options = opt_options ? opt_options : {};
         /**
          * @private
          * @type {import("../events/condition.js").Condition}
          */
-        _this.condition_ = options.condition ? options.condition : singleClick;
+        this.condition_ = options.condition ? options.condition : singleClick;
         /**
          * @private
          * @type {import("../events/condition.js").Condition}
          */
-        _this.addCondition_ = options.addCondition ? options.addCondition : never;
+        this.addCondition_ = options.addCondition ? options.addCondition : never;
         /**
          * @private
          * @type {import("../events/condition.js").Condition}
          */
-        _this.removeCondition_ = options.removeCondition ? options.removeCondition : never;
+        this.removeCondition_ = options.removeCondition ? options.removeCondition : never;
         /**
          * @private
          * @type {import("../events/condition.js").Condition}
          */
-        _this.toggleCondition_ = options.toggleCondition ? options.toggleCondition : shiftKeyOnly;
+        this.toggleCondition_ = options.toggleCondition ? options.toggleCondition : shiftKeyOnly;
         /**
          * @private
          * @type {boolean}
          */
-        _this.multi_ = options.multi ? options.multi : false;
+        this.multi_ = options.multi ? options.multi : false;
         /**
          * @private
          * @type {FilterFunction}
          */
-        _this.filter_ = options.filter ? options.filter : TRUE;
+        this.filter_ = options.filter ? options.filter : TRUE;
         /**
          * @private
          * @type {number}
          */
-        _this.hitTolerance_ = options.hitTolerance ? options.hitTolerance : 0;
+        this.hitTolerance_ = options.hitTolerance ? options.hitTolerance : 0;
         /**
          * @private
          * @type {import("../style/Style.js").default|Array.<import("../style/Style.js").default>|import("../style/Style.js").StyleFunction|null}
          */
-        _this.style_ = options.style !== undefined ? options.style : getDefaultStyleFunction();
+        this.style_ = options.style !== undefined ? options.style : getDefaultStyleFunction();
         /**
          * @private
          * @type {import("../Collection.js").default}
          */
-        _this.features_ = options.features || new Collection();
+        this.features_ = options.features || new Collection();
         /** @type {function(import("../layer/Layer.js").default): boolean} */
-        var layerFilter;
+        let layerFilter;
         if (options.layers) {
             if (typeof options.layers === 'function') {
                 layerFilter = options.layers;
             }
             else {
-                var layers_1 = options.layers;
+                const layers = options.layers;
                 layerFilter = function (layer) {
-                    return includes(layers_1, layer);
+                    return includes(layers, layer);
                 };
             }
         }
@@ -230,43 +213,42 @@ var Select = /** @class */ (function (_super) {
          * @private
          * @type {function(import("../layer/Layer.js").default): boolean}
          */
-        _this.layerFilter_ = layerFilter;
+        this.layerFilter_ = layerFilter;
         /**
          * An association between selected feature (key)
          * and layer (value)
          * @private
          * @type {Object<string, import("../layer/Layer.js").default>}
          */
-        _this.featureLayerAssociation_ = {};
-        var features = _this.getFeatures();
-        features.addEventListener(CollectionEventType.ADD, _this.addFeature_.bind(_this));
-        features.addEventListener(CollectionEventType.REMOVE, _this.removeFeature_.bind(_this));
-        return _this;
+        this.featureLayerAssociation_ = {};
+        const features = this.getFeatures();
+        features.addEventListener(CollectionEventType.ADD, this.addFeature_.bind(this));
+        features.addEventListener(CollectionEventType.REMOVE, this.removeFeature_.bind(this));
     }
     /**
      * @param {import("../Feature.js").FeatureLike} feature Feature.
      * @param {import("../layer/Layer.js").default} layer Layer.
      * @private
      */
-    Select.prototype.addFeatureLayerAssociation_ = function (feature, layer) {
+    addFeatureLayerAssociation_(feature, layer) {
         this.featureLayerAssociation_[getUid(feature)] = layer;
-    };
+    }
     /**
      * Get the selected features.
      * @return {import("../Collection.js").default<import("../Feature.js").default>} Features collection.
      * @api
      */
-    Select.prototype.getFeatures = function () {
+    getFeatures() {
         return this.features_;
-    };
+    }
     /**
      * Returns the Hit-detection tolerance.
      * @returns {number} Hit tolerance in pixels.
      * @api
      */
-    Select.prototype.getHitTolerance = function () {
+    getHitTolerance() {
         return this.hitTolerance_;
-    };
+    }
     /**
      * Returns the associated {@link module:ol/layer/Vector~Vector vectorlayer} of
      * the (last) selected feature. Note that this will not work with any
@@ -276,19 +258,19 @@ var Select = /** @class */ (function (_super) {
      * @return {import('../layer/Vector.js').default} Layer.
      * @api
      */
-    Select.prototype.getLayer = function (feature) {
+    getLayer(feature) {
         return (
         /** @type {import('../layer/Vector.js').default} */ (this.featureLayerAssociation_[getUid(feature)]));
-    };
+    }
     /**
      * Hit-detection tolerance. Pixels inside the radius around the given position
      * will be checked for features.
      * @param {number} hitTolerance Hit tolerance in pixels.
      * @api
      */
-    Select.prototype.setHitTolerance = function (hitTolerance) {
+    setHitTolerance(hitTolerance) {
         this.hitTolerance_ = hitTolerance;
-    };
+    }
     /**
      * Remove the interaction from its current map, if any,  and attach it to a new
      * map, if any. Pass `null` to just remove the interaction from the current map.
@@ -296,60 +278,60 @@ var Select = /** @class */ (function (_super) {
      * @override
      * @api
      */
-    Select.prototype.setMap = function (map) {
-        var currentMap = this.getMap();
+    setMap(map) {
+        const currentMap = this.getMap();
         if (currentMap && this.style_) {
             this.features_.forEach(this.restorePreviousStyle_.bind(this));
         }
-        _super.prototype.setMap.call(this, map);
+        super.setMap(map);
         if (map && this.style_) {
             this.features_.forEach(this.applySelectedStyle_.bind(this));
         }
-    };
+    }
     /**
      * @param {import("../Collection.js").CollectionEvent} evt Event.
      * @private
      */
-    Select.prototype.addFeature_ = function (evt) {
-        var feature = evt.element;
+    addFeature_(evt) {
+        const feature = evt.element;
         if (this.style_) {
             this.applySelectedStyle_(feature);
         }
-    };
+    }
     /**
      * @param {import("../Collection.js").CollectionEvent} evt Event.
      * @private
      */
-    Select.prototype.removeFeature_ = function (evt) {
-        var feature = evt.element;
+    removeFeature_(evt) {
+        const feature = evt.element;
         if (this.style_) {
             this.restorePreviousStyle_(feature);
         }
-    };
+    }
     /**
      * @return {import("../style/Style.js").default|Array.<import("../style/Style.js").default>|import("../style/Style.js").StyleFunction|null} Select style.
      */
-    Select.prototype.getStyle = function () {
+    getStyle() {
         return this.style_;
-    };
+    }
     /**
      * @param {import("../Feature.js").default} feature Feature
      * @private
      */
-    Select.prototype.applySelectedStyle_ = function (feature) {
-        var key = getUid(feature);
+    applySelectedStyle_(feature) {
+        const key = getUid(feature);
         if (!(key in originalFeatureStyles)) {
             originalFeatureStyles[key] = feature.getStyle();
         }
         feature.setStyle(this.style_);
-    };
+    }
     /**
      * @param {import("../Feature.js").default} feature Feature
      * @private
      */
-    Select.prototype.restorePreviousStyle_ = function (feature) {
-        var key = getUid(feature);
-        var selectInteractions = /** @type {Array<Select>} */ (this.getMap().getInteractions().getArray().filter(function (interaction) {
+    restorePreviousStyle_(feature) {
+        const key = getUid(feature);
+        const selectInteractions = /** @type {Array<Select>} */ (this.getMap().getInteractions().getArray().filter(function (interaction) {
             return interaction instanceof Select && interaction.getStyle() && interaction.getFeatures().getArray().indexOf(feature) !== -1;
         }));
         if (selectInteractions.length > 0) {
@@ -359,16 +341,15 @@ var Select = /** @class */ (function (_super) {
             feature.setStyle(originalFeatureStyles[key]);
             delete originalFeatureStyles[key];
         }
-    };
+    }
     /**
      * @param {import("../Feature.js").FeatureLike} feature Feature.
      * @private
      */
-    Select.prototype.removeFeatureLayerAssociation_ = function (feature) {
+    removeFeatureLayerAssociation_(feature) {
         delete this.featureLayerAssociation_[getUid(feature)];
-    };
-    return Select;
-}(Interaction));
+    }
+}
 /**
  * Handles the {@link module:ol/MapBrowserEvent map browser event} and may change the
  * selected state of features.
@@ -380,14 +361,14 @@ function handleEvent(mapBrowserEvent) {
     if (!this.condition_(mapBrowserEvent)) {
         return true;
     }
-    var add = this.addCondition_(mapBrowserEvent);
-    var remove = this.removeCondition_(mapBrowserEvent);
-    var toggle = this.toggleCondition_(mapBrowserEvent);
-    var set = !add && !remove && !toggle;
-    var map = mapBrowserEvent.map;
-    var features = this.getFeatures();
-    var deselected = [];
-    var selected = [];
+    const add = this.addCondition_(mapBrowserEvent);
+    const remove = this.removeCondition_(mapBrowserEvent);
+    const toggle = this.toggleCondition_(mapBrowserEvent);
+    const set = !add && !remove && !toggle;
+    const map = mapBrowserEvent.map;
+    const features = this.getFeatures();
+    const deselected = [];
+    const selected = [];
     if (set) {
         // Replace the currently selected feature(s) with the feature(s) at the
         // pixel, or clear the selected feature(s) if there is no feature at
@@ -409,9 +390,9 @@ function handleEvent(mapBrowserEvent) {
             layerFilter: this.layerFilter_,
             hitTolerance: this.hitTolerance_
         });
-        for (var i = features.getLength() - 1; i >= 0; --i) {
-            var feature = features.item(i);
-            var index = selected.indexOf(feature);
+        for (let i = features.getLength() - 1; i >= 0; --i) {
+            const feature = features.item(i);
+            const index = selected.indexOf(feature);
             if (index > -1) {
                 // feature is already selected
                 selected.splice(index, 1);
@@ -449,7 +430,7 @@ function handleEvent(mapBrowserEvent) {
             layerFilter: this.layerFilter_,
             hitTolerance: this.hitTolerance_
         });
-        for (var j = deselected.length - 1; j >= 0; --j) {
+        for (let j = deselected.length - 1; j >= 0; --j) {
             features.remove(deselected[j]);
         }
         features.extend(selected);
@@ -463,7 +444,7 @@ function handleEvent(mapBrowserEvent) {
  * @return {import("../style/Style.js").StyleFunction} Styles.
  */
 function getDefaultStyleFunction() {
-    var styles = createEditingStyle();
+    const styles = createEditingStyle();
     extend(styles[GeometryType.POLYGON], styles[GeometryType.LINE_STRING]);
     extend(styles[GeometryType.GEOMETRY_COLLECTION], styles[GeometryType.LINE_STRING]);
     return function (feature) {

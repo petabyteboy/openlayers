@@ -1,16 +1,3 @@
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 /**
  * @module ol/format/filter/LogicalNary
  */
@@ -23,22 +10,19 @@ import Filter from './Filter.js';
  *
  * @abstract
  */
-var LogicalNary = /** @class */ (function (_super) {
-    __extends(LogicalNary, _super);
+class LogicalNary extends Filter {
     /**
      * @param {!string} tagName The XML tag name for this filter.
      * @param {Array<import("./Filter.js").default>} conditions Conditions.
      */
-    function LogicalNary(tagName, conditions) {
-        var _this = _super.call(this, tagName) || this;
+    constructor(tagName, conditions) {
+        super(tagName);
         /**
          * @type {Array<import("./Filter.js").default>}
          */
-        _this.conditions = conditions;
-        assert(_this.conditions.length >= 2, 57); // At least 2 conditions are required.
-        return _this;
+        this.conditions = conditions;
+        assert(this.conditions.length >= 2, 57); // At least 2 conditions are required.
     }
-    return LogicalNary;
-}(Filter));
+}
 export default LogicalNary;
 //# sourceMappingURL=LogicalNary.js.map

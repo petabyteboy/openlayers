@@ -1,16 +1,3 @@
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 /**
  * @module ol/layer/BaseVector
  */
@@ -65,7 +52,7 @@ import { createDefaultStyle, toFunction as toStyleFunction } from '../style/Styl
  * @enum {string}
  * @private
  */
-var Property = {
+const Property = {
     RENDER_ORDER: 'renderOrder'
 };
 /**
@@ -79,64 +66,61 @@ var Property = {
  * @extends {Layer<VectorSourceType>}
  * @api
  */
-var BaseVectorLayer = /** @class */ (function (_super) {
-    __extends(BaseVectorLayer, _super);
+class BaseVectorLayer extends Layer {
     /**
      * @param {Options=} opt_options Options.
      */
-    function BaseVectorLayer(opt_options) {
-        var _this = this;
-        var options = opt_options ? opt_options : {};
-        var baseOptions = assign({}, options);
+    constructor(opt_options) {
+        const options = opt_options ? opt_options : {};
+        const baseOptions = assign({}, options);
         delete baseOptions.style;
         delete baseOptions.renderBuffer;
         delete baseOptions.updateWhileAnimating;
         delete baseOptions.updateWhileInteracting;
-        _this = _super.call(this, baseOptions) || this;
+        super(baseOptions);
         /**
          * @private
          * @type {boolean}
          */
-        _this.declutter_ = options.declutter !== undefined ? options.declutter : false;
+        this.declutter_ = options.declutter !== undefined ? options.declutter : false;
         /**
          * @type {number}
          * @private
          */
-        _this.renderBuffer_ = options.renderBuffer !== undefined ?
+        this.renderBuffer_ = options.renderBuffer !== undefined ?
             options.renderBuffer : 100;
         /**
          * User provided style.
          * @type {import("../style/Style.js").StyleLike}
          * @private
          */
-        _this.style_ = null;
+        this.style_ = null;
         /**
          * Style function for use within the library.
          * @type {import("../style/Style.js").StyleFunction|undefined}
          * @private
          */
-        _this.styleFunction_ = undefined;
-        _this.setStyle(options.style);
+        this.styleFunction_ = undefined;
+        this.setStyle(options.style);
         /**
          * @type {boolean}
          * @private
          */
-        _this.updateWhileAnimating_ = options.updateWhileAnimating !== undefined ?
+        this.updateWhileAnimating_ = options.updateWhileAnimating !== undefined ?
             options.updateWhileAnimating : false;
         /**
          * @type {boolean}
          * @private
          */
-        _this.updateWhileInteracting_ = options.updateWhileInteracting !== undefined ?
+        this.updateWhileInteracting_ = options.updateWhileInteracting !== undefined ?
             options.updateWhileInteracting : false;
-        return _this;
     }
     /**
      * @return {boolean} Declutter.
      */
-    BaseVectorLayer.prototype.getDeclutter = function () {
+    getDeclutter() {
         return this.declutter_;
-    };
+    }
     /**
      * Get the topmost feature that intersects the given pixel on the viewport. Returns a promise
      * that resolves with an array of features. The array will either contain the topmost feature
@@ -151,23 +135,23 @@ var BaseVectorLayer = /** @class */ (function (_super) {
      * @return {Promise<Array<import("../Feature").default>>} Promise that resolves with an array of features.
      * @api
      */
-    BaseVectorLayer.prototype.getFeatures = function (pixel) {
-        return _super.prototype.getFeatures.call(this, pixel);
-    };
+    getFeatures(pixel) {
+        return super.getFeatures(pixel);
+    }
     /**
      * @return {number|undefined} Render buffer.
      */
-    BaseVectorLayer.prototype.getRenderBuffer = function () {
+    getRenderBuffer() {
         return this.renderBuffer_;
-    };
+    }
     /**
      * @return {function(import("../Feature.js").default, import("../Feature.js").default): number|null|undefined} Render
      *     order.
      */
-    BaseVectorLayer.prototype.getRenderOrder = function () {
+    getRenderOrder() {
         return (
         /** @type {import("../render.js").OrderFunction|null|undefined} */ (this.get(Property.RENDER_ORDER)));
-    };
+    }
     /**
      * Get the style for features.  This returns whatever was passed to the `style`
      * option at construction or to the `setStyle` method.
@@ -175,38 +159,38 @@ var BaseVectorLayer = /** @class */ (function (_super) {
      *     Layer style.
      * @api
      */
-    BaseVectorLayer.prototype.getStyle = function () {
+    getStyle() {
         return this.style_;
-    };
+    }
     /**
      * Get the style function.
      * @return {import("../style/Style.js").StyleFunction|undefined} Layer style function.
      * @api
      */
-    BaseVectorLayer.prototype.getStyleFunction = function () {
+    getStyleFunction() {
         return this.styleFunction_;
-    };
+    }
     /**
      * @return {boolean} Whether the rendered layer should be updated while
      *     animating.
      */
-    BaseVectorLayer.prototype.getUpdateWhileAnimating = function () {
+    getUpdateWhileAnimating() {
         return this.updateWhileAnimating_;
-    };
+    }
     /**
      * @return {boolean} Whether the rendered layer should be updated while
      *     interacting.
      */
-    BaseVectorLayer.prototype.getUpdateWhileInteracting = function () {
+    getUpdateWhileInteracting() {
         return this.updateWhileInteracting_;
-    };
+    }
     /**
      * @param {import("../render.js").OrderFunction|null|undefined} renderOrder
      *     Render order.
      */
-    BaseVectorLayer.prototype.setRenderOrder = function (renderOrder) {
+    setRenderOrder(renderOrder) {
         this.set(Property.RENDER_ORDER, renderOrder);
-    };
+    }
     /**
      * Set the style for features.  This can be a single style object, an array
      * of styles, or a function that takes a feature and resolution and returns
@@ -217,13 +201,12 @@ var BaseVectorLayer = /** @class */ (function (_super) {
      * @param {import("../style/Style.js").default|Array<import("../style/Style.js").default>|import("../style/Style.js").StyleFunction|null|undefined} style Layer style.
      * @api
      */
-    BaseVectorLayer.prototype.setStyle = function (style) {
+    setStyle(style) {
         this.style_ = style !== undefined ? style : createDefaultStyle;
         this.styleFunction_ = style === null ?
             undefined : toStyleFunction(this.style_);
         this.changed();
-    };
-    return BaseVectorLayer;
-}(Layer));
+    }
+}
 export default BaseVectorLayer;
 //# sourceMappingURL=BaseVector.js.map

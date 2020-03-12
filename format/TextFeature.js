@@ -1,16 +1,3 @@
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 /**
  * @module ol/format/TextFeature
  */
@@ -25,17 +12,16 @@ import FormatType from '../format/FormatType.js';
  *
  * @abstract
  */
-var TextFeature = /** @class */ (function (_super) {
-    __extends(TextFeature, _super);
-    function TextFeature() {
-        return _super.call(this) || this;
+class TextFeature extends FeatureFormat {
+    constructor() {
+        super();
     }
     /**
      * @inheritDoc
      */
-    TextFeature.prototype.getType = function () {
+    getType() {
         return FormatType.TEXT;
-    };
+    }
     /**
      * Read the feature from the source.
      *
@@ -44,9 +30,9 @@ var TextFeature = /** @class */ (function (_super) {
      * @return {import("../Feature.js").default} Feature.
      * @api
      */
-    TextFeature.prototype.readFeature = function (source, opt_options) {
+    readFeature(source, opt_options) {
         return this.readFeatureFromText(getText(source), this.adaptOptions(opt_options));
-    };
+    }
     /**
      * @abstract
      * @param {string} text Text.
@@ -54,9 +40,9 @@ var TextFeature = /** @class */ (function (_super) {
      * @protected
      * @return {import("../Feature.js").default} Feature.
      */
-    TextFeature.prototype.readFeatureFromText = function (text, opt_options) {
+    readFeatureFromText(text, opt_options) {
         return abstract();
-    };
+    }
     /**
      * Read the features from the source.
      *
@@ -65,9 +51,9 @@ var TextFeature = /** @class */ (function (_super) {
      * @return {Array<import("../Feature.js").default>} Features.
      * @api
      */
-    TextFeature.prototype.readFeatures = function (source, opt_options) {
+    readFeatures(source, opt_options) {
         return this.readFeaturesFromText(getText(source), this.adaptOptions(opt_options));
-    };
+    }
     /**
      * @abstract
      * @param {string} text Text.
@@ -75,9 +61,9 @@ var TextFeature = /** @class */ (function (_super) {
      * @protected
      * @return {Array<import("../Feature.js").default>} Features.
      */
-    TextFeature.prototype.readFeaturesFromText = function (text, opt_options) {
+    readFeaturesFromText(text, opt_options) {
         return abstract();
-    };
+    }
     /**
      * Read the geometry from the source.
      *
@@ -86,9 +72,9 @@ var TextFeature = /** @class */ (function (_super) {
      * @return {import("../geom/Geometry.js").default} Geometry.
      * @api
      */
-    TextFeature.prototype.readGeometry = function (source, opt_options) {
+    readGeometry(source, opt_options) {
         return this.readGeometryFromText(getText(source), this.adaptOptions(opt_options));
-    };
+    }
     /**
      * @abstract
      * @param {string} text Text.
@@ -96,9 +82,9 @@ var TextFeature = /** @class */ (function (_super) {
      * @protected
      * @return {import("../geom/Geometry.js").default} Geometry.
      */
-    TextFeature.prototype.readGeometryFromText = function (text, opt_options) {
+    readGeometryFromText(text, opt_options) {
         return abstract();
-    };
+    }
     /**
      * Read the projection from the source.
      *
@@ -106,17 +92,17 @@ var TextFeature = /** @class */ (function (_super) {
      * @return {import("../proj/Projection.js").default} Projection.
      * @api
      */
-    TextFeature.prototype.readProjection = function (source) {
+    readProjection(source) {
         return this.readProjectionFromText(getText(source));
-    };
+    }
     /**
      * @param {string} text Text.
      * @protected
      * @return {import("../proj/Projection.js").default} Projection.
      */
-    TextFeature.prototype.readProjectionFromText = function (text) {
+    readProjectionFromText(text) {
         return this.dataProjection;
-    };
+    }
     /**
      * Encode a feature as a string.
      *
@@ -125,9 +111,9 @@ var TextFeature = /** @class */ (function (_super) {
      * @return {string} Encoded feature.
      * @api
      */
-    TextFeature.prototype.writeFeature = function (feature, opt_options) {
+    writeFeature(feature, opt_options) {
         return this.writeFeatureText(feature, this.adaptOptions(opt_options));
-    };
+    }
     /**
      * @abstract
      * @param {import("../Feature.js").default} feature Features.
@@ -135,9 +121,9 @@ var TextFeature = /** @class */ (function (_super) {
      * @protected
      * @return {string} Text.
      */
-    TextFeature.prototype.writeFeatureText = function (feature, opt_options) {
+    writeFeatureText(feature, opt_options) {
         return abstract();
-    };
+    }
     /**
      * Encode an array of features as string.
      *
@@ -146,9 +132,9 @@ var TextFeature = /** @class */ (function (_super) {
      * @return {string} Encoded features.
      * @api
      */
-    TextFeature.prototype.writeFeatures = function (features, opt_options) {
+    writeFeatures(features, opt_options) {
         return this.writeFeaturesText(features, this.adaptOptions(opt_options));
-    };
+    }
     /**
      * @abstract
      * @param {Array<import("../Feature.js").default>} features Features.
@@ -156,9 +142,9 @@ var TextFeature = /** @class */ (function (_super) {
      * @protected
      * @return {string} Text.
      */
-    TextFeature.prototype.writeFeaturesText = function (features, opt_options) {
+    writeFeaturesText(features, opt_options) {
         return abstract();
-    };
+    }
     /**
      * Write a single geometry.
      *
@@ -167,9 +153,9 @@ var TextFeature = /** @class */ (function (_super) {
      * @return {string} Geometry.
      * @api
      */
-    TextFeature.prototype.writeGeometry = function (geometry, opt_options) {
+    writeGeometry(geometry, opt_options) {
         return this.writeGeometryText(geometry, this.adaptOptions(opt_options));
-    };
+    }
     /**
      * @abstract
      * @param {import("../geom/Geometry.js").default} geometry Geometry.
@@ -177,11 +163,10 @@ var TextFeature = /** @class */ (function (_super) {
      * @protected
      * @return {string} Text.
      */
-    TextFeature.prototype.writeGeometryText = function (geometry, opt_options) {
+    writeGeometryText(geometry, opt_options) {
         return abstract();
-    };
-    return TextFeature;
-}(FeatureFormat));
+    }
+}
 /**
  * @param {Document|Node|Object|string} source Source.
  * @return {string} Text.

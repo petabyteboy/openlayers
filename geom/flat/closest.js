@@ -15,21 +15,21 @@ import { lerp, squaredDistance as squaredDx } from '../../math.js';
  * @param {Array<number>} closestPoint Closest point.
  */
 function assignClosest(flatCoordinates, offset1, offset2, stride, x, y, closestPoint) {
-    var x1 = flatCoordinates[offset1];
-    var y1 = flatCoordinates[offset1 + 1];
-    var dx = flatCoordinates[offset2] - x1;
-    var dy = flatCoordinates[offset2 + 1] - y1;
-    var offset;
+    const x1 = flatCoordinates[offset1];
+    const y1 = flatCoordinates[offset1 + 1];
+    const dx = flatCoordinates[offset2] - x1;
+    const dy = flatCoordinates[offset2 + 1] - y1;
+    let offset;
     if (dx === 0 && dy === 0) {
         offset = offset1;
     }
     else {
-        var t = ((x - x1) * dx + (y - y1) * dy) / (dx * dx + dy * dy);
+        const t = ((x - x1) * dx + (y - y1) * dy) / (dx * dx + dy * dy);
         if (t > 1) {
             offset = offset2;
         }
         else if (t > 0) {
-            for (var i = 0; i < stride; ++i) {
+            for (let i = 0; i < stride; ++i) {
                 closestPoint[i] = lerp(flatCoordinates[offset1 + i], flatCoordinates[offset2 + i], t);
             }
             closestPoint.length = stride;
@@ -39,7 +39,7 @@ function assignClosest(flatCoordinates, offset1, offset2, stride, x, y, closestP
             offset = offset1;
         }
     }
-    for (var i = 0; i < stride; ++i) {
+    for (let i = 0; i < stride; ++i) {
         closestPoint[i] = flatCoordinates[offset + i];
     }
     closestPoint.length = stride;
@@ -55,12 +55,12 @@ function assignClosest(flatCoordinates, offset1, offset2, stride, x, y, closestP
  * @return {number} Max squared delta.
  */
 export function maxSquaredDelta(flatCoordinates, offset, end, stride, max) {
-    var x1 = flatCoordinates[offset];
-    var y1 = flatCoordinates[offset + 1];
+    let x1 = flatCoordinates[offset];
+    let y1 = flatCoordinates[offset + 1];
     for (offset += stride; offset < end; offset += stride) {
-        var x2 = flatCoordinates[offset];
-        var y2 = flatCoordinates[offset + 1];
-        var squaredDelta = squaredDx(x1, y1, x2, y2);
+        const x2 = flatCoordinates[offset];
+        const y2 = flatCoordinates[offset + 1];
+        const squaredDelta = squaredDx(x1, y1, x2, y2);
         if (squaredDelta > max) {
             max = squaredDelta;
         }
@@ -78,8 +78,8 @@ export function maxSquaredDelta(flatCoordinates, offset, end, stride, max) {
  * @return {number} Max squared delta.
  */
 export function arrayMaxSquaredDelta(flatCoordinates, offset, ends, stride, max) {
-    for (var i = 0, ii = ends.length; i < ii; ++i) {
-        var end = ends[i];
+    for (let i = 0, ii = ends.length; i < ii; ++i) {
+        const end = ends[i];
         max = maxSquaredDelta(flatCoordinates, offset, end, stride, max);
         offset = end;
     }
@@ -94,8 +94,8 @@ export function arrayMaxSquaredDelta(flatCoordinates, offset, ends, stride, max)
  * @return {number} Max squared delta.
  */
 export function multiArrayMaxSquaredDelta(flatCoordinates, offset, endss, stride, max) {
-    for (var i = 0, ii = endss.length; i < ii; ++i) {
-        var ends = endss[i];
+    for (let i = 0, ii = endss.length; i < ii; ++i) {
+        const ends = endss[i];
         max = arrayMaxSquaredDelta(flatCoordinates, offset, ends, stride, max);
         offset = ends[ends.length - 1];
     }
@@ -119,7 +119,7 @@ export function assignClosestPoint(flatCoordinates, offset, end, stride, maxDelt
     if (offset == end) {
         return minSquaredDistance;
     }
-    var i, squaredDistance;
+    let i, squaredDistance;
     if (maxDelta === 0) {
         // All points are identical, so just test the first point.
         squaredDistance = squaredDx(x, y, flatCoordinates[offset], flatCoordinates[offset + 1]);
@@ -134,8 +134,8 @@ export function assignClosestPoint(flatCoordinates, offset, end, stride, maxDelt
             return minSquaredDistance;
         }
     }
-    var tmpPoint = opt_tmpPoint ? opt_tmpPoint : [NaN, NaN];
-    var index = offset + stride;
+    const tmpPoint = opt_tmpPoint ? opt_tmpPoint : [NaN, NaN];
+    let index = offset + stride;
     while (index < end) {
         assignClosest(flatCoordinates, index - stride, index, stride, x, y, tmpPoint);
         squaredDistance = squaredDx(x, y, tmpPoint[0], tmpPoint[1]);
@@ -191,9 +191,9 @@ export function assignClosestPoint(flatCoordinates, offset, end, stride, maxDelt
  * @return {number} Minimum squared distance.
  */
 export function assignClosestArrayPoint(flatCoordinates, offset, ends, stride, maxDelta, isRing, x, y, closestPoint, minSquaredDistance, opt_tmpPoint) {
-    var tmpPoint = opt_tmpPoint ? opt_tmpPoint : [NaN, NaN];
-    for (var i = 0, ii = ends.length; i < ii; ++i) {
-        var end = ends[i];
+    const tmpPoint = opt_tmpPoint ? opt_tmpPoint : [NaN, NaN];
+    for (let i = 0, ii = ends.length; i < ii; ++i) {
+        const end = ends[i];
         minSquaredDistance = assignClosestPoint(flatCoordinates, offset, end, stride, maxDelta, isRing, x, y, closestPoint, minSquaredDistance, tmpPoint);
         offset = end;
     }
@@ -214,9 +214,9 @@ export function assignClosestArrayPoint(flatCoordinates, offset, ends, stride, m
  * @return {number} Minimum squared distance.
  */
 export function assignClosestMultiArrayPoint(flatCoordinates, offset, endss, stride, maxDelta, isRing, x, y, closestPoint, minSquaredDistance, opt_tmpPoint) {
-    var tmpPoint = opt_tmpPoint ? opt_tmpPoint : [NaN, NaN];
-    for (var i = 0, ii = endss.length; i < ii; ++i) {
-        var ends = endss[i];
+    const tmpPoint = opt_tmpPoint ? opt_tmpPoint : [NaN, NaN];
+    for (let i = 0, ii = endss.length; i < ii; ++i) {
+        const ends = endss[i];
         minSquaredDistance = assignClosestArrayPoint(flatCoordinates, offset, ends, stride, maxDelta, isRing, x, y, closestPoint, minSquaredDistance, tmpPoint);
         offset = ends[ends.length - 1];
     }

@@ -14,7 +14,7 @@ import TileGrid from './tilegrid/TileGrid.js';
  * passed projection.
  */
 export function getForProjection(projection) {
-    var tileGrid = projection.getDefaultTileGrid();
+    let tileGrid = projection.getDefaultTileGrid();
     if (!tileGrid) {
         tileGrid = createForProjection(projection);
         projection.setDefaultTileGrid(tileGrid);
@@ -28,12 +28,12 @@ export function getForProjection(projection) {
  * @return {import("./tilecoord.js").TileCoord} Tile coordinate.
  */
 export function wrapX(tileGrid, tileCoord, projection) {
-    var z = tileCoord[0];
-    var center = tileGrid.getTileCoordCenter(tileCoord);
-    var projectionExtent = extentFromProjection(projection);
+    const z = tileCoord[0];
+    const center = tileGrid.getTileCoordCenter(tileCoord);
+    const projectionExtent = extentFromProjection(projection);
     if (!containsCoordinate(projectionExtent, center)) {
-        var worldWidth = getWidth(projectionExtent);
-        var worldsAway = Math.ceil((projectionExtent[0] - center[0]) / worldWidth);
+        const worldWidth = getWidth(projectionExtent);
+        const worldsAway = Math.ceil((projectionExtent[0] - center[0]) / worldWidth);
         center[0] += worldWidth * worldsAway;
         return tileGrid.getTileCoordForCoordAndZ(center, z);
     }
@@ -51,8 +51,8 @@ export function wrapX(tileGrid, tileCoord, projection) {
  * @return {!TileGrid} TileGrid instance.
  */
 export function createForExtent(extent, opt_maxZoom, opt_tileSize, opt_corner) {
-    var corner = opt_corner !== undefined ? opt_corner : Corner.TOP_LEFT;
-    var resolutions = resolutionsFromExtent(extent, opt_maxZoom, opt_tileSize);
+    const corner = opt_corner !== undefined ? opt_corner : Corner.TOP_LEFT;
+    const resolutions = resolutionsFromExtent(extent, opt_maxZoom, opt_tileSize);
     return new TileGrid({
         extent: extent,
         origin: getCorner(extent, corner),
@@ -78,9 +78,9 @@ export function createForExtent(extent, opt_maxZoom, opt_tileSize, opt_corner) {
  * @api
  */
 export function createXYZ(opt_options) {
-    var xyzOptions = opt_options || {};
-    var extent = xyzOptions.extent || getProjection('EPSG:3857').getExtent();
-    var gridOptions = {
+    const xyzOptions = opt_options || {};
+    const extent = xyzOptions.extent || getProjection('EPSG:3857').getExtent();
+    const gridOptions = {
         extent: extent,
         minZoom: xyzOptions.minZoom,
         tileSize: xyzOptions.tileSize,
@@ -99,17 +99,17 @@ export function createXYZ(opt_options) {
  * @return {!Array<number>} Resolutions array.
  */
 function resolutionsFromExtent(extent, opt_maxZoom, opt_tileSize, opt_maxResolution) {
-    var maxZoom = opt_maxZoom !== undefined ?
+    const maxZoom = opt_maxZoom !== undefined ?
         opt_maxZoom : DEFAULT_MAX_ZOOM;
-    var height = getHeight(extent);
-    var width = getWidth(extent);
-    var tileSize = toSize(opt_tileSize !== undefined ?
+    const height = getHeight(extent);
+    const width = getWidth(extent);
+    const tileSize = toSize(opt_tileSize !== undefined ?
         opt_tileSize : DEFAULT_TILE_SIZE);
-    var maxResolution = opt_maxResolution > 0 ? opt_maxResolution :
+    const maxResolution = opt_maxResolution > 0 ? opt_maxResolution :
         Math.max(width / tileSize[0], height / tileSize[1]);
-    var length = maxZoom + 1;
-    var resolutions = new Array(length);
-    for (var z = 0; z < length; ++z) {
+    const length = maxZoom + 1;
+    const resolutions = new Array(length);
+    for (let z = 0; z < length; ++z) {
         resolutions[z] = maxResolution / Math.pow(2, z);
     }
     return resolutions;
@@ -124,7 +124,7 @@ function resolutionsFromExtent(extent, opt_maxZoom, opt_tileSize, opt_maxResolut
  * @return {!TileGrid} TileGrid instance.
  */
 export function createForProjection(projection, opt_maxZoom, opt_tileSize, opt_corner) {
-    var extent = extentFromProjection(projection);
+    const extent = extentFromProjection(projection);
     return createForExtent(extent, opt_maxZoom, opt_tileSize, opt_corner);
 }
 /**
@@ -135,9 +135,9 @@ export function createForProjection(projection, opt_maxZoom, opt_tileSize, opt_c
  */
 export function extentFromProjection(projection) {
     projection = getProjection(projection);
-    var extent = projection.getExtent();
+    let extent = projection.getExtent();
     if (!extent) {
-        var half = 180 * METERS_PER_UNIT[Units.DEGREES] / projection.getMetersPerUnit();
+        const half = 180 * METERS_PER_UNIT[Units.DEGREES] / projection.getMetersPerUnit();
         extent = createOrUpdate(-half, -half, half, half);
     }
     return extent;

@@ -1,16 +1,3 @@
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 /**
  * @module ol/renderer/webgl/PointsLayer
  */
@@ -120,33 +107,31 @@ import VectorEventType from '../../source/VectorEventType.js';
  *
  * @api
  */
-var WebGLPointsLayerRenderer = /** @class */ (function (_super) {
-    __extends(WebGLPointsLayerRenderer, _super);
+class WebGLPointsLayerRenderer extends WebGLLayerRenderer {
     /**
      * @param {import("../../layer/Layer.js").default} layer Layer.
      * @param {Options} options Options.
      */
-    function WebGLPointsLayerRenderer(layer, options) {
-        var _this = this;
-        var uniforms = options.uniforms || {};
-        var projectionMatrixTransform = createTransform();
+    constructor(layer, options) {
+        const uniforms = options.uniforms || {};
+        const projectionMatrixTransform = createTransform();
         uniforms[DefaultUniform.PROJECTION_MATRIX] = projectionMatrixTransform;
-        _this = _super.call(this, layer, {
+        super(layer, {
             uniforms: uniforms,
             postProcesses: options.postProcesses
-        }) || this;
-        _this.sourceRevision_ = -1;
-        _this.verticesBuffer_ = new WebGLArrayBuffer(ARRAY_BUFFER, DYNAMIC_DRAW);
-        _this.hitVerticesBuffer_ = new WebGLArrayBuffer(ARRAY_BUFFER, DYNAMIC_DRAW);
-        _this.indicesBuffer_ = new WebGLArrayBuffer(ELEMENT_ARRAY_BUFFER, DYNAMIC_DRAW);
-        _this.program_ = _this.helper.getProgram(options.fragmentShader, options.vertexShader);
+        });
+        this.sourceRevision_ = -1;
+        this.verticesBuffer_ = new WebGLArrayBuffer(ARRAY_BUFFER, DYNAMIC_DRAW);
+        this.hitVerticesBuffer_ = new WebGLArrayBuffer(ARRAY_BUFFER, DYNAMIC_DRAW);
+        this.indicesBuffer_ = new WebGLArrayBuffer(ELEMENT_ARRAY_BUFFER, DYNAMIC_DRAW);
+        this.program_ = this.helper.getProgram(options.fragmentShader, options.vertexShader);
         /**
          * @type {boolean}
          * @private
          */
-        _this.hitDetectionEnabled_ = options.hitFragmentShader && options.hitVertexShader ? true : false;
-        _this.hitProgram_ = _this.hitDetectionEnabled_ && _this.helper.getProgram(options.hitFragmentShader, options.hitVertexShader);
-        var customAttributes = options.attributes ?
+        this.hitDetectionEnabled_ = options.hitFragmentShader && options.hitVertexShader ? true : false;
+        this.hitProgram_ = this.hitDetectionEnabled_ && this.helper.getProgram(options.hitFragmentShader, options.hitVertexShader);
+        const customAttributes = options.attributes ?
             options.attributes.map(function (attribute) {
                 return {
                     name: 'a_' + attribute.name,
@@ -159,7 +144,7 @@ var WebGLPointsLayerRenderer = /** @class */ (function (_super) {
          * index of the vertex (0 to 3) are required.
          * @type {Array<import('../../webgl/Helper.js').AttributeDescription>}
          */
-        _this.attributes = [{
+        this.attributes = [{
                 name: 'a_position',
                 size: 2,
                 type: AttributeType.FLOAT
@@ -172,7 +157,7 @@ var WebGLPointsLayerRenderer = /** @class */ (function (_super) {
          * A list of attributes used for hit detection.
          * @type {Array<import('../../webgl/Helper.js').AttributeDescription>}
          */
-        _this.hitDetectionAttributes = [{
+        this.hitDetectionAttributes = [{
                 name: 'a_position',
                 size: 2,
                 type: AttributeType.FLOAT
@@ -189,8 +174,8 @@ var WebGLPointsLayerRenderer = /** @class */ (function (_super) {
                 size: 1,
                 type: AttributeType.FLOAT
             }].concat(customAttributes);
-        _this.customAttributes = options.attributes ? options.attributes : [];
-        _this.previousExtent_ = createEmpty();
+        this.customAttributes = options.attributes ? options.attributes : [];
+        this.previousExtent_ = createEmpty();
         /**
          * This transform is updated on every frame and is the composition of:
          * - invert of the world->screen transform that was used when rebuilding buffers (see `this.renderTransform_`)
@@ -198,39 +183,39 @@ var WebGLPointsLayerRenderer = /** @class */ (function (_super) {
          * @type {import("../../transform.js").Transform}
          * @private
          */
-        _this.currentTransform_ = projectionMatrixTransform;
+        this.currentTransform_ = projectionMatrixTransform;
         /**
          * This transform is updated when buffers are rebuilt and converts world space coordinates to screen space
          * @type {import("../../transform.js").Transform}
          * @private
          */
-        _this.renderTransform_ = createTransform();
+        this.renderTransform_ = createTransform();
         /**
          * @type {import("../../transform.js").Transform}
          * @private
          */
-        _this.invertRenderTransform_ = createTransform();
+        this.invertRenderTransform_ = createTransform();
         /**
          * @type {Float32Array}
          * @private
          */
-        _this.renderInstructions_ = new Float32Array(0);
+        this.renderInstructions_ = new Float32Array(0);
         /**
          * These instructions are used for hit detection
          * @type {Float32Array}
          * @private
          */
-        _this.hitRenderInstructions_ = new Float32Array(0);
+        this.hitRenderInstructions_ = new Float32Array(0);
         /**
          * @type {WebGLRenderTarget}
          * @private
          */
-        _this.hitRenderTarget_ = _this.hitDetectionEnabled_ && new WebGLRenderTarget(_this.helper);
-        _this.worker_ = createWebGLWorker();
-        _this.worker_.addEventListener('message', function (event) {
-            var received = event.data;
+        this.hitRenderTarget_ = this.hitDetectionEnabled_ && new WebGLRenderTarget(this.helper);
+        this.worker_ = createWebGLWorker();
+        this.worker_.addEventListener('message', function (event) {
+            const received = event.data;
             if (received.type === WebGLWorkerMessageType.GENERATE_BUFFERS) {
-                var projectionTransform = received.projectionTransform;
+                const projectionTransform = received.projectionTransform;
                 if (received.hitDetection) {
                     this.hitVerticesBuffer_.fromArrayBuffer(received.vertexBuffer);
                     this.helper.flushBufferData(this.hitVerticesBuffer_);
@@ -251,25 +236,25 @@ var WebGLPointsLayerRenderer = /** @class */ (function (_super) {
                 }
                 this.getLayer().changed();
             }
-        }.bind(_this));
+        }.bind(this));
         /**
          * This object will be updated when the source changes. Key is uid.
          * @type {Object<string, FeatureCacheItem>}
          * @private
          */
-        _this.featureCache_ = {};
+        this.featureCache_ = {};
         /**
          * Amount of features in the cache.
          * @type {number}
          * @private
          */
-        _this.featureCount_ = 0;
-        var source = _this.getLayer().getSource();
-        _this.sourceListenKeys_ = [
-            listen(source, VectorEventType.ADDFEATURE, _this.handleSourceFeatureAdded_, _this),
-            listen(source, VectorEventType.CHANGEFEATURE, _this.handleSourceFeatureChanged_, _this),
-            listen(source, VectorEventType.REMOVEFEATURE, _this.handleSourceFeatureDelete_, _this),
-            listen(source, VectorEventType.CLEAR, _this.handleSourceFeatureClear_, _this)
+        this.featureCount_ = 0;
+        const source = this.getLayer().getSource();
+        this.sourceListenKeys_ = [
+            listen(source, VectorEventType.ADDFEATURE, this.handleSourceFeatureAdded_, this),
+            listen(source, VectorEventType.CHANGEFEATURE, this.handleSourceFeatureChanged_, this),
+            listen(source, VectorEventType.REMOVEFEATURE, this.handleSourceFeatureDelete_, this),
+            listen(source, VectorEventType.CLEAR, this.handleSourceFeatureClear_, this)
         ];
         source.forEachFeature(function (feature) {
             this.featureCache_[getUid(feature)] = {
@@ -278,60 +263,59 @@ var WebGLPointsLayerRenderer = /** @class */ (function (_super) {
                 geometry: feature.getGeometry()
             };
             this.featureCount_++;
-        }.bind(_this));
-        return _this;
+        }.bind(this));
     }
     /**
      * @param {import("../../source/Vector.js").VectorSourceEvent} event Event.
      * @private
      */
-    WebGLPointsLayerRenderer.prototype.handleSourceFeatureAdded_ = function (event) {
-        var feature = event.feature;
+    handleSourceFeatureAdded_(event) {
+        const feature = event.feature;
         this.featureCache_[getUid(feature)] = {
             feature: feature,
             properties: feature.getProperties(),
             geometry: feature.getGeometry()
         };
         this.featureCount_++;
-    };
+    }
     /**
      * @param {import("../../source/Vector.js").VectorSourceEvent} event Event.
      * @private
      */
-    WebGLPointsLayerRenderer.prototype.handleSourceFeatureChanged_ = function (event) {
-        var feature = event.feature;
+    handleSourceFeatureChanged_(event) {
+        const feature = event.feature;
         this.featureCache_[getUid(feature)] = {
             feature: feature,
             properties: feature.getProperties(),
             geometry: feature.getGeometry()
         };
-    };
+    }
     /**
      * @param {import("../../source/Vector.js").VectorSourceEvent} event Event.
      * @private
      */
-    WebGLPointsLayerRenderer.prototype.handleSourceFeatureDelete_ = function (event) {
-        var feature = event.feature;
+    handleSourceFeatureDelete_(event) {
+        const feature = event.feature;
         delete this.featureCache_[getUid(feature)];
         this.featureCount_--;
-    };
+    }
     /**
      * @private
      */
-    WebGLPointsLayerRenderer.prototype.handleSourceFeatureClear_ = function () {
+    handleSourceFeatureClear_() {
         this.featureCache_ = {};
         this.featureCount_ = 0;
-    };
+    }
     /**
      * @inheritDoc
      */
-    WebGLPointsLayerRenderer.prototype.renderFrame = function (frameState) {
-        var renderCount = this.indicesBuffer_.getSize();
+    renderFrame(frameState) {
+        const renderCount = this.indicesBuffer_.getSize();
         this.helper.drawElements(0, renderCount);
         this.helper.finalizeDraw(frameState);
-        var canvas = this.helper.getCanvas();
-        var layerState = frameState.layerStatesArray[frameState.layerIndex];
-        var opacity = layerState.opacity;
+        const canvas = this.helper.getCanvas();
+        const layerState = frameState.layerStatesArray[frameState.layerIndex];
+        const opacity = layerState.opacity;
         if (opacity !== parseFloat(canvas.style.opacity)) {
             canvas.style.opacity = opacity;
         }
@@ -340,25 +324,25 @@ var WebGLPointsLayerRenderer = /** @class */ (function (_super) {
             this.hitRenderTarget_.clearCachedData();
         }
         return canvas;
-    };
+    }
     /**
      * @inheritDoc
      */
-    WebGLPointsLayerRenderer.prototype.prepareFrame = function (frameState) {
-        var layer = this.getLayer();
-        var vectorSource = layer.getSource();
-        var viewState = frameState.viewState;
-        var viewNotMoving = !frameState.viewHints[ViewHint.ANIMATING] && !frameState.viewHints[ViewHint.INTERACTING];
-        var extentChanged = !equals(this.previousExtent_, frameState.extent);
-        var sourceChanged = this.sourceRevision_ < vectorSource.getRevision();
+    prepareFrame(frameState) {
+        const layer = this.getLayer();
+        const vectorSource = layer.getSource();
+        const viewState = frameState.viewState;
+        const viewNotMoving = !frameState.viewHints[ViewHint.ANIMATING] && !frameState.viewHints[ViewHint.INTERACTING];
+        const extentChanged = !equals(this.previousExtent_, frameState.extent);
+        const sourceChanged = this.sourceRevision_ < vectorSource.getRevision();
         if (sourceChanged) {
             this.sourceRevision_ = vectorSource.getRevision();
         }
         if (viewNotMoving && (extentChanged || sourceChanged)) {
-            var projection = viewState.projection;
-            var resolution = viewState.resolution;
-            var renderBuffer = layer instanceof BaseVector ? layer.getRenderBuffer() : 0;
-            var extent = buffer(frameState.extent, renderBuffer * resolution);
+            const projection = viewState.projection;
+            const resolution = viewState.resolution;
+            const renderBuffer = layer instanceof BaseVector ? layer.getRenderBuffer() : 0;
+            const extent = buffer(frameState.extent, renderBuffer * resolution);
             vectorSource.loadFeatures(extent, resolution, projection);
             this.rebuildBuffers_(frameState);
             this.previousExtent_ = frameState.extent.slice();
@@ -373,38 +357,38 @@ var WebGLPointsLayerRenderer = /** @class */ (function (_super) {
         this.helper.bindBuffer(this.indicesBuffer_);
         this.helper.enableAttributes(this.attributes);
         return true;
-    };
+    }
     /**
      * Rebuild internal webgl buffers based on current view extent; costly, should not be called too much
      * @param {import("../../PluggableMap").FrameState} frameState Frame state.
      * @private
      */
-    WebGLPointsLayerRenderer.prototype.rebuildBuffers_ = function (frameState) {
+    rebuildBuffers_(frameState) {
         // saves the projection transform for the current frame state
-        var projectionTransform = createTransform();
+        const projectionTransform = createTransform();
         this.helper.makeProjectionTransform(frameState, projectionTransform);
         // here we anticipate the amount of render instructions that we well generate
         // this can be done since we know that for normal render we only have x, y as base instructions,
         // and x, y, r, g, b, a and featureUid for hit render instructions
         // and we also know the amount of custom attributes to append to these
-        var totalInstructionsCount = (2 + this.customAttributes.length) * this.featureCount_;
+        const totalInstructionsCount = (2 + this.customAttributes.length) * this.featureCount_;
         if (!this.renderInstructions_ || this.renderInstructions_.length !== totalInstructionsCount) {
             this.renderInstructions_ = new Float32Array(totalInstructionsCount);
         }
         if (this.hitDetectionEnabled_) {
-            var totalHitInstructionsCount = (7 + this.customAttributes.length) * this.featureCount_;
+            const totalHitInstructionsCount = (7 + this.customAttributes.length) * this.featureCount_;
             if (!this.hitRenderInstructions_ || this.hitRenderInstructions_.length !== totalHitInstructionsCount) {
                 this.hitRenderInstructions_ = new Float32Array(totalHitInstructionsCount);
             }
         }
         // loop on features to fill the buffer
-        var featureCache, geometry;
-        var tmpCoords = [];
-        var tmpColor = [];
-        var renderIndex = 0;
-        var hitIndex = 0;
-        var hitColor;
-        for (var featureUid in this.featureCache_) {
+        let featureCache, geometry;
+        const tmpCoords = [];
+        const tmpColor = [];
+        let renderIndex = 0;
+        let hitIndex = 0;
+        let hitColor;
+        for (const featureUid in this.featureCache_) {
             featureCache = this.featureCache_[featureUid];
             geometry = /** @type {import("../../geom").Point} */ (featureCache.geometry);
             if (!geometry || geometry.getType() !== GeometryType.POINT) {
@@ -428,8 +412,8 @@ var WebGLPointsLayerRenderer = /** @class */ (function (_super) {
                 this.hitRenderInstructions_[hitIndex++] = Number(featureUid);
             }
             // pushing custom attributes
-            var value = void 0;
-            for (var j = 0; j < this.customAttributes.length; j++) {
+            let value;
+            for (let j = 0; j < this.customAttributes.length; j++) {
                 value = this.customAttributes[j].callback(featureCache.feature, featureCache.properties);
                 this.renderInstructions_[renderIndex++] = value;
                 if (this.hitDetectionEnabled_) {
@@ -438,7 +422,7 @@ var WebGLPointsLayerRenderer = /** @class */ (function (_super) {
             }
         }
         /** @type {import('./Layer').WebGLWorkerGenerateBuffersMessage} */
-        var message = {
+        const message = {
             type: WebGLWorkerMessageType.GENERATE_BUFFERS,
             renderInstructions: this.renderInstructions_.buffer,
             customAttributesCount: this.customAttributes.length
@@ -449,7 +433,7 @@ var WebGLPointsLayerRenderer = /** @class */ (function (_super) {
         this.renderInstructions_ = null;
         /** @type {import('./Layer').WebGLWorkerGenerateBuffersMessage} */
         if (this.hitDetectionEnabled_) {
-            var hitMessage = {
+            const hitMessage = {
                 type: WebGLWorkerMessageType.GENERATE_BUFFERS,
                 renderInstructions: this.hitRenderInstructions_.buffer,
                 customAttributesCount: 5 + this.customAttributes.length
@@ -459,37 +443,37 @@ var WebGLPointsLayerRenderer = /** @class */ (function (_super) {
             this.worker_.postMessage(hitMessage, [this.hitRenderInstructions_.buffer]);
             this.hitRenderInstructions_ = null;
         }
-    };
+    }
     /**
      * @inheritDoc
      */
-    WebGLPointsLayerRenderer.prototype.forEachFeatureAtCoordinate = function (coordinate, frameState, hitTolerance, callback, declutteredFeatures) {
+    forEachFeatureAtCoordinate(coordinate, frameState, hitTolerance, callback, declutteredFeatures) {
         assert(this.hitDetectionEnabled_, 66);
         if (!this.hitRenderInstructions_) {
             return;
         }
-        var pixel = applyTransform(frameState.coordinateToPixelTransform, coordinate.slice());
-        var data = this.hitRenderTarget_.readPixel(pixel[0] / 2, pixel[1] / 2);
-        var color = [
+        const pixel = applyTransform(frameState.coordinateToPixelTransform, coordinate.slice());
+        const data = this.hitRenderTarget_.readPixel(pixel[0] / 2, pixel[1] / 2);
+        const color = [
             data[0] / 255,
             data[1] / 255,
             data[2] / 255,
             data[3] / 255
         ];
-        var index = colorDecodeId(color);
-        var opacity = this.hitRenderInstructions_[index];
-        var uid = Math.floor(opacity).toString();
-        var source = this.getLayer().getSource();
-        var feature = source.getFeatureByUid(uid);
+        const index = colorDecodeId(color);
+        const opacity = this.hitRenderInstructions_[index];
+        const uid = Math.floor(opacity).toString();
+        const source = this.getLayer().getSource();
+        const feature = source.getFeatureByUid(uid);
         if (feature) {
             return callback(feature, this.getLayer());
         }
-    };
+    }
     /**
      * Render the hit detection data to the corresponding render target
      * @param {import("../../PluggableMap.js").FrameState} frameState current frame state
      */
-    WebGLPointsLayerRenderer.prototype.renderHitDetection = function (frameState) {
+    renderHitDetection(frameState) {
         // skip render entirely if vertex buffers not ready/generated yet
         if (!this.hitVerticesBuffer_.getSize()) {
             return;
@@ -503,22 +487,21 @@ var WebGLPointsLayerRenderer = /** @class */ (function (_super) {
         this.helper.bindBuffer(this.hitVerticesBuffer_);
         this.helper.bindBuffer(this.indicesBuffer_);
         this.helper.enableAttributes(this.hitDetectionAttributes);
-        var renderCount = this.indicesBuffer_.getSize();
+        const renderCount = this.indicesBuffer_.getSize();
         this.helper.drawElements(0, renderCount);
-    };
+    }
     /**
      * @inheritDoc
      */
-    WebGLPointsLayerRenderer.prototype.disposeInternal = function () {
+    disposeInternal() {
         this.worker_.terminate();
         this.layer_ = null;
         this.sourceListenKeys_.forEach(function (key) {
             unlistenByKey(key);
         });
         this.sourceListenKeys_ = null;
-        _super.prototype.disposeInternal.call(this);
-    };
-    return WebGLPointsLayerRenderer;
-}(WebGLLayerRenderer));
+        super.disposeInternal();
+    }
+}
 export default WebGLPointsLayerRenderer;
 //# sourceMappingURL=PointsLayer.js.map

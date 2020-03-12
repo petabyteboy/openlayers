@@ -6,7 +6,7 @@ import { clear } from '../obj.js';
 /**
  * @type {number}
  */
-export var DROP = Infinity;
+export const DROP = Infinity;
 /**
  * @classdesc
  * Priority queue.
@@ -19,12 +19,12 @@ export var DROP = Infinity;
  *
  * @template T
  */
-var PriorityQueue = /** @class */ (function () {
+class PriorityQueue {
     /**
      * @param {function(T): number} priorityFunction Priority function.
      * @param {function(T): string} keyFunction Key function.
      */
-    function PriorityQueue(priorityFunction, keyFunction) {
+    constructor(priorityFunction, keyFunction) {
         /**
          * @type {function(T): number}
          * @private
@@ -54,19 +54,19 @@ var PriorityQueue = /** @class */ (function () {
     /**
      * FIXME empty description for jsdoc
      */
-    PriorityQueue.prototype.clear = function () {
+    clear() {
         this.elements_.length = 0;
         this.priorities_.length = 0;
         clear(this.queuedElements_);
-    };
+    }
     /**
      * Remove and return the highest-priority element. O(log N).
      * @return {T} Element.
      */
-    PriorityQueue.prototype.dequeue = function () {
-        var elements = this.elements_;
-        var priorities = this.priorities_;
-        var element = elements[0];
+    dequeue() {
+        const elements = this.elements_;
+        const priorities = this.priorities_;
+        const element = elements[0];
         if (elements.length == 1) {
             elements.length = 0;
             priorities.length = 0;
@@ -76,18 +76,18 @@ var PriorityQueue = /** @class */ (function () {
             priorities[0] = priorities.pop();
             this.siftUp_(0);
         }
-        var elementKey = this.keyFunction_(element);
+        const elementKey = this.keyFunction_(element);
         delete this.queuedElements_[elementKey];
         return element;
-    };
+    }
     /**
      * Enqueue an element. O(log N).
      * @param {T} element Element.
      * @return {boolean} The element was added to the queue.
      */
-    PriorityQueue.prototype.enqueue = function (element) {
+    enqueue(element) {
         assert(!(this.keyFunction_(element) in this.queuedElements_), 31); // Tried to enqueue an `element` that was already added to the queue
-        var priority = this.priorityFunction_(element);
+        const priority = this.priorityFunction_(element);
         if (priority != DROP) {
             this.elements_.push(element);
             this.priorities_.push(priority);
@@ -96,85 +96,85 @@ var PriorityQueue = /** @class */ (function () {
             return true;
         }
         return false;
-    };
+    }
     /**
      * @return {number} Count.
      */
-    PriorityQueue.prototype.getCount = function () {
+    getCount() {
         return this.elements_.length;
-    };
+    }
     /**
      * Gets the index of the left child of the node at the given index.
      * @param {number} index The index of the node to get the left child for.
      * @return {number} The index of the left child.
      * @private
      */
-    PriorityQueue.prototype.getLeftChildIndex_ = function (index) {
+    getLeftChildIndex_(index) {
         return index * 2 + 1;
-    };
+    }
     /**
      * Gets the index of the right child of the node at the given index.
      * @param {number} index The index of the node to get the right child for.
      * @return {number} The index of the right child.
      * @private
      */
-    PriorityQueue.prototype.getRightChildIndex_ = function (index) {
+    getRightChildIndex_(index) {
         return index * 2 + 2;
-    };
+    }
     /**
      * Gets the index of the parent of the node at the given index.
      * @param {number} index The index of the node to get the parent for.
      * @return {number} The index of the parent.
      * @private
      */
-    PriorityQueue.prototype.getParentIndex_ = function (index) {
+    getParentIndex_(index) {
         return (index - 1) >> 1;
-    };
+    }
     /**
      * Make this a heap. O(N).
      * @private
      */
-    PriorityQueue.prototype.heapify_ = function () {
-        var i;
+    heapify_() {
+        let i;
         for (i = (this.elements_.length >> 1) - 1; i >= 0; i--) {
             this.siftUp_(i);
         }
-    };
+    }
     /**
      * @return {boolean} Is empty.
      */
-    PriorityQueue.prototype.isEmpty = function () {
+    isEmpty() {
         return this.elements_.length === 0;
-    };
+    }
     /**
      * @param {string} key Key.
      * @return {boolean} Is key queued.
      */
-    PriorityQueue.prototype.isKeyQueued = function (key) {
+    isKeyQueued(key) {
         return key in this.queuedElements_;
-    };
+    }
     /**
      * @param {T} element Element.
      * @return {boolean} Is queued.
      */
-    PriorityQueue.prototype.isQueued = function (element) {
+    isQueued(element) {
         return this.isKeyQueued(this.keyFunction_(element));
-    };
+    }
     /**
      * @param {number} index The index of the node to move down.
      * @private
      */
-    PriorityQueue.prototype.siftUp_ = function (index) {
-        var elements = this.elements_;
-        var priorities = this.priorities_;
-        var count = elements.length;
-        var element = elements[index];
-        var priority = priorities[index];
-        var startIndex = index;
+    siftUp_(index) {
+        const elements = this.elements_;
+        const priorities = this.priorities_;
+        const count = elements.length;
+        const element = elements[index];
+        const priority = priorities[index];
+        const startIndex = index;
         while (index < (count >> 1)) {
-            var lIndex = this.getLeftChildIndex_(index);
-            var rIndex = this.getRightChildIndex_(index);
-            var smallerChildIndex = rIndex < count &&
+            const lIndex = this.getLeftChildIndex_(index);
+            const rIndex = this.getRightChildIndex_(index);
+            const smallerChildIndex = rIndex < count &&
                 priorities[rIndex] < priorities[lIndex] ?
                 rIndex : lIndex;
             elements[index] = elements[smallerChildIndex];
@@ -184,19 +184,19 @@ var PriorityQueue = /** @class */ (function () {
         elements[index] = element;
         priorities[index] = priority;
         this.siftDown_(startIndex, index);
-    };
+    }
     /**
      * @param {number} startIndex The index of the root.
      * @param {number} index The index of the node to move up.
      * @private
      */
-    PriorityQueue.prototype.siftDown_ = function (startIndex, index) {
-        var elements = this.elements_;
-        var priorities = this.priorities_;
-        var element = elements[index];
-        var priority = priorities[index];
+    siftDown_(startIndex, index) {
+        const elements = this.elements_;
+        const priorities = this.priorities_;
+        const element = elements[index];
+        const priority = priorities[index];
         while (index > startIndex) {
-            var parentIndex = this.getParentIndex_(index);
+            const parentIndex = this.getParentIndex_(index);
             if (priorities[parentIndex] > priority) {
                 elements[index] = elements[parentIndex];
                 priorities[index] = priorities[parentIndex];
@@ -208,17 +208,17 @@ var PriorityQueue = /** @class */ (function () {
         }
         elements[index] = element;
         priorities[index] = priority;
-    };
+    }
     /**
      * FIXME empty description for jsdoc
      */
-    PriorityQueue.prototype.reprioritize = function () {
-        var priorityFunction = this.priorityFunction_;
-        var elements = this.elements_;
-        var priorities = this.priorities_;
-        var index = 0;
-        var n = elements.length;
-        var element, i, priority;
+    reprioritize() {
+        const priorityFunction = this.priorityFunction_;
+        const elements = this.elements_;
+        const priorities = this.priorities_;
+        let index = 0;
+        const n = elements.length;
+        let element, i, priority;
         for (i = 0; i < n; ++i) {
             element = elements[i];
             priority = priorityFunction(element);
@@ -233,8 +233,7 @@ var PriorityQueue = /** @class */ (function () {
         elements.length = index;
         priorities.length = index;
         this.heapify_();
-    };
-    return PriorityQueue;
-}());
+    }
+}
 export default PriorityQueue;
 //# sourceMappingURL=PriorityQueue.js.map

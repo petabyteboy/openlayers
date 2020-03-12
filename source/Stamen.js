@@ -1,26 +1,13 @@
 /**
  * @module ol/source/Stamen
  */
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 import { ATTRIBUTION as OSM_ATTRIBUTION } from './OSM.js';
 import XYZ from './XYZ.js';
 /**
  * @const
  * @type {Array<string>}
  */
-var ATTRIBUTIONS = [
+const ATTRIBUTIONS = [
     'Map tiles by <a href="https://stamen.com/" target="_blank">Stamen Design</a>, ' +
         'under <a href="https://creativecommons.org/licenses/by/3.0/" target="_blank">CC BY' +
         ' 3.0</a>.',
@@ -29,7 +16,7 @@ var ATTRIBUTIONS = [
 /**
  * @type {Object<string, {extension: string, opaque: boolean}>}
  */
-var LayerConfig = {
+const LayerConfig = {
     'terrain': {
         extension: 'jpg',
         opaque: true
@@ -78,7 +65,7 @@ var LayerConfig = {
 /**
  * @type {Object<string, {minZoom: number, maxZoom: number}>}
  */
-var ProviderConfig = {
+const ProviderConfig = {
     'terrain': {
         minZoom: 0,
         maxZoom: 18
@@ -117,21 +104,19 @@ var ProviderConfig = {
  * Layer source for the Stamen tile server.
  * @api
  */
-var Stamen = /** @class */ (function (_super) {
-    __extends(Stamen, _super);
+class Stamen extends XYZ {
     /**
      * @param {Options} options Stamen options.
      */
-    function Stamen(options) {
-        var _this = this;
-        var i = options.layer.indexOf('-');
-        var provider = i == -1 ? options.layer : options.layer.slice(0, i);
-        var providerConfig = ProviderConfig[provider];
-        var layerConfig = LayerConfig[options.layer];
-        var url = options.url !== undefined ? options.url :
+    constructor(options) {
+        const i = options.layer.indexOf('-');
+        const provider = i == -1 ? options.layer : options.layer.slice(0, i);
+        const providerConfig = ProviderConfig[provider];
+        const layerConfig = LayerConfig[options.layer];
+        const url = options.url !== undefined ? options.url :
             'https://stamen-tiles-{a-d}.a.ssl.fastly.net/' + options.layer +
                 '/{z}/{x}/{y}.' + layerConfig.extension;
-        _this = _super.call(this, {
+        super({
             attributions: ATTRIBUTIONS,
             cacheSize: options.cacheSize,
             crossOrigin: 'anonymous',
@@ -143,10 +128,8 @@ var Stamen = /** @class */ (function (_super) {
             transition: options.transition,
             url: url,
             wrapX: options.wrapX
-        }) || this;
-        return _this;
+        });
     }
-    return Stamen;
-}(XYZ));
+}
 export default Stamen;
 //# sourceMappingURL=Stamen.js.map

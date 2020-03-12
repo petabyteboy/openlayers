@@ -1,16 +1,3 @@
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 /**
  * @module ol/interaction/DragZoom
  */
@@ -41,55 +28,51 @@ import DragBox from './DragBox.js';
  * your custom one configured with `className`.
  * @api
  */
-var DragZoom = /** @class */ (function (_super) {
-    __extends(DragZoom, _super);
+class DragZoom extends DragBox {
     /**
      * @param {Options=} opt_options Options.
      */
-    function DragZoom(opt_options) {
-        var _this = this;
-        var options = opt_options ? opt_options : {};
-        var condition = options.condition ? options.condition : shiftKeyOnly;
-        _this = _super.call(this, {
+    constructor(opt_options) {
+        const options = opt_options ? opt_options : {};
+        const condition = options.condition ? options.condition : shiftKeyOnly;
+        super({
             condition: condition,
             className: options.className || 'ol-dragzoom',
             minArea: options.minArea,
             onBoxEnd: onBoxEnd
-        }) || this;
+        });
         /**
          * @private
          * @type {number}
          */
-        _this.duration_ = options.duration !== undefined ? options.duration : 200;
+        this.duration_ = options.duration !== undefined ? options.duration : 200;
         /**
          * @private
          * @type {boolean}
          */
-        _this.out_ = options.out !== undefined ? options.out : false;
-        return _this;
+        this.out_ = options.out !== undefined ? options.out : false;
     }
-    return DragZoom;
-}(DragBox));
+}
 /**
  * @this {DragZoom}
  */
 function onBoxEnd() {
-    var map = this.getMap();
-    var view = /** @type {!import("../View.js").default} */ (map.getView());
-    var size = /** @type {!import("../size.js").Size} */ (map.getSize());
-    var extent = this.getGeometry().getExtent();
+    const map = this.getMap();
+    const view = /** @type {!import("../View.js").default} */ (map.getView());
+    const size = /** @type {!import("../size.js").Size} */ (map.getSize());
+    let extent = this.getGeometry().getExtent();
     if (this.out_) {
-        var mapExtent = view.calculateExtentInternal(size);
-        var boxPixelExtent = createOrUpdateFromCoordinates([
+        const mapExtent = view.calculateExtentInternal(size);
+        const boxPixelExtent = createOrUpdateFromCoordinates([
             map.getPixelFromCoordinateInternal(getBottomLeft(extent)),
             map.getPixelFromCoordinateInternal(getTopRight(extent))
         ]);
-        var factor = view.getResolutionForExtentInternal(boxPixelExtent, size);
+        const factor = view.getResolutionForExtentInternal(boxPixelExtent, size);
         scaleFromCenter(mapExtent, 1 / factor);
         extent = mapExtent;
     }
-    var resolution = view.getConstrainedResolution(view.getResolutionForExtentInternal(extent, size));
-    var center = view.getConstrainedCenter(getCenter(extent), resolution);
+    const resolution = view.getConstrainedResolution(view.getResolutionForExtentInternal(extent, size));
+    const center = view.getConstrainedCenter(getCenter(extent), resolution);
     view.animateInternal({
         resolution: resolution,
         center: center,

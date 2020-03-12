@@ -1,19 +1,6 @@
 /**
  * @module ol/source/TileArcGISRest
  */
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 import { createEmpty } from '../extent.js';
 import { modulo } from '../math.js';
 import { assign } from '../obj.js';
@@ -69,15 +56,13 @@ import { appendParams } from '../uri.js';
  * {@link module:ol/source/XYZ~XYZ} data source.
  * @api
  */
-var TileArcGISRest = /** @class */ (function (_super) {
-    __extends(TileArcGISRest, _super);
+class TileArcGISRest extends TileImage {
     /**
      * @param {Options=} opt_options Tile ArcGIS Rest options.
      */
-    function TileArcGISRest(opt_options) {
-        var _this = this;
-        var options = opt_options ? opt_options : {};
-        _this = _super.call(this, {
+    constructor(opt_options) {
+        const options = opt_options ? opt_options : {};
+        super({
             attributions: options.attributions,
             cacheSize: options.cacheSize,
             crossOrigin: options.crossOrigin,
@@ -90,46 +75,45 @@ var TileArcGISRest = /** @class */ (function (_super) {
             urls: options.urls,
             wrapX: options.wrapX !== undefined ? options.wrapX : true,
             transition: options.transition
-        }) || this;
+        });
         /**
          * @private
          * @type {!Object}
          */
-        _this.params_ = options.params || {};
+        this.params_ = options.params || {};
         /**
          * @private
          * @type {boolean}
          */
-        _this.hidpi_ = options.hidpi !== undefined ? options.hidpi : true;
+        this.hidpi_ = options.hidpi !== undefined ? options.hidpi : true;
         /**
          * @private
          * @type {import("../extent.js").Extent}
          */
-        _this.tmpExtent_ = createEmpty();
-        _this.setKey(_this.getKeyForParams_());
-        return _this;
+        this.tmpExtent_ = createEmpty();
+        this.setKey(this.getKeyForParams_());
     }
     /**
      * @private
      * @return {string} The key for the current params.
      */
-    TileArcGISRest.prototype.getKeyForParams_ = function () {
-        var i = 0;
-        var res = [];
-        for (var key in this.params_) {
+    getKeyForParams_() {
+        let i = 0;
+        const res = [];
+        for (const key in this.params_) {
             res[i++] = key + '-' + this.params_[key];
         }
         return res.join('/');
-    };
+    }
     /**
      * Get the user-provided params, i.e. those passed to the constructor through
      * the "params" option, and possibly updated using the updateParams method.
      * @return {Object} Params.
      * @api
      */
-    TileArcGISRest.prototype.getParams = function () {
+    getParams() {
         return this.params_;
-    };
+    }
     /**
      * @param {import("../tilecoord.js").TileCoord} tileCoord Tile coordinate.
      * @param {import("../size.js").Size} tileSize Tile size.
@@ -140,48 +124,47 @@ var TileArcGISRest = /** @class */ (function (_super) {
      * @return {string|undefined} Request URL.
      * @private
      */
-    TileArcGISRest.prototype.getRequestUrl_ = function (tileCoord, tileSize, tileExtent, pixelRatio, projection, params) {
-        var urls = this.urls;
+    getRequestUrl_(tileCoord, tileSize, tileExtent, pixelRatio, projection, params) {
+        const urls = this.urls;
         if (!urls) {
             return undefined;
         }
         // ArcGIS Server only wants the numeric portion of the projection ID.
-        var srid = projection.getCode().split(':').pop();
+        const srid = projection.getCode().split(':').pop();
         params['SIZE'] = tileSize[0] + ',' + tileSize[1];
         params['BBOX'] = tileExtent.join(',');
         params['BBOXSR'] = srid;
         params['IMAGESR'] = srid;
         params['DPI'] = Math.round(params['DPI'] ? params['DPI'] * pixelRatio : 90 * pixelRatio);
-        var url;
+        let url;
         if (urls.length == 1) {
             url = urls[0];
         }
         else {
-            var index = modulo(tileCoordHash(tileCoord), urls.length);
+            const index = modulo(tileCoordHash(tileCoord), urls.length);
             url = urls[index];
         }
-        var modifiedUrl = url
+        const modifiedUrl = url
             .replace(/MapServer\/?$/, 'MapServer/export')
             .replace(/ImageServer\/?$/, 'ImageServer/exportImage');
         return appendParams(modifiedUrl, params);
-    };
+    }
     /**
      * @inheritDoc
      */
-    TileArcGISRest.prototype.getTilePixelRatio = function (pixelRatio) {
+    getTilePixelRatio(pixelRatio) {
         return this.hidpi_ ? /** @type {number} */ (pixelRatio) : 1;
-    };
+    }
     /**
      * Update the user-provided params.
      * @param {Object} params Params.
      * @api
      */
-    TileArcGISRest.prototype.updateParams = function (params) {
+    updateParams(params) {
         assign(this.params_, params);
         this.setKey(this.getKeyForParams_());
-    };
-    return TileArcGISRest;
-}(TileImage));
+    }
+}
 /**
  * @param {import("../tilecoord.js").TileCoord} tileCoord The tile coordinate
  * @param {number} pixelRatio The pixel ratio
@@ -190,7 +173,7 @@ var TileArcGISRest = /** @class */ (function (_super) {
  * @this {TileArcGISRest}
  */
 function tileUrlFunction(tileCoord, pixelRatio, projection) {
-    var tileGrid = this.getTileGrid();
+    let tileGrid = this.getTileGrid();
     if (!tileGrid) {
         tileGrid = this.getTileGridForProjection(projection);
     }
@@ -200,13 +183,13 @@ function tileUrlFunction(tileCoord, pixelRatio, projection) {
     if (pixelRatio != 1 && !this.hidpi_) {
         pixelRatio = 1;
     }
-    var tileExtent = tileGrid.getTileCoordExtent(tileCoord, this.tmpExtent_);
-    var tileSize = toSize(tileGrid.getTileSize(tileCoord[0]), this.tmpSize);
+    const tileExtent = tileGrid.getTileCoordExtent(tileCoord, this.tmpExtent_);
+    let tileSize = toSize(tileGrid.getTileSize(tileCoord[0]), this.tmpSize);
     if (pixelRatio != 1) {
         tileSize = scaleSize(tileSize, pixelRatio, this.tmpSize);
     }
     // Apply default params and override with user specified values.
-    var baseParams = {
+    const baseParams = {
         'F': 'image',
         'FORMAT': 'PNG32',
         'TRANSPARENT': true

@@ -11,15 +11,15 @@
  * given `flatCoordinates`.
  */
 export function matchingChunk(maxAngle, flatCoordinates, offset, end, stride) {
-    var chunkStart = offset;
-    var chunkEnd = offset;
-    var chunkM = 0;
-    var m = 0;
-    var start = offset;
-    var acos, i, m12, m23, x1, y1, x12, y12, x23, y23;
+    let chunkStart = offset;
+    let chunkEnd = offset;
+    let chunkM = 0;
+    let m = 0;
+    let start = offset;
+    let acos, i, m12, m23, x1, y1, x12, y12, x23, y23;
     for (i = offset; i < end; i += stride) {
-        var x2 = flatCoordinates[i];
-        var y2 = flatCoordinates[i + 1];
+        const x2 = flatCoordinates[i];
+        const y2 = flatCoordinates[i + 1];
         if (x1 !== undefined) {
             x23 = x2 - x1;
             y23 = y2 - y1;

@@ -1,19 +1,6 @@
 /**
  * @module ol/tilegrid/WMTS
  */
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 import { find } from '../array.js';
 import { get as getProjection } from '../proj.js';
 import TileGrid from './TileGrid.js';
@@ -53,13 +40,12 @@ import TileGrid from './TileGrid.js';
  * Set the grid pattern for sources accessing WMTS tiled-image servers.
  * @api
  */
-var WMTSTileGrid = /** @class */ (function (_super) {
-    __extends(WMTSTileGrid, _super);
+class WMTSTileGrid extends TileGrid {
     /**
      * @param {Options} options WMTS options.
      */
-    function WMTSTileGrid(options) {
-        var _this = _super.call(this, {
+    constructor(options) {
+        super({
             extent: options.extent,
             origin: options.origin,
             origins: options.origins,
@@ -67,31 +53,29 @@ var WMTSTileGrid = /** @class */ (function (_super) {
             tileSize: options.tileSize,
             tileSizes: options.tileSizes,
             sizes: options.sizes
-        }) || this;
+        });
         /**
          * @private
          * @type {!Array<string>}
          */
-        _this.matrixIds_ = options.matrixIds;
-        return _this;
+        this.matrixIds_ = options.matrixIds;
     }
     /**
      * @param {number} z Z.
      * @return {string} MatrixId..
      */
-    WMTSTileGrid.prototype.getMatrixId = function (z) {
+    getMatrixId(z) {
         return this.matrixIds_[z];
-    };
+    }
     /**
      * Get the list of matrix identifiers.
      * @return {Array<string>} MatrixIds.
      * @api
      */
-    WMTSTileGrid.prototype.getMatrixIds = function () {
+    getMatrixIds() {
         return this.matrixIds_;
-    };
-    return WMTSTileGrid;
-}(TileGrid));
+    }
+}
 export default WMTSTileGrid;
 /**
  * Create a tile grid from a WMTS capabilities matrix set and an
@@ -107,34 +91,34 @@ export default WMTSTileGrid;
  */
 export function createFromCapabilitiesMatrixSet(matrixSet, opt_extent, opt_matrixLimits) {
     /** @type {!Array<number>} */
-    var resolutions = [];
+    const resolutions = [];
     /** @type {!Array<string>} */
-    var matrixIds = [];
+    const matrixIds = [];
     /** @type {!Array<import("../coordinate.js").Coordinate>} */
-    var origins = [];
+    const origins = [];
     /** @type {!Array<import("../size.js").Size>} */
-    var tileSizes = [];
+    const tileSizes = [];
     /** @type {!Array<import("../size.js").Size>} */
-    var sizes = [];
-    var matrixLimits = opt_matrixLimits !== undefined ? opt_matrixLimits : [];
-    var supportedCRSPropName = 'SupportedCRS';
-    var matrixIdsPropName = 'TileMatrix';
-    var identifierPropName = 'Identifier';
-    var scaleDenominatorPropName = 'ScaleDenominator';
-    var topLeftCornerPropName = 'TopLeftCorner';
-    var tileWidthPropName = 'TileWidth';
-    var tileHeightPropName = 'TileHeight';
-    var code = matrixSet[supportedCRSPropName];
-    var projection = getProjection(code.replace(/urn:ogc:def:crs:(\w+):(.*:)?(\w+)$/, '$1:$3')) ||
+    const sizes = [];
+    const matrixLimits = opt_matrixLimits !== undefined ? opt_matrixLimits : [];
+    const supportedCRSPropName = 'SupportedCRS';
+    const matrixIdsPropName = 'TileMatrix';
+    const identifierPropName = 'Identifier';
+    const scaleDenominatorPropName = 'ScaleDenominator';
+    const topLeftCornerPropName = 'TopLeftCorner';
+    const tileWidthPropName = 'TileWidth';
+    const tileHeightPropName = 'TileHeight';
+    const code = matrixSet[supportedCRSPropName];
+    const projection = getProjection(code.replace(/urn:ogc:def:crs:(\w+):(.*:)?(\w+)$/, '$1:$3')) ||
         getProjection(code);
-    var metersPerUnit = projection.getMetersPerUnit();
+    const metersPerUnit = projection.getMetersPerUnit();
     // swap origin x and y coordinates if axis orientation is lat/long
-    var switchOriginXY = projection.getAxisOrientation().substr(0, 2) == 'ne';
+    const switchOriginXY = projection.getAxisOrientation().substr(0, 2) == 'ne';
     matrixSet[matrixIdsPropName].sort(function (a, b) {
         return b[scaleDenominatorPropName] - a[scaleDenominatorPropName];
     });
     matrixSet[matrixIdsPropName].forEach(function (elt) {
-        var matrixAvailable;
+        let matrixAvailable;
         // use of matrixLimits to filter TileMatrices from GetCapabilities
         // TileMatrixSet from unavailable matrix levels.
         if (matrixLimits.length > 0) {
@@ -155,9 +139,9 @@ export function createFromCapabilitiesMatrixSet(matrixSet, opt_extent, opt_matri
         }
         if (matrixAvailable) {
             matrixIds.push(elt[identifierPropName]);
-            var resolution = elt[scaleDenominatorPropName] * 0.28E-3 / metersPerUnit;
-            var tileWidth = elt[tileWidthPropName];
-            var tileHeight = elt[tileHeightPropName];
+            const resolution = elt[scaleDenominatorPropName] * 0.28E-3 / metersPerUnit;
+            const tileWidth = elt[tileWidthPropName];
+            const tileHeight = elt[tileHeightPropName];
             if (switchOriginXY) {
                 origins.push([elt[topLeftCornerPropName][1],
                     elt[topLeftCornerPropName][0]]);

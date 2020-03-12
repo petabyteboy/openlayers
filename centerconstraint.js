@@ -23,12 +23,12 @@ export function createExtent(extent, onlyCenter, smooth) {
      */
     function (center, resolution, size, opt_isMoving) {
         if (center) {
-            var viewWidth = onlyCenter ? 0 : size[0] * resolution;
-            var viewHeight = onlyCenter ? 0 : size[1] * resolution;
-            var minX = extent[0] + viewWidth / 2;
-            var maxX = extent[2] - viewWidth / 2;
-            var minY = extent[1] + viewHeight / 2;
-            var maxY = extent[3] - viewHeight / 2;
+            const viewWidth = onlyCenter ? 0 : size[0] * resolution;
+            const viewHeight = onlyCenter ? 0 : size[1] * resolution;
+            let minX = extent[0] + viewWidth / 2;
+            let maxX = extent[2] - viewWidth / 2;
+            let minY = extent[1] + viewHeight / 2;
+            let maxY = extent[3] - viewHeight / 2;
             // note: when zooming out of bounds, min and max values for x and y may
             // end up inverted (min > max); this has to be accounted for
             if (minX > maxX) {
@@ -39,9 +39,9 @@ export function createExtent(extent, onlyCenter, smooth) {
                 minY = (maxY + minY) / 2;
                 maxY = minY;
             }
-            var x = clamp(center[0], minX, maxX);
-            var y = clamp(center[1], minY, maxY);
-            var ratio = 30 * resolution;
+            let x = clamp(center[0], minX, maxX);
+            let y = clamp(center[1], minY, maxY);
+            const ratio = 30 * resolution;
             // during an interaction, allow some overscroll
             if (opt_isMoving && smooth) {
                 x += -ratio * Math.log(1 + Math.max(0, minX - center[0]) / ratio) +

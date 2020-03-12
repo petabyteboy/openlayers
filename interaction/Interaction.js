@@ -1,16 +1,3 @@
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 /**
  * @module ol/interaction/Interaction
  */
@@ -40,23 +27,21 @@ import InteractionProperty from './Property.js';
  * vectors and so are visible on the screen.
  * @api
  */
-var Interaction = /** @class */ (function (_super) {
-    __extends(Interaction, _super);
+class Interaction extends BaseObject {
     /**
      * @param {InteractionOptions} options Options.
      */
-    function Interaction(options) {
-        var _this = _super.call(this) || this;
+    constructor(options) {
+        super();
         if (options.handleEvent) {
-            _this.handleEvent = options.handleEvent;
+            this.handleEvent = options.handleEvent;
         }
         /**
          * @private
          * @type {import("../PluggableMap.js").default}
          */
-        _this.map_ = null;
-        _this.setActive(true);
-        return _this;
+        this.map_ = null;
+        this.setActive(true);
     }
     /**
      * Return whether the interaction is currently active.
@@ -64,55 +49,54 @@ var Interaction = /** @class */ (function (_super) {
      * @observable
      * @api
      */
-    Interaction.prototype.getActive = function () {
+    getActive() {
         return /** @type {boolean} */ (this.get(InteractionProperty.ACTIVE));
-    };
+    }
     /**
      * Get the map associated with this interaction.
      * @return {import("../PluggableMap.js").default} Map.
      * @api
      */
-    Interaction.prototype.getMap = function () {
+    getMap() {
         return this.map_;
-    };
+    }
     /**
      * Handles the {@link module:ol/MapBrowserEvent map browser event}.
      * @param {import("../MapBrowserEvent.js").default} mapBrowserEvent Map browser event.
      * @return {boolean} `false` to stop event propagation.
      * @api
      */
-    Interaction.prototype.handleEvent = function (mapBrowserEvent) {
+    handleEvent(mapBrowserEvent) {
         return true;
-    };
+    }
     /**
      * Activate or deactivate the interaction.
      * @param {boolean} active Active.
      * @observable
      * @api
      */
-    Interaction.prototype.setActive = function (active) {
+    setActive(active) {
         this.set(InteractionProperty.ACTIVE, active);
-    };
+    }
     /**
      * Remove the interaction from its current map and attach it to the new map.
      * Subclasses may set up event handlers to get notified about changes to
      * the map here.
      * @param {import("../PluggableMap.js").default} map Map.
      */
-    Interaction.prototype.setMap = function (map) {
+    setMap(map) {
         this.map_ = map;
-    };
-    return Interaction;
-}(BaseObject));
+    }
+}
 /**
  * @param {import("../View.js").default} view View.
  * @param {import("../coordinate.js").Coordinate} delta Delta.
  * @param {number=} opt_duration Duration.
  */
 export function pan(view, delta, opt_duration) {
-    var currentCenter = view.getCenterInternal();
+    const currentCenter = view.getCenterInternal();
     if (currentCenter) {
-        var center = [currentCenter[0] + delta[0], currentCenter[1] + delta[1]];
+        const center = [currentCenter[0] + delta[0], currentCenter[1] + delta[1]];
         view.animateInternal({
             duration: opt_duration !== undefined ? opt_duration : 250,
             easing: linear,
@@ -127,12 +111,12 @@ export function pan(view, delta, opt_duration) {
  * @param {number=} opt_duration Duration.
  */
 export function zoomByDelta(view, delta, opt_anchor, opt_duration) {
-    var currentZoom = view.getZoom();
+    const currentZoom = view.getZoom();
     if (currentZoom === undefined) {
         return;
     }
-    var newZoom = view.getConstrainedZoom(currentZoom + delta);
-    var newResolution = view.getResolutionForZoom(newZoom);
+    const newZoom = view.getConstrainedZoom(currentZoom + delta);
+    const newResolution = view.getResolutionForZoom(newZoom);
     if (view.getAnimating()) {
         view.cancelAnimations();
     }

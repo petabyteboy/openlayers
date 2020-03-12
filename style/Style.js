@@ -138,12 +138,12 @@ import Stroke from './Stroke.js';
  *
  * @api
  */
-var Style = /** @class */ (function () {
+class Style {
     /**
      * @param {Options=} opt_options Style options.
      */
-    function Style(opt_options) {
-        var options = opt_options || {};
+    constructor(opt_options) {
+        const options = opt_options || {};
         /**
          * @private
          * @type {string|import("../geom/Geometry.js").default|GeometryFunction}
@@ -193,8 +193,8 @@ var Style = /** @class */ (function () {
      * @return {Style} The cloned style.
      * @api
      */
-    Style.prototype.clone = function () {
-        var geometry = this.getGeometry();
+    clone() {
+        let geometry = this.getGeometry();
         if (geometry && typeof geometry === 'object') {
             geometry = /** @type {import("../geom/Geometry.js").default} */ (geometry).clone();
         }
@@ -206,25 +206,25 @@ var Style = /** @class */ (function () {
             text: this.getText() ? this.getText().clone() : undefined,
             zIndex: this.getZIndex()
         });
-    };
+    }
     /**
      * Get the custom renderer function that was configured with
      * {@link #setRenderer} or the `renderer` constructor option.
      * @return {RenderFunction|null} Custom renderer function.
      * @api
      */
-    Style.prototype.getRenderer = function () {
+    getRenderer() {
         return this.renderer_;
-    };
+    }
     /**
      * Sets a custom renderer function for this style. When set, `fill`, `stroke`
      * and `image` options of the style will be ignored.
      * @param {RenderFunction|null} renderer Custom renderer function.
      * @api
      */
-    Style.prototype.setRenderer = function (renderer) {
+    setRenderer(renderer) {
         this.renderer_ = renderer;
-    };
+    }
     /**
      * Get the geometry to be rendered.
      * @return {string|import("../geom/Geometry.js").default|GeometryFunction}
@@ -232,90 +232,90 @@ var Style = /** @class */ (function () {
      * be rendered with this style.
      * @api
      */
-    Style.prototype.getGeometry = function () {
+    getGeometry() {
         return this.geometry_;
-    };
+    }
     /**
      * Get the function used to generate a geometry for rendering.
      * @return {!GeometryFunction} Function that is called with a feature
      * and returns the geometry to render instead of the feature's geometry.
      * @api
      */
-    Style.prototype.getGeometryFunction = function () {
+    getGeometryFunction() {
         return this.geometryFunction_;
-    };
+    }
     /**
      * Get the fill style.
      * @return {import("./Fill.js").default} Fill style.
      * @api
      */
-    Style.prototype.getFill = function () {
+    getFill() {
         return this.fill_;
-    };
+    }
     /**
      * Set the fill style.
      * @param {import("./Fill.js").default} fill Fill style.
      * @api
      */
-    Style.prototype.setFill = function (fill) {
+    setFill(fill) {
         this.fill_ = fill;
-    };
+    }
     /**
      * Get the image style.
      * @return {import("./Image.js").default} Image style.
      * @api
      */
-    Style.prototype.getImage = function () {
+    getImage() {
         return this.image_;
-    };
+    }
     /**
      * Set the image style.
      * @param {import("./Image.js").default} image Image style.
      * @api
      */
-    Style.prototype.setImage = function (image) {
+    setImage(image) {
         this.image_ = image;
-    };
+    }
     /**
      * Get the stroke style.
      * @return {import("./Stroke.js").default} Stroke style.
      * @api
      */
-    Style.prototype.getStroke = function () {
+    getStroke() {
         return this.stroke_;
-    };
+    }
     /**
      * Set the stroke style.
      * @param {import("./Stroke.js").default} stroke Stroke style.
      * @api
      */
-    Style.prototype.setStroke = function (stroke) {
+    setStroke(stroke) {
         this.stroke_ = stroke;
-    };
+    }
     /**
      * Get the text style.
      * @return {import("./Text.js").default} Text style.
      * @api
      */
-    Style.prototype.getText = function () {
+    getText() {
         return this.text_;
-    };
+    }
     /**
      * Set the text style.
      * @param {import("./Text.js").default} text Text style.
      * @api
      */
-    Style.prototype.setText = function (text) {
+    setText(text) {
         this.text_ = text;
-    };
+    }
     /**
      * Get the z-index for the style.
      * @return {number|undefined} ZIndex.
      * @api
      */
-    Style.prototype.getZIndex = function () {
+    getZIndex() {
         return this.zIndex_;
-    };
+    }
     /**
      * Set a geometry that is rendered instead of the feature's geometry.
      *
@@ -324,7 +324,7 @@ var Style = /** @class */ (function () {
      *     for this style.
      * @api
      */
-    Style.prototype.setGeometry = function (geometry) {
+    setGeometry(geometry) {
         if (typeof geometry === 'function') {
             this.geometryFunction_ = geometry;
         }
@@ -344,18 +344,17 @@ var Style = /** @class */ (function () {
             };
         }
         this.geometry_ = geometry;
-    };
+    }
     /**
      * Set the z-index.
      *
      * @param {number|undefined} zIndex ZIndex.
      * @api
      */
-    Style.prototype.setZIndex = function (zIndex) {
+    setZIndex(zIndex) {
         this.zIndex_ = zIndex;
-    };
-    return Style;
-}());
+    }
+}
 /**
  * Convert the provided object into a style function.  Functions passed through
  * unchanged.  Arrays of Style or single style objects wrapped in a
@@ -365,7 +364,7 @@ var Style = /** @class */ (function () {
  * @return {StyleFunction} A style function.
  */
 export function toFunction(obj) {
-    var styleFunction;
+    let styleFunction;
     if (typeof obj === 'function') {
         styleFunction = obj;
     }
@@ -373,17 +372,17 @@ export function toFunction(obj) {
         /**
          * @type {Array<Style>}
          */
-        var styles_1;
+        let styles;
         if (Array.isArray(obj)) {
-            styles_1 = obj;
+            styles = obj;
         }
         else {
             assert(typeof /** @type {?} */ (obj).getZIndex === 'function', 41); // Expected an `Style` or an array of `Style`
-            var style = /** @type {Style} */ (obj);
-            styles_1 = [style];
+            const style = /** @type {Style} */ (obj);
+            styles = [style];
         }
         styleFunction = function () {
-            return styles_1;
+            return styles;
         };
     }
     return styleFunction;
@@ -391,7 +390,7 @@ export function toFunction(obj) {
 /**
  * @type {Array<Style>}
  */
-var defaultStyles = null;
+let defaultStyles = null;
 /**
  * @param {import("../Feature.js").FeatureLike} feature Feature.
  * @param {number} resolution Resolution.
@@ -404,10 +403,10 @@ export function createDefaultStyle(feature, resolution) {
     // canvas.getContext('2d') at construction time, which will cause an.error
     // in such browsers.)
     if (!defaultStyles) {
-        var fill = new Fill({
+        const fill = new Fill({
             color: 'rgba(255,255,255,0.4)'
         });
-        var stroke = new Stroke({
+        const stroke = new Stroke({
             color: '#3399CC',
             width: 1.25
         });
@@ -431,10 +430,10 @@ export function createDefaultStyle(feature, resolution) {
  */
 export function createEditingStyle() {
     /** @type {Object<import("../geom/GeometryType.js").default, Array<Style>>} */
-    var styles = {};
-    var white = [255, 255, 255, 1];
-    var blue = [0, 153, 255, 1];
-    var width = 3;
+    const styles = {};
+    const white = [255, 255, 255, 1];
+    const blue = [0, 153, 255, 1];
+    const width = 3;
     styles[GeometryType.POLYGON] = [
         new Style({
             fill: new Fill({

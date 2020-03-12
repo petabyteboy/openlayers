@@ -1,16 +1,3 @@
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 /**
  * @module ol/renderer/Composite
  */
@@ -29,62 +16,60 @@ import ObjectEventType from '../ObjectEventType.js';
  * Canvas map renderer.
  * @api
  */
-var CompositeMapRenderer = /** @class */ (function (_super) {
-    __extends(CompositeMapRenderer, _super);
+class CompositeMapRenderer extends MapRenderer {
     /**
      * @param {import("../PluggableMap.js").default} map Map.
      */
-    function CompositeMapRenderer(map) {
-        var _this = _super.call(this, map) || this;
+    constructor(map) {
+        super(map);
         /**
          * @type {import("../events.js").EventsKey}
          */
-        _this.fontChangeListenerKey_ = listen(checkedFonts, ObjectEventType.PROPERTYCHANGE, map.redrawText.bind(map));
+        this.fontChangeListenerKey_ = listen(checkedFonts, ObjectEventType.PROPERTYCHANGE, map.redrawText.bind(map));
         /**
          * @private
          * @type {HTMLDivElement}
          */
-        _this.element_ = document.createElement('div');
-        var style = _this.element_.style;
+        this.element_ = document.createElement('div');
+        const style = this.element_.style;
         style.position = 'absolute';
         style.width = '100%';
         style.height = '100%';
         style.zIndex = '0';
-        _this.element_.className = CLASS_UNSELECTABLE + ' ol-layers';
-        var container = map.getViewport();
-        container.insertBefore(_this.element_, container.firstChild || null);
+        this.element_.className = CLASS_UNSELECTABLE + ' ol-layers';
+        const container = map.getViewport();
+        container.insertBefore(this.element_, container.firstChild || null);
         /**
          * @private
          * @type {Array<HTMLElement>}
          */
-        _this.children_ = [];
+        this.children_ = [];
         /**
          * @private
          * @type {boolean}
          */
-        _this.renderedVisible_ = true;
-        return _this;
+        this.renderedVisible_ = true;
     }
     /**
      * @param {import("../render/EventType.js").default} type Event type.
      * @param {import("../PluggableMap.js").FrameState} frameState Frame state.
      */
-    CompositeMapRenderer.prototype.dispatchRenderEvent = function (type, frameState) {
-        var map = this.getMap();
+    dispatchRenderEvent(type, frameState) {
+        const map = this.getMap();
         if (map.hasListener(type)) {
-            var event_1 = new RenderEvent(type, undefined, frameState);
-            map.dispatchEvent(event_1);
+            const event = new RenderEvent(type, undefined, frameState);
+            map.dispatchEvent(event);
         }
-    };
-    CompositeMapRenderer.prototype.disposeInternal = function () {
+    }
+    disposeInternal() {
         unlistenByKey(this.fontChangeListenerKey_);
         this.element_.parentNode.removeChild(this.element_);
-        _super.prototype.disposeInternal.call(this);
-    };
+        super.disposeInternal();
+    }
     /**
      * @inheritDoc
      */
-    CompositeMapRenderer.prototype.renderFrame = function (frameState) {
+    renderFrame(frameState) {
         if (!frameState) {
             if (this.renderedVisible_) {
                 this.element_.style.display = 'none';
@@ -94,21 +79,21 @@ var CompositeMapRenderer = /** @class */ (function (_super) {
         }
         this.calculateMatrices2D(frameState);
         this.dispatchRenderEvent(RenderEventType.PRECOMPOSE, frameState);
-        var layerStatesArray = frameState.layerStatesArray.sort(function (a, b) {
+        const layerStatesArray = frameState.layerStatesArray.sort(function (a, b) {
             return a.zIndex - b.zIndex;
         });
-        var viewState = frameState.viewState;
+        const viewState = frameState.viewState;
         this.children_.length = 0;
-        var previousElement = null;
-        for (var i = 0, ii = layerStatesArray.length; i < ii; ++i) {
-            var layerState = layerStatesArray[i];
+        let previousElement = null;
+        for (let i = 0, ii = layerStatesArray.length; i < ii; ++i) {
+            const layerState = layerStatesArray[i];
             frameState.layerIndex = i;
             if (!inView(layerState, viewState) ||
                 (layerState.sourceState != SourceState.READY && layerState.sourceState != SourceState.UNDEFINED)) {
                 continue;
             }
-            var layer = layerState.layer;
-            var element = layer.render(frameState, previousElement);
+            const layer = layerState.layer;
+            const element = layer.render(frameState, previousElement);
             if (!element) {
                 continue;
             }
@@ -117,7 +102,7 @@ var CompositeMapRenderer = /** @class */ (function (_super) {
                 previousElement = element;
             }
         }
-        _super.prototype.renderFrame.call(this, frameState);
+        super.renderFrame(frameState);
         replaceChildren(this.element_, this.children_);
         this.dispatchRenderEvent(RenderEventType.POSTCOMPOSE, frameState);
         if (!this.renderedVisible_) {
@@ -125,22 +110,22 @@ var CompositeMapRenderer = /** @class */ (function (_super) {
             this.renderedVisible_ = true;
         }
         this.scheduleExpireIconCache(frameState);
-    };
+    }
     /**
      * @inheritDoc
      */
-    CompositeMapRenderer.prototype.forEachLayerAtPixel = function (pixel, frameState, hitTolerance, callback, layerFilter) {
-        var viewState = frameState.viewState;
-        var layerStates = frameState.layerStatesArray;
-        var numLayers = layerStates.length;
-        for (var i = numLayers - 1; i >= 0; --i) {
-            var layerState = layerStates[i];
-            var layer = layerState.layer;
+    forEachLayerAtPixel(pixel, frameState, hitTolerance, callback, layerFilter) {
+        const viewState = frameState.viewState;
+        const layerStates = frameState.layerStatesArray;
+        const numLayers = layerStates.length;
+        for (let i = numLayers - 1; i >= 0; --i) {
+            const layerState = layerStates[i];
+            const layer = layerState.layer;
             if (layer.hasRenderer() && inView(layerState, viewState) && layerFilter(layer)) {
-                var layerRenderer = layer.getRenderer();
-                var data = layerRenderer.getDataAtPixel(pixel, frameState, hitTolerance);
+                const layerRenderer = layer.getRenderer();
+                const data = layerRenderer.getDataAtPixel(pixel, frameState, hitTolerance);
                 if (data) {
-                    var result = callback(layer, data);
+                    const result = callback(layer, data);
                     if (result) {
                         return result;
                     }
@@ -148,8 +133,7 @@ var CompositeMapRenderer = /** @class */ (function (_super) {
             }
         }
         return undefined;
-    };
-    return CompositeMapRenderer;
-}(MapRenderer));
+    }
+}
 export default CompositeMapRenderer;
 //# sourceMappingURL=Composite.js.map

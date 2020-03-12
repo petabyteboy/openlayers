@@ -1,16 +1,3 @@
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 /**
  * @module ol/render/canvas/PolygonBuilder
  */
@@ -18,16 +5,15 @@ import { snap } from '../../geom/flat/simplify.js';
 import { defaultFillStyle } from '../canvas.js';
 import CanvasInstruction, { fillInstruction, strokeInstruction, beginPathInstruction, closePathInstruction } from './Instruction.js';
 import CanvasBuilder from './Builder.js';
-var CanvasPolygonBuilder = /** @class */ (function (_super) {
-    __extends(CanvasPolygonBuilder, _super);
+class CanvasPolygonBuilder extends CanvasBuilder {
     /**
      * @param {number} tolerance Tolerance.
      * @param {import("../../extent.js").Extent} maxExtent Maximum extent.
      * @param {number} resolution Resolution.
      * @param {number} pixelRatio Pixel ratio.
      */
-    function CanvasPolygonBuilder(tolerance, maxExtent, resolution, pixelRatio) {
-        return _super.call(this, tolerance, maxExtent, resolution, pixelRatio) || this;
+    constructor(tolerance, maxExtent, resolution, pixelRatio) {
+        super(tolerance, maxExtent, resolution, pixelRatio);
     }
     /**
      * @param {Array<number>} flatCoordinates Flat coordinates.
@@ -37,18 +23,18 @@ var CanvasPolygonBuilder = /** @class */ (function (_super) {
      * @private
      * @return {number} End.
      */
-    CanvasPolygonBuilder.prototype.drawFlatCoordinatess_ = function (flatCoordinates, offset, ends, stride) {
-        var state = this.state;
-        var fill = state.fillStyle !== undefined;
-        var stroke = state.strokeStyle !== undefined;
-        var numEnds = ends.length;
+    drawFlatCoordinatess_(flatCoordinates, offset, ends, stride) {
+        const state = this.state;
+        const fill = state.fillStyle !== undefined;
+        const stroke = state.strokeStyle !== undefined;
+        const numEnds = ends.length;
         this.instructions.push(beginPathInstruction);
         this.hitDetectionInstructions.push(beginPathInstruction);
-        for (var i = 0; i < numEnds; ++i) {
-            var end = ends[i];
-            var myBegin = this.coordinates.length;
-            var myEnd = this.appendFlatCoordinates(flatCoordinates, offset, end, stride, true, !stroke);
-            var moveToLineToInstruction = [CanvasInstruction.MOVE_TO_LINE_TO, myBegin, myEnd];
+        for (let i = 0; i < numEnds; ++i) {
+            const end = ends[i];
+            const myBegin = this.coordinates.length;
+            const myEnd = this.appendFlatCoordinates(flatCoordinates, offset, end, stride, true, !stroke);
+            const moveToLineToInstruction = [CanvasInstruction.MOVE_TO_LINE_TO, myBegin, myEnd];
             this.instructions.push(moveToLineToInstruction);
             this.hitDetectionInstructions.push(moveToLineToInstruction);
             if (stroke) {
@@ -68,14 +54,14 @@ var CanvasPolygonBuilder = /** @class */ (function (_super) {
             this.hitDetectionInstructions.push(strokeInstruction);
         }
         return offset;
-    };
+    }
     /**
      * @inheritDoc
      */
-    CanvasPolygonBuilder.prototype.drawCircle = function (circleGeometry, feature) {
-        var state = this.state;
-        var fillStyle = state.fillStyle;
-        var strokeStyle = state.strokeStyle;
+    drawCircle(circleGeometry, feature) {
+        const state = this.state;
+        const fillStyle = state.fillStyle;
+        const strokeStyle = state.strokeStyle;
         if (fillStyle === undefined && strokeStyle === undefined) {
             return;
         }
@@ -94,11 +80,11 @@ var CanvasPolygonBuilder = /** @class */ (function (_super) {
                 state.miterLimit, state.lineDash, state.lineDashOffset
             ]);
         }
-        var flatCoordinates = circleGeometry.getFlatCoordinates();
-        var stride = circleGeometry.getStride();
-        var myBegin = this.coordinates.length;
+        const flatCoordinates = circleGeometry.getFlatCoordinates();
+        const stride = circleGeometry.getStride();
+        const myBegin = this.coordinates.length;
         this.appendFlatCoordinates(flatCoordinates, 0, flatCoordinates.length, stride, false, false);
-        var circleInstruction = [CanvasInstruction.CIRCLE, myBegin];
+        const circleInstruction = [CanvasInstruction.CIRCLE, myBegin];
         this.instructions.push(beginPathInstruction, circleInstruction);
         this.hitDetectionInstructions.push(beginPathInstruction, circleInstruction);
         if (state.fillStyle !== undefined) {
@@ -110,14 +96,14 @@ var CanvasPolygonBuilder = /** @class */ (function (_super) {
             this.hitDetectionInstructions.push(strokeInstruction);
         }
         this.endGeometry(feature);
-    };
+    }
     /**
      * @inheritDoc
      */
-    CanvasPolygonBuilder.prototype.drawPolygon = function (polygonGeometry, feature) {
-        var state = this.state;
-        var fillStyle = state.fillStyle;
-        var strokeStyle = state.strokeStyle;
+    drawPolygon(polygonGeometry, feature) {
+        const state = this.state;
+        const fillStyle = state.fillStyle;
+        const strokeStyle = state.strokeStyle;
         if (fillStyle === undefined && strokeStyle === undefined) {
             return;
         }
@@ -136,19 +122,19 @@ var CanvasPolygonBuilder = /** @class */ (function (_super) {
                 state.miterLimit, state.lineDash, state.lineDashOffset
             ]);
         }
-        var ends = polygonGeometry.getEnds();
-        var flatCoordinates = polygonGeometry.getOrientedFlatCoordinates();
-        var stride = polygonGeometry.getStride();
+        const ends = polygonGeometry.getEnds();
+        const flatCoordinates = polygonGeometry.getOrientedFlatCoordinates();
+        const stride = polygonGeometry.getStride();
         this.drawFlatCoordinatess_(flatCoordinates, 0, ends, stride);
         this.endGeometry(feature);
-    };
+    }
     /**
      * @inheritDoc
      */
-    CanvasPolygonBuilder.prototype.drawMultiPolygon = function (multiPolygonGeometry, feature) {
-        var state = this.state;
-        var fillStyle = state.fillStyle;
-        var strokeStyle = state.strokeStyle;
+    drawMultiPolygon(multiPolygonGeometry, feature) {
+        const state = this.state;
+        const fillStyle = state.fillStyle;
+        const strokeStyle = state.strokeStyle;
         if (fillStyle === undefined && strokeStyle === undefined) {
             return;
         }
@@ -167,48 +153,47 @@ var CanvasPolygonBuilder = /** @class */ (function (_super) {
                 state.miterLimit, state.lineDash, state.lineDashOffset
             ]);
         }
-        var endss = multiPolygonGeometry.getEndss();
-        var flatCoordinates = multiPolygonGeometry.getOrientedFlatCoordinates();
-        var stride = multiPolygonGeometry.getStride();
-        var offset = 0;
-        for (var i = 0, ii = endss.length; i < ii; ++i) {
+        const endss = multiPolygonGeometry.getEndss();
+        const flatCoordinates = multiPolygonGeometry.getOrientedFlatCoordinates();
+        const stride = multiPolygonGeometry.getStride();
+        let offset = 0;
+        for (let i = 0, ii = endss.length; i < ii; ++i) {
             offset = this.drawFlatCoordinatess_(flatCoordinates, offset, endss[i], stride);
         }
         this.endGeometry(feature);
-    };
+    }
     /**
      * @inheritDoc
      */
-    CanvasPolygonBuilder.prototype.finish = function () {
+    finish() {
         this.reverseHitDetectionInstructions();
         this.state = null;
         // We want to preserve topology when drawing polygons.  Polygons are
         // simplified using quantization and point elimination. However, we might
         // have received a mix of quantized and non-quantized geometries, so ensure
         // that all are quantized by quantizing all coordinates in the batch.
-        var tolerance = this.tolerance;
+        const tolerance = this.tolerance;
         if (tolerance !== 0) {
-            var coordinates = this.coordinates;
-            for (var i = 0, ii = coordinates.length; i < ii; ++i) {
+            const coordinates = this.coordinates;
+            for (let i = 0, ii = coordinates.length; i < ii; ++i) {
                 coordinates[i] = snap(coordinates[i], tolerance);
             }
         }
-        return _super.prototype.finish.call(this);
-    };
+        return super.finish();
+    }
     /**
      * @private
      */
-    CanvasPolygonBuilder.prototype.setFillStrokeStyles_ = function () {
-        var state = this.state;
-        var fillStyle = state.fillStyle;
+    setFillStrokeStyles_() {
+        const state = this.state;
+        const fillStyle = state.fillStyle;
         if (fillStyle !== undefined) {
             this.updateFillStyle(state, this.createFill);
         }
         if (state.strokeStyle !== undefined) {
             this.updateStrokeStyle(state, this.applyStroke);
         }
-    };
-    return CanvasPolygonBuilder;
-}(CanvasBuilder));
+    }
+}
 export default CanvasPolygonBuilder;
 //# sourceMappingURL=PolygonBuilder.js.map

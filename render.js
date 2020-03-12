@@ -57,18 +57,18 @@ import { getUserProjection, getTransformFromProjections } from './proj.js';
  * @api
  */
 export function toContext(context, opt_options) {
-    var canvas = context.canvas;
-    var options = opt_options ? opt_options : {};
-    var pixelRatio = options.pixelRatio || DEVICE_PIXEL_RATIO;
-    var size = options.size;
+    const canvas = context.canvas;
+    const options = opt_options ? opt_options : {};
+    const pixelRatio = options.pixelRatio || DEVICE_PIXEL_RATIO;
+    const size = options.size;
     if (size) {
         canvas.width = size[0] * pixelRatio;
         canvas.height = size[1] * pixelRatio;
         canvas.style.width = size[0] + 'px';
         canvas.style.height = size[1] + 'px';
     }
-    var extent = [0, 0, canvas.width, canvas.height];
-    var transform = scaleTransform(createTransform(), pixelRatio, pixelRatio);
+    const extent = [0, 0, canvas.width, canvas.height];
+    const transform = scaleTransform(createTransform(), pixelRatio, pixelRatio);
     return new CanvasImmediateRenderer(context, pixelRatio, extent, transform, 0);
 }
 /**
@@ -78,11 +78,11 @@ export function toContext(context, opt_options) {
  * @api
  */
 export function getVectorContext(event) {
-    var frameState = event.frameState;
-    var transform = multiplyTransform(event.inversePixelTransform.slice(), frameState.coordinateToPixelTransform);
-    var squaredTolerance = getSquaredTolerance(frameState.viewState.resolution, frameState.pixelRatio);
-    var userTransform;
-    var userProjection = getUserProjection();
+    const frameState = event.frameState;
+    const transform = multiplyTransform(event.inversePixelTransform.slice(), frameState.coordinateToPixelTransform);
+    const squaredTolerance = getSquaredTolerance(frameState.viewState.resolution, frameState.pixelRatio);
+    let userTransform;
+    const userProjection = getUserProjection();
     if (userProjection) {
         userTransform = getTransformFromProjections(userProjection, frameState.viewState.projection);
     }
@@ -97,7 +97,7 @@ export function getVectorContext(event) {
  * @api
  */
 export function getRenderPixel(event, pixel) {
-    var result = pixel.slice(0);
+    const result = pixel.slice(0);
     applyTransform(event.inversePixelTransform.slice(), result);
     return result;
 }
@@ -110,11 +110,11 @@ export function renderDeclutterItems(frameState, declutterTree) {
     if (declutterTree) {
         declutterTree.clear();
     }
-    var items = frameState.declutterItems;
-    for (var z = items.length - 1; z >= 0; --z) {
-        var item = items[z];
-        var zIndexItems = item.items;
-        for (var i = 0, ii = zIndexItems.length; i < ii; i += 3) {
+    const items = frameState.declutterItems;
+    for (let z = items.length - 1; z >= 0; --z) {
+        const item = items[z];
+        const zIndexItems = item.items;
+        for (let i = 0, ii = zIndexItems.length; i < ii; i += 3) {
             declutterTree = zIndexItems[i].renderDeclutter(zIndexItems[i + 1], zIndexItems[i + 2], item.opacity, declutterTree);
         }
     }

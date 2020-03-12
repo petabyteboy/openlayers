@@ -1,16 +1,3 @@
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 /**
  * @module ol/interaction/KeyboardZoom
  */
@@ -39,35 +26,32 @@ import Interaction, { zoomByDelta } from './Interaction.js';
  * See also {@link module:ol/interaction/KeyboardPan~KeyboardPan}.
  * @api
  */
-var KeyboardZoom = /** @class */ (function (_super) {
-    __extends(KeyboardZoom, _super);
+class KeyboardZoom extends Interaction {
     /**
      * @param {Options=} opt_options Options.
      */
-    function KeyboardZoom(opt_options) {
-        var _this = _super.call(this, {
+    constructor(opt_options) {
+        super({
             handleEvent: handleEvent
-        }) || this;
-        var options = opt_options ? opt_options : {};
+        });
+        const options = opt_options ? opt_options : {};
         /**
          * @private
          * @type {import("../events/condition.js").Condition}
          */
-        _this.condition_ = options.condition ? options.condition : targetNotEditable;
+        this.condition_ = options.condition ? options.condition : targetNotEditable;
         /**
          * @private
          * @type {number}
          */
-        _this.delta_ = options.delta ? options.delta : 1;
+        this.delta_ = options.delta ? options.delta : 1;
         /**
          * @private
          * @type {number}
          */
-        _this.duration_ = options.duration !== undefined ? options.duration : 100;
-        return _this;
+        this.duration_ = options.duration !== undefined ? options.duration : 100;
     }
-    return KeyboardZoom;
-}(Interaction));
+}
 /**
  * Handles the {@link module:ol/MapBrowserEvent map browser event} if it was a
  * `KeyEvent`, and decides whether to zoom in or out (depending on whether the
@@ -77,16 +61,16 @@ var KeyboardZoom = /** @class */ (function (_super) {
  * @this {KeyboardZoom}
  */
 function handleEvent(mapBrowserEvent) {
-    var stopEvent = false;
+    let stopEvent = false;
     if (mapBrowserEvent.type == EventType.KEYDOWN ||
         mapBrowserEvent.type == EventType.KEYPRESS) {
-        var keyEvent = /** @type {KeyboardEvent} */ (mapBrowserEvent.originalEvent);
-        var charCode = keyEvent.charCode;
+        const keyEvent = /** @type {KeyboardEvent} */ (mapBrowserEvent.originalEvent);
+        const charCode = keyEvent.charCode;
         if (this.condition_(mapBrowserEvent) &&
             (charCode == '+'.charCodeAt(0) || charCode == '-'.charCodeAt(0))) {
-            var map = mapBrowserEvent.map;
-            var delta = (charCode == '+'.charCodeAt(0)) ? this.delta_ : -this.delta_;
-            var view = map.getView();
+            const map = mapBrowserEvent.map;
+            const delta = (charCode == '+'.charCodeAt(0)) ? this.delta_ : -this.delta_;
+            const view = map.getView();
             zoomByDelta(view, delta, undefined, this.duration_);
             mapBrowserEvent.preventDefault();
             stopEvent = true;

@@ -1,16 +1,3 @@
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 /**
  * @module ol/interaction/Pointer
  */
@@ -54,46 +41,43 @@ import { getValues } from '../obj.js';
  * user function is called and returns `false`.
  * @api
  */
-var PointerInteraction = /** @class */ (function (_super) {
-    __extends(PointerInteraction, _super);
+class PointerInteraction extends Interaction {
     /**
      * @param {Options=} opt_options Options.
      */
-    function PointerInteraction(opt_options) {
-        var _this = this;
-        var options = opt_options ? opt_options : {};
-        _this = _super.call(this, /** @type {import("./Interaction.js").InteractionOptions} */ (options)) || this;
+    constructor(opt_options) {
+        const options = opt_options ? opt_options : {};
+        super(/** @type {import("./Interaction.js").InteractionOptions} */ (options));
         if (options.handleDownEvent) {
-            _this.handleDownEvent = options.handleDownEvent;
+            this.handleDownEvent = options.handleDownEvent;
         }
         if (options.handleDragEvent) {
-            _this.handleDragEvent = options.handleDragEvent;
+            this.handleDragEvent = options.handleDragEvent;
         }
         if (options.handleMoveEvent) {
-            _this.handleMoveEvent = options.handleMoveEvent;
+            this.handleMoveEvent = options.handleMoveEvent;
         }
         if (options.handleUpEvent) {
-            _this.handleUpEvent = options.handleUpEvent;
+            this.handleUpEvent = options.handleUpEvent;
         }
         if (options.stopDown) {
-            _this.stopDown = options.stopDown;
+            this.stopDown = options.stopDown;
         }
         /**
          * @type {boolean}
          * @protected
          */
-        _this.handlingDownUpSequence = false;
+        this.handlingDownUpSequence = false;
         /**
          * @type {!Object<string, PointerEvent>}
          * @private
          */
-        _this.trackedPointers_ = {};
+        this.trackedPointers_ = {};
         /**
          * @type {Array<PointerEvent>}
          * @protected
          */
-        _this.targetPointers = [];
-        return _this;
+        this.targetPointers = [];
     }
     /**
      * Returns the current number of pointers involved in the interaction,
@@ -101,24 +85,24 @@ var PointerInteraction = /** @class */ (function (_super) {
      * @return {number} The number of pointers.
      * @api
      */
-    PointerInteraction.prototype.getPointerCount = function () {
+    getPointerCount() {
         return this.targetPointers.length;
-    };
+    }
     /**
      * Handle pointer down events.
      * @param {import("../MapBrowserPointerEvent.js").default} mapBrowserEvent Event.
      * @return {boolean} If the event was consumed.
      * @protected
      */
-    PointerInteraction.prototype.handleDownEvent = function (mapBrowserEvent) {
+    handleDownEvent(mapBrowserEvent) {
         return false;
-    };
+    }
     /**
      * Handle pointer drag events.
      * @param {import("../MapBrowserPointerEvent.js").default} mapBrowserEvent Event.
      * @protected
      */
-    PointerInteraction.prototype.handleDragEvent = function (mapBrowserEvent) { };
+    handleDragEvent(mapBrowserEvent) { }
     /**
      * Handles the {@link module:ol/MapBrowserEvent map browser event} and may call into
      * other functions, if event sequences like e.g. 'drag' or 'down-up' etc. are
@@ -126,24 +110,24 @@ var PointerInteraction = /** @class */ (function (_super) {
      * @override
      * @api
      */
-    PointerInteraction.prototype.handleEvent = function (mapBrowserEvent) {
+    handleEvent(mapBrowserEvent) {
         if (!( /** @type {import("../MapBrowserPointerEvent.js").default} */(mapBrowserEvent).pointerEvent)) {
             return true;
         }
-        var stopEvent = false;
+        let stopEvent = false;
         this.updateTrackedPointers_(mapBrowserEvent);
         if (this.handlingDownUpSequence) {
             if (mapBrowserEvent.type == MapBrowserEventType.POINTERDRAG) {
                 this.handleDragEvent(mapBrowserEvent);
             }
             else if (mapBrowserEvent.type == MapBrowserEventType.POINTERUP) {
-                var handledUp = this.handleUpEvent(mapBrowserEvent);
+                const handledUp = this.handleUpEvent(mapBrowserEvent);
                 this.handlingDownUpSequence = handledUp && this.targetPointers.length > 0;
             }
         }
         else {
             if (mapBrowserEvent.type == MapBrowserEventType.POINTERDOWN) {
-                var handled = this.handleDownEvent(mapBrowserEvent);
+                const handled = this.handleDownEvent(mapBrowserEvent);
                 this.handlingDownUpSequence = handled;
                 stopEvent = this.stopDown(handled);
             }
@@ -152,64 +136,63 @@ var PointerInteraction = /** @class */ (function (_super) {
             }
         }
         return !stopEvent;
-    };
+    }
     /**
      * Handle pointer move events.
      * @param {import("../MapBrowserPointerEvent.js").default} mapBrowserEvent Event.
      * @protected
      */
-    PointerInteraction.prototype.handleMoveEvent = function (mapBrowserEvent) { };
+    handleMoveEvent(mapBrowserEvent) { }
     /**
      * Handle pointer up events.
      * @param {import("../MapBrowserPointerEvent.js").default} mapBrowserEvent Event.
      * @return {boolean} If the event was consumed.
      * @protected
      */
-    PointerInteraction.prototype.handleUpEvent = function (mapBrowserEvent) {
+    handleUpEvent(mapBrowserEvent) {
         return false;
-    };
+    }
     /**
      * This function is used to determine if "down" events should be propagated
      * to other interactions or should be stopped.
      * @param {boolean} handled Was the event handled by the interaction?
      * @return {boolean} Should the `down` event be stopped?
      */
-    PointerInteraction.prototype.stopDown = function (handled) {
+    stopDown(handled) {
         return handled;
-    };
+    }
     /**
      * @param {import("../MapBrowserPointerEvent.js").default} mapBrowserEvent Event.
      * @private
      */
-    PointerInteraction.prototype.updateTrackedPointers_ = function (mapBrowserEvent) {
+    updateTrackedPointers_(mapBrowserEvent) {
         if (isPointerDraggingEvent(mapBrowserEvent)) {
-            var event_1 = mapBrowserEvent.pointerEvent;
-            var id = event_1.pointerId.toString();
+            const event = mapBrowserEvent.pointerEvent;
+            const id = event.pointerId.toString();
             if (mapBrowserEvent.type == MapBrowserEventType.POINTERUP) {
                 delete this.trackedPointers_[id];
             }
             else if (mapBrowserEvent.type ==
                 MapBrowserEventType.POINTERDOWN) {
-                this.trackedPointers_[id] = event_1;
+                this.trackedPointers_[id] = event;
             }
             else if (id in this.trackedPointers_) {
                 // update only when there was a pointerdown event for this pointer
-                this.trackedPointers_[id] = event_1;
+                this.trackedPointers_[id] = event;
             }
             this.targetPointers = getValues(this.trackedPointers_);
         }
-    };
-    return PointerInteraction;
-}(Interaction));
+    }
+}
 /**
  * @param {Array<PointerEvent>} pointerEvents List of events.
  * @return {import("../pixel.js").Pixel} Centroid pixel.
  */
 export function centroid(pointerEvents) {
-    var length = pointerEvents.length;
-    var clientX = 0;
-    var clientY = 0;
-    for (var i = 0; i < length; i++) {
+    const length = pointerEvents.length;
+    let clientX = 0;
+    let clientY = 0;
+    for (let i = 0; i < length; i++) {
         clientX += pointerEvents[i].clientX;
         clientY += pointerEvents[i].clientY;
     }
@@ -221,7 +204,7 @@ export function centroid(pointerEvents) {
  *     or pointerup event.
  */
 function isPointerDraggingEvent(mapBrowserEvent) {
-    var type = mapBrowserEvent.type;
+    const type = mapBrowserEvent.type;
     return type === MapBrowserEventType.POINTERDOWN ||
         type === MapBrowserEventType.POINTERDRAG ||
         type === MapBrowserEventType.POINTERUP;

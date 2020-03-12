@@ -1,16 +1,3 @@
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 /**
  * @module ol/Overlay
  */
@@ -72,7 +59,7 @@ import { containsExtent } from './extent.js';
  * @enum {string}
  * @protected
  */
-var Property = {
+const Property = {
     ELEMENT: 'element',
     MAP: 'map',
     OFFSET: 'offset',
@@ -99,57 +86,56 @@ var Property = {
  *
  * @api
  */
-var Overlay = /** @class */ (function (_super) {
-    __extends(Overlay, _super);
+class Overlay extends BaseObject {
     /**
      * @param {Options} options Overlay options.
      */
-    function Overlay(options) {
-        var _this = _super.call(this) || this;
+    constructor(options) {
+        super();
         /**
          * @protected
          * @type {Options}
          */
-        _this.options = options;
+        this.options = options;
         /**
          * @protected
          * @type {number|string|undefined}
          */
-        _this.id = options.id;
+        this.id = options.id;
         /**
          * @protected
          * @type {boolean}
          */
-        _this.insertFirst = options.insertFirst !== undefined ?
+        this.insertFirst = options.insertFirst !== undefined ?
             options.insertFirst : true;
         /**
          * @protected
          * @type {boolean}
          */
-        _this.stopEvent = options.stopEvent !== undefined ? options.stopEvent : true;
+        this.stopEvent = options.stopEvent !== undefined ? options.stopEvent : true;
         /**
          * @protected
          * @type {HTMLElement}
          */
-        _this.element = document.createElement('div');
-        _this.element.className = options.className !== undefined ?
+        this.element = document.createElement('div');
+        this.element.className = options.className !== undefined ?
             options.className : 'ol-overlay-container ' + CLASS_SELECTABLE;
-        _this.element.style.position = 'absolute';
+        this.element.style.position = 'absolute';
         /**
          * @protected
          * @type {boolean}
          */
-        _this.autoPan = options.autoPan !== undefined ? options.autoPan : false;
+        this.autoPan = options.autoPan !== undefined ? options.autoPan : false;
         /**
          * @protected
          * @type {PanOptions}
          */
-        _this.autoPanAnimation = options.autoPanAnimation || /** @type {PanOptions} */ ({});
+        this.autoPanAnimation = options.autoPanAnimation || /** @type {PanOptions} */ ({});
         /**
          * @protected
          * @type {number}
          */
-        _this.autoPanMargin = options.autoPanMargin !== undefined ?
+        this.autoPanMargin = options.autoPanMargin !== undefined ?
             options.autoPanMargin : 20;
         /**
          * @protected
@@ -159,7 +145,7 @@ var Overlay = /** @class */ (function (_super) {
          *         top_: string,
          *         visible: boolean}}
          */
-        _this.rendered = {
+        this.rendered = {
             bottom_: '',
             left_: '',
             right_: '',
@@ -170,23 +156,22 @@ var Overlay = /** @class */ (function (_super) {
          * @protected
          * @type {?import("./events.js").EventsKey}
          */
-        _this.mapPostrenderListenerKey = null;
-        _this.addEventListener(getChangeEventType(Property.ELEMENT), _this.handleElementChanged);
-        _this.addEventListener(getChangeEventType(Property.MAP), _this.handleMapChanged);
-        _this.addEventListener(getChangeEventType(Property.OFFSET), _this.handleOffsetChanged);
-        _this.addEventListener(getChangeEventType(Property.POSITION), _this.handlePositionChanged);
-        _this.addEventListener(getChangeEventType(Property.POSITIONING), _this.handlePositioningChanged);
+        this.mapPostrenderListenerKey = null;
+        this.addEventListener(getChangeEventType(Property.ELEMENT), this.handleElementChanged);
+        this.addEventListener(getChangeEventType(Property.MAP), this.handleMapChanged);
+        this.addEventListener(getChangeEventType(Property.OFFSET), this.handleOffsetChanged);
+        this.addEventListener(getChangeEventType(Property.POSITION), this.handlePositionChanged);
+        this.addEventListener(getChangeEventType(Property.POSITIONING), this.handlePositioningChanged);
         if (options.element !== undefined) {
-            _this.setElement(options.element);
+            this.setElement(options.element);
         }
-        _this.setOffset(options.offset !== undefined ? options.offset : [0, 0]);
-        _this.setPositioning(options.positioning !== undefined ?
+        this.setOffset(options.offset !== undefined ? options.offset : [0, 0]);
+        this.setPositioning(options.positioning !== undefined ?
             /** @type {OverlayPositioning} */ (options.positioning) :
             OverlayPositioning.TOP_LEFT);
         if (options.position !== undefined) {
-            _this.setPosition(options.position);
+            this.setPosition(options.position);
         }
-        return _this;
     }
     /**
      * Get the DOM element of this overlay.
@@ -194,17 +179,17 @@ var Overlay = /** @class */ (function (_super) {
      * @observable
      * @api
      */
-    Overlay.prototype.getElement = function () {
+    getElement() {
         return /** @type {HTMLElement|undefined} */ (this.get(Property.ELEMENT));
-    };
+    }
     /**
      * Get the overlay identifier which is set on constructor.
      * @return {number|string|undefined} Id.
      * @api
      */
-    Overlay.prototype.getId = function () {
+    getId() {
         return this.id;
-    };
+    }
     /**
      * Get the map associated with this overlay.
      * @return {import("./PluggableMap.js").default|undefined} The map that the
@@ -212,19 +197,19 @@ var Overlay = /** @class */ (function (_super) {
      * @observable
      * @api
      */
-    Overlay.prototype.getMap = function () {
+    getMap() {
         return (
         /** @type {import("./PluggableMap.js").default|undefined} */ (this.get(Property.MAP)));
-    };
+    }
     /**
      * Get the offset of this overlay.
      * @return {Array<number>} The offset.
      * @observable
      * @api
      */
-    Overlay.prototype.getOffset = function () {
+    getOffset() {
         return /** @type {Array<number>} */ (this.get(Property.OFFSET));
-    };
+    }
     /**
      * Get the current position of this overlay.
      * @return {import("./coordinate.js").Coordinate|undefined} The spatial point that the overlay is
@@ -232,10 +217,10 @@ var Overlay = /** @class */ (function (_super) {
      * @observable
      * @api
      */
-    Overlay.prototype.getPosition = function () {
+    getPosition() {
         return (
         /** @type {import("./coordinate.js").Coordinate|undefined} */ (this.get(Property.POSITION)));
-    };
+    }
     /**
      * Get the current positioning of this overlay.
      * @return {OverlayPositioning} How the overlay is positioned
@@ -243,34 +228,34 @@ var Overlay = /** @class */ (function (_super) {
      * @observable
      * @api
      */
-    Overlay.prototype.getPositioning = function () {
+    getPositioning() {
         return (
         /** @type {OverlayPositioning} */ (this.get(Property.POSITIONING)));
-    };
+    }
     /**
      * @protected
      */
-    Overlay.prototype.handleElementChanged = function () {
+    handleElementChanged() {
         removeChildren(this.element);
-        var element = this.getElement();
+        const element = this.getElement();
         if (element) {
             this.element.appendChild(element);
         }
-    };
+    }
     /**
      * @protected
      */
-    Overlay.prototype.handleMapChanged = function () {
+    handleMapChanged() {
         if (this.mapPostrenderListenerKey) {
             removeNode(this.element);
             unlistenByKey(this.mapPostrenderListenerKey);
             this.mapPostrenderListenerKey = null;
         }
-        var map = this.getMap();
+        const map = this.getMap();
         if (map) {
             this.mapPostrenderListenerKey = listen(map, MapEventType.POSTRENDER, this.render, this);
             this.updatePixelPosition();
-            var container = this.stopEvent ?
+            const container = this.stopEvent ?
                 map.getOverlayContainerStopEvent() : map.getOverlayContainer();
             if (this.insertFirst) {
                 container.insertBefore(this.element, container.childNodes[0] || null);
@@ -279,43 +264,43 @@ var Overlay = /** @class */ (function (_super) {
                 container.appendChild(this.element);
             }
         }
-    };
+    }
     /**
      * @protected
      */
-    Overlay.prototype.render = function () {
+    render() {
         this.updatePixelPosition();
-    };
+    }
     /**
      * @protected
      */
-    Overlay.prototype.handleOffsetChanged = function () {
+    handleOffsetChanged() {
         this.updatePixelPosition();
-    };
+    }
     /**
      * @protected
      */
-    Overlay.prototype.handlePositionChanged = function () {
+    handlePositionChanged() {
         this.updatePixelPosition();
         if (this.get(Property.POSITION) && this.autoPan) {
             this.panIntoView();
         }
-    };
+    }
     /**
      * @protected
      */
-    Overlay.prototype.handlePositioningChanged = function () {
+    handlePositioningChanged() {
         this.updatePixelPosition();
-    };
+    }
     /**
      * Set the DOM element to be associated with this overlay.
      * @param {HTMLElement|undefined} element The Element containing the overlay.
      * @observable
      * @api
      */
-    Overlay.prototype.setElement = function (element) {
+    setElement(element) {
         this.set(Property.ELEMENT, element);
-    };
+    }
     /**
      * Set the map to be associated with this overlay.
      * @param {import("./PluggableMap.js").default|undefined} map The map that the
@@ -323,18 +308,18 @@ var Overlay = /** @class */ (function (_super) {
      * @observable
      * @api
      */
-    Overlay.prototype.setMap = function (map) {
+    setMap(map) {
         this.set(Property.MAP, map);
-    };
+    }
     /**
      * Set the offset for this overlay.
      * @param {Array<number>} offset Offset.
      * @observable
      * @api
      */
-    Overlay.prototype.setOffset = function (offset) {
+    setOffset(offset) {
         this.set(Property.OFFSET, offset);
-    };
+    }
     /**
      * Set the position for this overlay. If the position is `undefined` the
      * overlay is hidden.
@@ -343,30 +328,30 @@ var Overlay = /** @class */ (function (_super) {
      * @observable
      * @api
      */
-    Overlay.prototype.setPosition = function (position) {
+    setPosition(position) {
         this.set(Property.POSITION, position);
-    };
+    }
     /**
      * Pan the map so that the overlay is entirely visible in the current viewport
      * (if necessary).
      * @protected
      */
-    Overlay.prototype.panIntoView = function () {
-        var map = this.getMap();
+    panIntoView() {
+        const map = this.getMap();
         if (!map || !map.getTargetElement()) {
             return;
         }
-        var mapRect = this.getRect(map.getTargetElement(), map.getSize());
-        var element = this.getElement();
-        var overlayRect = this.getRect(element, [outerWidth(element), outerHeight(element)]);
-        var margin = this.autoPanMargin;
+        const mapRect = this.getRect(map.getTargetElement(), map.getSize());
+        const element = this.getElement();
+        const overlayRect = this.getRect(element, [outerWidth(element), outerHeight(element)]);
+        const margin = this.autoPanMargin;
         if (!containsExtent(mapRect, overlayRect)) {
             // the overlay is not completely inside the viewport, so pan the map
-            var offsetLeft = overlayRect[0] - mapRect[0];
-            var offsetRight = mapRect[2] - overlayRect[2];
-            var offsetTop = overlayRect[1] - mapRect[1];
-            var offsetBottom = mapRect[3] - overlayRect[3];
-            var delta = [0, 0];
+            const offsetLeft = overlayRect[0] - mapRect[0];
+            const offsetRight = mapRect[2] - overlayRect[2];
+            const offsetTop = overlayRect[1] - mapRect[1];
+            const offsetBottom = mapRect[3] - overlayRect[3];
+            const delta = [0, 0];
             if (offsetLeft < 0) {
                 // move map to the left
                 delta[0] = offsetLeft - margin;
@@ -384,9 +369,9 @@ var Overlay = /** @class */ (function (_super) {
                 delta[1] = Math.abs(offsetBottom) + margin;
             }
             if (delta[0] !== 0 || delta[1] !== 0) {
-                var center = /** @type {import("./coordinate.js").Coordinate} */ (map.getView().getCenterInternal());
-                var centerPx = map.getPixelFromCoordinateInternal(center);
-                var newCenterPx = [
+                const center = /** @type {import("./coordinate.js").Coordinate} */ (map.getView().getCenterInternal());
+                const centerPx = map.getPixelFromCoordinateInternal(center);
+                const newCenterPx = [
                     centerPx[0] + delta[0],
                     centerPx[1] + delta[1]
                 ];
@@ -397,7 +382,7 @@ var Overlay = /** @class */ (function (_super) {
                 });
             }
         }
-    };
+    }
     /**
      * Get the extent of an element relative to the document
      * @param {HTMLElement} element The element.
@@ -405,17 +390,17 @@ var Overlay = /** @class */ (function (_super) {
      * @return {import("./extent.js").Extent} The extent.
      * @protected
      */
-    Overlay.prototype.getRect = function (element, size) {
-        var box = element.getBoundingClientRect();
-        var offsetX = box.left + window.pageXOffset;
-        var offsetY = box.top + window.pageYOffset;
+    getRect(element, size) {
+        const box = element.getBoundingClientRect();
+        const offsetX = box.left + window.pageXOffset;
+        const offsetY = box.top + window.pageYOffset;
         return [
             offsetX,
             offsetY,
             offsetX + size[0],
             offsetY + size[1]
         ];
-    };
+    }
     /**
      * Set the positioning for this overlay.
      * @param {OverlayPositioning} positioning how the overlay is
@@ -423,47 +408,47 @@ var Overlay = /** @class */ (function (_super) {
      * @observable
      * @api
      */
-    Overlay.prototype.setPositioning = function (positioning) {
+    setPositioning(positioning) {
         this.set(Property.POSITIONING, positioning);
-    };
+    }
     /**
      * Modify the visibility of the element.
      * @param {boolean} visible Element visibility.
      * @protected
      */
-    Overlay.prototype.setVisible = function (visible) {
+    setVisible(visible) {
         if (this.rendered.visible !== visible) {
             this.element.style.display = visible ? '' : 'none';
             this.rendered.visible = visible;
         }
-    };
+    }
     /**
      * Update pixel position.
      * @protected
      */
-    Overlay.prototype.updatePixelPosition = function () {
-        var map = this.getMap();
-        var position = this.getPosition();
+    updatePixelPosition() {
+        const map = this.getMap();
+        const position = this.getPosition();
         if (!map || !map.isRendered() || !position) {
             this.setVisible(false);
             return;
         }
-        var pixel = map.getPixelFromCoordinate(position);
-        var mapSize = map.getSize();
+        const pixel = map.getPixelFromCoordinate(position);
+        const mapSize = map.getSize();
         this.updateRenderedPosition(pixel, mapSize);
-    };
+    }
     /**
      * @param {import("./pixel.js").Pixel} pixel The pixel location.
      * @param {import("./size.js").Size|undefined} mapSize The map size.
      * @protected
      */
-    Overlay.prototype.updateRenderedPosition = function (pixel, mapSize) {
-        var style = this.element.style;
-        var offset = this.getOffset();
-        var positioning = this.getPositioning();
+    updateRenderedPosition(pixel, mapSize) {
+        const style = this.element.style;
+        const offset = this.getOffset();
+        const positioning = this.getPositioning();
         this.setVisible(true);
-        var offsetX = offset[0];
-        var offsetY = offset[1];
+        let offsetX = offset[0];
+        let offsetY = offset[1];
         if (positioning == OverlayPositioning.BOTTOM_RIGHT ||
             positioning == OverlayPositioning.CENTER_RIGHT ||
             positioning == OverlayPositioning.TOP_RIGHT) {
@@ -471,7 +456,7 @@ var Overlay = /** @class */ (function (_super) {
                 this.rendered.left_ = '';
                 style.left = '';
             }
-            var right = Math.round(mapSize[0] - pixel[0] - offsetX) + 'px';
+            const right = Math.round(mapSize[0] - pixel[0] - offsetX) + 'px';
             if (this.rendered.right_ != right) {
                 this.rendered.right_ = right;
                 style.right = right;
@@ -487,7 +472,7 @@ var Overlay = /** @class */ (function (_super) {
                 positioning == OverlayPositioning.TOP_CENTER) {
                 offsetX -= this.element.offsetWidth / 2;
             }
-            var left = Math.round(pixel[0] + offsetX) + 'px';
+            const left = Math.round(pixel[0] + offsetX) + 'px';
             if (this.rendered.left_ != left) {
                 this.rendered.left_ = left;
                 style.left = left;
@@ -500,7 +485,7 @@ var Overlay = /** @class */ (function (_super) {
                 this.rendered.top_ = '';
                 style.top = '';
             }
-            var bottom = Math.round(mapSize[1] - pixel[1] - offsetY) + 'px';
+            const bottom = Math.round(mapSize[1] - pixel[1] - offsetY) + 'px';
             if (this.rendered.bottom_ != bottom) {
                 this.rendered.bottom_ = bottom;
                 style.bottom = bottom;
@@ -516,21 +501,20 @@ var Overlay = /** @class */ (function (_super) {
                 positioning == OverlayPositioning.CENTER_RIGHT) {
                 offsetY -= this.element.offsetHeight / 2;
             }
-            var top_1 = Math.round(pixel[1] + offsetY) + 'px';
-            if (this.rendered.top_ != top_1) {
+            const top = Math.round(pixel[1] + offsetY) + 'px';
+            if (this.rendered.top_ != top) {
                 this.rendered.top_ = 'top';
-                style.top = top_1;
+                style.top = top;
             }
         }
-    };
+    }
     /**
      * returns the options this Overlay has been created with
      * @return {Options} overlay options
      */
-    Overlay.prototype.getOptions = function () {
+    getOptions() {
         return this.options;
-    };
-    return Overlay;
-}(BaseObject));
+    }
+}
 export default Overlay;
 //# sourceMappingURL=Overlay.js.map

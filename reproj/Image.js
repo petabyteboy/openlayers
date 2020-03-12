@@ -1,16 +1,3 @@
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 /**
  * @module ol/reproj/Image
  */
@@ -30,8 +17,7 @@ import Triangulation from './Triangulation.js';
  * Class encapsulating single reprojected image.
  * See {@link module:ol/source/Image~ImageSource}.
  */
-var ReprojImage = /** @class */ (function (_super) {
-    __extends(ReprojImage, _super);
+class ReprojImage extends ImageBase {
     /**
      * @param {import("../proj/Projection.js").default} sourceProj Source projection (of the data).
      * @param {import("../proj/Projection.js").default} targetProj Target projection.
@@ -41,97 +27,95 @@ var ReprojImage = /** @class */ (function (_super) {
      * @param {FunctionType} getImageFunction
      *     Function returning source images (extent, resolution, pixelRatio).
      */
-    function ReprojImage(sourceProj, targetProj, targetExtent, targetResolution, pixelRatio, getImageFunction) {
-        var _this = this;
-        var maxSourceExtent = sourceProj.getExtent();
-        var maxTargetExtent = targetProj.getExtent();
-        var limitedTargetExtent = maxTargetExtent ?
+    constructor(sourceProj, targetProj, targetExtent, targetResolution, pixelRatio, getImageFunction) {
+        const maxSourceExtent = sourceProj.getExtent();
+        const maxTargetExtent = targetProj.getExtent();
+        const limitedTargetExtent = maxTargetExtent ?
             getIntersection(targetExtent, maxTargetExtent) : targetExtent;
-        var targetCenter = getCenter(limitedTargetExtent);
-        var sourceResolution = calculateSourceResolution(sourceProj, targetProj, targetCenter, targetResolution);
-        var errorThresholdInPixels = ERROR_THRESHOLD;
-        var triangulation = new Triangulation(sourceProj, targetProj, limitedTargetExtent, maxSourceExtent, sourceResolution * errorThresholdInPixels);
-        var sourceExtent = triangulation.calculateSourceExtent();
-        var sourceImage = getImageFunction(sourceExtent, sourceResolution, pixelRatio);
-        var state = sourceImage ? ImageState.IDLE : ImageState.EMPTY;
-        var sourcePixelRatio = sourceImage ? sourceImage.getPixelRatio() : 1;
-        _this = _super.call(this, targetExtent, targetResolution, sourcePixelRatio, state) || this;
+        const targetCenter = getCenter(limitedTargetExtent);
+        const sourceResolution = calculateSourceResolution(sourceProj, targetProj, targetCenter, targetResolution);
+        const errorThresholdInPixels = ERROR_THRESHOLD;
+        const triangulation = new Triangulation(sourceProj, targetProj, limitedTargetExtent, maxSourceExtent, sourceResolution * errorThresholdInPixels);
+        const sourceExtent = triangulation.calculateSourceExtent();
+        const sourceImage = getImageFunction(sourceExtent, sourceResolution, pixelRatio);
+        const state = sourceImage ? ImageState.IDLE : ImageState.EMPTY;
+        const sourcePixelRatio = sourceImage ? sourceImage.getPixelRatio() : 1;
+        super(targetExtent, targetResolution, sourcePixelRatio, state);
         /**
          * @private
          * @type {import("../proj/Projection.js").default}
          */
-        _this.targetProj_ = targetProj;
+        this.targetProj_ = targetProj;
         /**
          * @private
          * @type {import("../extent.js").Extent}
          */
-        _this.maxSourceExtent_ = maxSourceExtent;
+        this.maxSourceExtent_ = maxSourceExtent;
         /**
          * @private
          * @type {!import("./Triangulation.js").default}
          */
-        _this.triangulation_ = triangulation;
+        this.triangulation_ = triangulation;
         /**
          * @private
          * @type {number}
          */
-        _this.targetResolution_ = targetResolution;
+        this.targetResolution_ = targetResolution;
         /**
          * @private
          * @type {import("../extent.js").Extent}
          */
-        _this.targetExtent_ = targetExtent;
+        this.targetExtent_ = targetExtent;
         /**
          * @private
          * @type {import("../ImageBase.js").default}
          */
-        _this.sourceImage_ = sourceImage;
+        this.sourceImage_ = sourceImage;
         /**
          * @private
          * @type {number}
          */
-        _this.sourcePixelRatio_ = sourcePixelRatio;
+        this.sourcePixelRatio_ = sourcePixelRatio;
         /**
          * @private
          * @type {HTMLCanvasElement}
          */
-        _this.canvas_ = null;
+        this.canvas_ = null;
         /**
          * @private
          * @type {?import("../events.js").EventsKey}
          */
-        _this.sourceListenerKey_ = null;
-        return _this;
+        this.sourceListenerKey_ = null;
     }
     /**
      * @inheritDoc
      */
-    ReprojImage.prototype.disposeInternal = function () {
+    disposeInternal() {
         if (this.state == ImageState.LOADING) {
             this.unlistenSource_();
         }
-        _super.prototype.disposeInternal.call(this);
-    };
+        super.disposeInternal();
+    }
     /**
      * @inheritDoc
      */
-    ReprojImage.prototype.getImage = function () {
+    getImage() {
         return this.canvas_;
-    };
+    }
     /**
      * @return {import("../proj/Projection.js").default} Projection.
      */
-    ReprojImage.prototype.getProjection = function () {
+    getProjection() {
         return this.targetProj_;
-    };
+    }
     /**
      * @private
      */
-    ReprojImage.prototype.reproject_ = function () {
-        var sourceState = this.sourceImage_.getState();
+    reproject_() {
+        const sourceState = this.sourceImage_.getState();
         if (sourceState == ImageState.LOADED) {
-            var width = getWidth(this.targetExtent_) / this.targetResolution_;
-            var height = getHeight(this.targetExtent_) / this.targetResolution_;
+            const width = getWidth(this.targetExtent_) / this.targetResolution_;
+            const height = getHeight(this.targetExtent_) / this.targetResolution_;
             this.canvas_ = renderReprojected(width, height, this.sourcePixelRatio_, this.sourceImage_.getResolution(), this.maxSourceExtent_, this.targetResolution_, this.targetExtent_, this.triangulation_, [{
                     extent: this.sourceImage_.getExtent(),
                     image: this.sourceImage_.getImage()
@@ -139,21 +123,21 @@ var ReprojImage = /** @class */ (function (_super) {
         }
         this.state = sourceState;
         this.changed();
-    };
+    }
     /**
      * @inheritDoc
      */
-    ReprojImage.prototype.load = function () {
+    load() {
         if (this.state == ImageState.IDLE) {
             this.state = ImageState.LOADING;
             this.changed();
-            var sourceState = this.sourceImage_.getState();
+            const sourceState = this.sourceImage_.getState();
             if (sourceState == ImageState.LOADED || sourceState == ImageState.ERROR) {
                 this.reproject_();
             }
             else {
                 this.sourceListenerKey_ = listen(this.sourceImage_, EventType.CHANGE, function (e) {
-                    var sourceState = this.sourceImage_.getState();
+                    const sourceState = this.sourceImage_.getState();
                     if (sourceState == ImageState.LOADED || sourceState == ImageState.ERROR) {
                         this.unlistenSource_();
                         this.reproject_();
@@ -162,15 +146,14 @@ var ReprojImage = /** @class */ (function (_super) {
                 this.sourceImage_.load();
             }
         }
-    };
+    }
     /**
      * @private
      */
-    ReprojImage.prototype.unlistenSource_ = function () {
+    unlistenSource_() {
         unlistenByKey(/** @type {!import("../events.js").EventsKey} */ (this.sourceListenerKey_));
         this.sourceListenerKey_ = null;
-    };
-    return ReprojImage;
-}(ImageBase));
+    }
+}
 export default ReprojImage;
 //# sourceMappingURL=Image.js.map

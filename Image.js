@@ -1,16 +1,3 @@
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 /**
  * @module ol/Image
  */
@@ -37,8 +24,7 @@ import { IMAGE_DECODE } from './has.js';
  * @typedef {function(ImageWrapper, string): void} LoadFunction
  * @api
  */
-var ImageWrapper = /** @class */ (function (_super) {
-    __extends(ImageWrapper, _super);
+class ImageWrapper extends ImageBase {
     /**
      * @param {import("./extent.js").Extent} extent Extent.
      * @param {number|undefined} resolution Resolution.
@@ -47,68 +33,67 @@ var ImageWrapper = /** @class */ (function (_super) {
      * @param {?string} crossOrigin Cross origin.
      * @param {LoadFunction} imageLoadFunction Image load function.
      */
-    function ImageWrapper(extent, resolution, pixelRatio, src, crossOrigin, imageLoadFunction) {
-        var _this = _super.call(this, extent, resolution, pixelRatio, ImageState.IDLE) || this;
+    constructor(extent, resolution, pixelRatio, src, crossOrigin, imageLoadFunction) {
+        super(extent, resolution, pixelRatio, ImageState.IDLE);
         /**
          * @private
          * @type {string}
          */
-        _this.src_ = src;
+        this.src_ = src;
         /**
          * @private
          * @type {HTMLCanvasElement|HTMLImageElement|HTMLVideoElement}
          */
-        _this.image_ = new Image();
+        this.image_ = new Image();
         if (crossOrigin !== null) {
-            _this.image_.crossOrigin = crossOrigin;
+            this.image_.crossOrigin = crossOrigin;
         }
         /**
          * @private
          * @type {?function():void}
          */
-        _this.unlisten_ = null;
+        this.unlisten_ = null;
         /**
          * @protected
          * @type {ImageState}
          */
-        _this.state = ImageState.IDLE;
+        this.state = ImageState.IDLE;
         /**
          * @private
          * @type {LoadFunction}
          */
-        _this.imageLoadFunction_ = imageLoadFunction;
-        return _this;
+        this.imageLoadFunction_ = imageLoadFunction;
     }
     /**
      * @inheritDoc
      * @api
      */
-    ImageWrapper.prototype.getImage = function () {
+    getImage() {
         return this.image_;
-    };
+    }
     /**
      * Tracks loading or read errors.
      *
      * @private
      */
-    ImageWrapper.prototype.handleImageError_ = function () {
+    handleImageError_() {
         this.state = ImageState.ERROR;
         this.unlistenImage_();
         this.changed();
-    };
+    }
     /**
      * Tracks successful image load.
      *
      * @private
      */
-    ImageWrapper.prototype.handleImageLoad_ = function () {
+    handleImageLoad_() {
         if (this.resolution === undefined) {
             this.resolution = getHeight(this.extent) / this.image_.height;
         }
         this.state = ImageState.LOADED;
         this.unlistenImage_();
         this.changed();
-    };
+    }
     /**
      * Load the image or retry if loading previously failed.
      * Loading is taken care of by the tile queue, and calling this method is
@@ -116,33 +101,32 @@ var ImageWrapper = /** @class */ (function (_super) {
      * @override
      * @api
      */
-    ImageWrapper.prototype.load = function () {
+    load() {
         if (this.state == ImageState.IDLE || this.state == ImageState.ERROR) {
             this.state = ImageState.LOADING;
             this.changed();
             this.imageLoadFunction_(this, this.src_);
             this.unlisten_ = listenImage(this.image_, this.handleImageLoad_.bind(this), this.handleImageError_.bind(this));
         }
-    };
+    }
     /**
      * @param {HTMLCanvasElement|HTMLImageElement|HTMLVideoElement} image Image.
      */
-    ImageWrapper.prototype.setImage = function (image) {
+    setImage(image) {
         this.image_ = image;
-    };
+    }
     /**
      * Discards event handlers which listen for load completion or errors.
      *
      * @private
      */
-    ImageWrapper.prototype.unlistenImage_ = function () {
+    unlistenImage_() {
         if (this.unlisten_) {
             this.unlisten_();
             this.unlisten_ = null;
         }
-    };
-    return ImageWrapper;
-}(ImageBase));
+    }
+}
 /**
  * @param {HTMLCanvasElement|HTMLImageElement|HTMLVideoElement} image Image element.
  * @param {function():any} loadHandler Load callback function.
@@ -150,19 +134,19 @@ var ImageWrapper = /** @class */ (function (_super) {
  * @return {function():void} Callback to stop listening.
  */
 export function listenImage(image, loadHandler, errorHandler) {
-    var img = /** @type {HTMLImageElement} */ (image);
+    const img = /** @type {HTMLImageElement} */ (image);
     if (img.src && IMAGE_DECODE) {
-        var promise = img.decode();
-        var listening_1 = true;
-        var unlisten = function () {
-            listening_1 = false;
+        const promise = img.decode();
+        let listening = true;
+        const unlisten = function () {
+            listening = false;
         };
         promise.then(function () {
-            if (listening_1) {
+            if (listening) {
                 loadHandler();
             }
         }).catch(function (error) {
-            if (listening_1) {
+            if (listening) {
                 // FIXME: Unconditionally call errorHandler() when this bug is fixed upstream:
                 //        https://bugs.webkit.org/show_bug.cgi?id=198527
                 if (error.name === 'EncodingError' && error.message === 'Invalid image type.') {
@@ -175,7 +159,7 @@ export function listenImage(image, loadHandler, errorHandler) {
         });
         return unlisten;
     }
-    var listenerKeys = [
+    const listenerKeys = [
         listenOnce(img, EventType.LOAD, loadHandler),
         listenOnce(img, EventType.ERROR, errorHandler)
     ];

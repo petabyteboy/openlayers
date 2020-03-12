@@ -1,16 +1,3 @@
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 /**
  * @module ol/renderer/canvas/Layer
  */
@@ -25,59 +12,57 @@ import { create as createTransform, apply as applyTransform, compose as composeT
  * @abstract
  * @template {import("../../layer/Layer.js").default} LayerType
  */
-var CanvasLayerRenderer = /** @class */ (function (_super) {
-    __extends(CanvasLayerRenderer, _super);
+class CanvasLayerRenderer extends LayerRenderer {
     /**
      * @param {LayerType} layer Layer.
      */
-    function CanvasLayerRenderer(layer) {
-        var _this = _super.call(this, layer) || this;
+    constructor(layer) {
+        super(layer);
         /**
          * @protected
          * @type {HTMLElement}
          */
-        _this.container = null;
+        this.container = null;
         /**
          * @protected
          * @type {number}
          */
-        _this.renderedResolution;
+        this.renderedResolution;
         /**
          * A temporary transform.  The values in this transform should only be used in a
          * function that sets the values.
          * @private
          * @type {import("../../transform.js").Transform}
          */
-        _this.tempTransform_ = createTransform();
+        this.tempTransform_ = createTransform();
         /**
          * The transform for rendered pixels to viewport CSS pixels.  This transform must
          * be set when rendering a frame and may be used by other functions after rendering.
          * @protected
          * @type {import("../../transform.js").Transform}
          */
-        _this.pixelTransform = createTransform();
+        this.pixelTransform = createTransform();
         /**
          * The transform for viewport CSS pixels to rendered pixels.  This transform must
          * be set when rendering a frame and may be used by other functions after rendering.
          * @protected
          * @type {import("../../transform.js").Transform}
          */
-        _this.inversePixelTransform = createTransform();
+        this.inversePixelTransform = createTransform();
         /**
          * @protected
          * @type {CanvasRenderingContext2D}
          */
-        _this.context = null;
+        this.context = null;
         /**
          * @type {boolean}
          */
-        _this.containerReused = false;
+        this.containerReused = false;
         /**
          * @type {HTMLCanvasElement}
          * @private
          */
-        _this.createTransformStringCanvas_ = createCanvasContext2D(1, 1).canvas;
-        return _this;
+        this.createTransformStringCanvas_ = createCanvasContext2D(1, 1).canvas;
     }
     /**
      * Get a rendering container from an existing target, if compatible.
@@ -85,11 +70,11 @@ var CanvasLayerRenderer = /** @class */ (function (_super) {
      * @param {string} transform CSS Transform.
      * @param {number} opacity Opacity.
      */
-    CanvasLayerRenderer.prototype.useContainer = function (target, transform, opacity) {
-        var layerClassName = this.getLayer().getClassName();
-        var container, context;
+    useContainer(target, transform, opacity) {
+        const layerClassName = this.getLayer().getClassName();
+        let container, context;
         if (target && target.style.opacity === '' && target.className === layerClassName) {
-            var canvas = target.firstElementChild;
+            const canvas = target.firstElementChild;
             if (canvas instanceof HTMLCanvasElement) {
                 context = canvas.getContext('2d');
             }
@@ -109,12 +94,12 @@ var CanvasLayerRenderer = /** @class */ (function (_super) {
         if (!this.container) {
             container = document.createElement('div');
             container.className = layerClassName;
-            var style = container.style;
+            let style = container.style;
             style.position = 'absolute';
             style.width = '100%';
             style.height = '100%';
             context = createCanvasContext2D();
-            var canvas = context.canvas;
+            const canvas = context.canvas;
             container.appendChild(canvas);
             style = canvas.style;
             style.position = 'absolute';
@@ -123,22 +108,22 @@ var CanvasLayerRenderer = /** @class */ (function (_super) {
             this.container = container;
             this.context = context;
         }
-    };
+    }
     /**
      * @param {CanvasRenderingContext2D} context Context.
      * @param {import("../../PluggableMap.js").FrameState} frameState Frame state.
      * @param {import("../../extent.js").Extent} extent Clip extent.
      * @protected
      */
-    CanvasLayerRenderer.prototype.clip = function (context, frameState, extent) {
-        var pixelRatio = frameState.pixelRatio;
-        var halfWidth = (frameState.size[0] * pixelRatio) / 2;
-        var halfHeight = (frameState.size[1] * pixelRatio) / 2;
-        var rotation = frameState.viewState.rotation;
-        var topLeft = getTopLeft(extent);
-        var topRight = getTopRight(extent);
-        var bottomRight = getBottomRight(extent);
-        var bottomLeft = getBottomLeft(extent);
+    clip(context, frameState, extent) {
+        const pixelRatio = frameState.pixelRatio;
+        const halfWidth = (frameState.size[0] * pixelRatio) / 2;
+        const halfHeight = (frameState.size[1] * pixelRatio) / 2;
+        const rotation = frameState.viewState.rotation;
+        const topLeft = getTopLeft(extent);
+        const topRight = getTopRight(extent);
+        const bottomRight = getBottomRight(extent);
+        const bottomLeft = getBottomLeft(extent);
         applyTransform(frameState.coordinateToPixelTransform, topLeft);
         applyTransform(frameState.coordinateToPixelTransform, topRight);
         applyTransform(frameState.coordinateToPixelTransform, bottomRight);
@@ -152,23 +137,23 @@ var CanvasLayerRenderer = /** @class */ (function (_super) {
         context.lineTo(bottomLeft[0] * pixelRatio, bottomLeft[1] * pixelRatio);
         context.clip();
         rotateAtOffset(context, rotation, halfWidth, halfHeight);
-    };
+    }
     /**
      * @param {CanvasRenderingContext2D} context Context.
      * @param {import("../../PluggableMap.js").FrameState} frameState Frame state.
      * @param {import("../../extent.js").Extent} extent Clip extent.
      * @protected
      */
-    CanvasLayerRenderer.prototype.clipUnrotated = function (context, frameState, extent) {
-        var topLeft = getTopLeft(extent);
-        var topRight = getTopRight(extent);
-        var bottomRight = getBottomRight(extent);
-        var bottomLeft = getBottomLeft(extent);
+    clipUnrotated(context, frameState, extent) {
+        const topLeft = getTopLeft(extent);
+        const topRight = getTopRight(extent);
+        const bottomRight = getBottomRight(extent);
+        const bottomLeft = getBottomLeft(extent);
         applyTransform(frameState.coordinateToPixelTransform, topLeft);
         applyTransform(frameState.coordinateToPixelTransform, topRight);
         applyTransform(frameState.coordinateToPixelTransform, bottomRight);
         applyTransform(frameState.coordinateToPixelTransform, bottomLeft);
-        var inverted = this.inversePixelTransform;
+        const inverted = this.inversePixelTransform;
         applyTransform(inverted, topLeft);
         applyTransform(inverted, topRight);
         applyTransform(inverted, bottomRight);
@@ -180,36 +165,36 @@ var CanvasLayerRenderer = /** @class */ (function (_super) {
         context.lineTo(Math.round(bottomRight[0]), Math.round(bottomRight[1]));
         context.lineTo(Math.round(bottomLeft[0]), Math.round(bottomLeft[1]));
         context.clip();
-    };
+    }
     /**
      * @param {import("../../render/EventType.js").default} type Event type.
      * @param {CanvasRenderingContext2D} context Context.
      * @param {import("../../PluggableMap.js").FrameState} frameState Frame state.
      * @private
      */
-    CanvasLayerRenderer.prototype.dispatchRenderEvent_ = function (type, context, frameState) {
-        var layer = this.getLayer();
+    dispatchRenderEvent_(type, context, frameState) {
+        const layer = this.getLayer();
         if (layer.hasListener(type)) {
-            var event_1 = new RenderEvent(type, this.inversePixelTransform, frameState, context);
-            layer.dispatchEvent(event_1);
+            const event = new RenderEvent(type, this.inversePixelTransform, frameState, context);
+            layer.dispatchEvent(event);
         }
-    };
+    }
     /**
      * @param {CanvasRenderingContext2D} context Context.
      * @param {import("../../PluggableMap.js").FrameState} frameState Frame state.
      * @protected
      */
-    CanvasLayerRenderer.prototype.preRender = function (context, frameState) {
+    preRender(context, frameState) {
         this.dispatchRenderEvent_(RenderEventType.PRERENDER, context, frameState);
-    };
+    }
     /**
      * @param {CanvasRenderingContext2D} context Context.
      * @param {import("../../PluggableMap.js").FrameState} frameState Frame state.
      * @protected
      */
-    CanvasLayerRenderer.prototype.postRender = function (context, frameState) {
+    postRender(context, frameState) {
         this.dispatchRenderEvent_(RenderEventType.POSTRENDER, context, frameState);
-    };
+    }
     /**
      * Creates a transform for rendering to an element that will be rotated after rendering.
      * @param {import("../../coordinate.js").Coordinate} center Center.
@@ -222,15 +207,15 @@ var CanvasLayerRenderer = /** @class */ (function (_super) {
      * @protected
      * @return {!import("../../transform.js").Transform} Transform.
      */
-    CanvasLayerRenderer.prototype.getRenderTransform = function (center, resolution, rotation, pixelRatio, width, height, offsetX) {
-        var dx1 = width / 2;
-        var dy1 = height / 2;
-        var sx = pixelRatio / resolution;
-        var sy = -sx;
-        var dx2 = -center[0] + offsetX;
-        var dy2 = -center[1];
+    getRenderTransform(center, resolution, rotation, pixelRatio, width, height, offsetX) {
+        const dx1 = width / 2;
+        const dy1 = height / 2;
+        const sx = pixelRatio / resolution;
+        const sy = -sx;
+        const dx2 = -center[0] + offsetX;
+        const dy2 = -center[1];
         return composeTransform(this.tempTransform_, dx1, dy1, sx, sy, -rotation, dx2, dy2);
-    };
+    }
     /**
      * @param {import("../../pixel.js").Pixel} pixel Pixel.
      * @param {import("../../PluggableMap.js").FrameState} frameState FrameState.
@@ -239,10 +224,10 @@ var CanvasLayerRenderer = /** @class */ (function (_super) {
      *    location, null will be returned.  If there is data, but pixel values cannot be
      *    returned, and empty array will be returned.
      */
-    CanvasLayerRenderer.prototype.getDataAtPixel = function (pixel, frameState, hitTolerance) {
-        var renderPixel = applyTransform(this.inversePixelTransform, pixel.slice());
-        var context = this.context;
-        var data;
+    getDataAtPixel(pixel, frameState, hitTolerance) {
+        const renderPixel = applyTransform(this.inversePixelTransform, pixel.slice());
+        const context = this.context;
+        let data;
         try {
             data = context.getImageData(Math.round(renderPixel[0]), Math.round(renderPixel[1]), 1, 1).data;
         }
@@ -257,16 +242,15 @@ var CanvasLayerRenderer = /** @class */ (function (_super) {
             return null;
         }
         return data;
-    };
+    }
     /**
      * @param {import("../../transform.js").Transform} transform Transform.
      * @return {string} CSS transform.
      */
-    CanvasLayerRenderer.prototype.createTransformString = function (transform) {
+    createTransformString(transform) {
         this.createTransformStringCanvas_.style.transform = toString(transform);
         return this.createTransformStringCanvas_.style.transform;
-    };
-    return CanvasLayerRenderer;
-}(LayerRenderer));
+    }
+}
 export default CanvasLayerRenderer;
 //# sourceMappingURL=Layer.js.map

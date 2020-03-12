@@ -1,19 +1,6 @@
 /**
  * @module ol/source/OSM
  */
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 import XYZ from './XYZ.js';
 /**
  * The attribution containing a link to the OpenStreetMap Copyright and License
@@ -22,7 +9,7 @@ import XYZ from './XYZ.js';
  * @type {string}
  * @api
  */
-export var ATTRIBUTION = '&#169; ' +
+export const ATTRIBUTION = '&#169; ' +
     '<a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> ' +
     'contributors.';
 /**
@@ -51,26 +38,24 @@ export var ATTRIBUTION = '&#169; ' +
  * Layer source for the OpenStreetMap tile server.
  * @api
  */
-var OSM = /** @class */ (function (_super) {
-    __extends(OSM, _super);
+class OSM extends XYZ {
     /**
      * @param {Options=} [opt_options] Open Street Map options.
      */
-    function OSM(opt_options) {
-        var _this = this;
-        var options = opt_options || {};
-        var attributions;
+    constructor(opt_options) {
+        const options = opt_options || {};
+        let attributions;
         if (options.attributions !== undefined) {
             attributions = options.attributions;
         }
         else {
             attributions = [ATTRIBUTION];
         }
-        var crossOrigin = options.crossOrigin !== undefined ?
+        const crossOrigin = options.crossOrigin !== undefined ?
             options.crossOrigin : 'anonymous';
-        var url = options.url !== undefined ?
+        const url = options.url !== undefined ?
             options.url : 'https://{a-c}.tile.openstreetmap.org/{z}/{x}/{y}.png';
-        _this = _super.call(this, {
+        super({
             attributions: attributions,
             cacheSize: options.cacheSize,
             crossOrigin: crossOrigin,
@@ -81,10 +66,8 @@ var OSM = /** @class */ (function (_super) {
             url: url,
             wrapX: options.wrapX,
             attributionsCollapsible: false
-        }) || this;
-        return _this;
+        });
     }
-    return OSM;
-}(XYZ));
+}
 export default OSM;
 //# sourceMappingURL=OSM.js.map

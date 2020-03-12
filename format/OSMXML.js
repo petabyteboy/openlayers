@@ -1,16 +1,3 @@
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 /**
  * @module ol/format/OSMXML
  */
@@ -30,13 +17,13 @@ import { pushParseAndPop, makeStructureNS } from '../xml.js';
  * @const
  * @type {Array<null>}
  */
-var NAMESPACE_URIS = [null];
+const NAMESPACE_URIS = [null];
 /**
  * @const
  * @type {Object<string, Object<string, import("../xml.js").Parser>>}
  */
 // @ts-ignore
-var WAY_PARSERS = makeStructureNS(NAMESPACE_URIS, {
+const WAY_PARSERS = makeStructureNS(NAMESPACE_URIS, {
     'nd': readNd,
     'tag': readTag
 });
@@ -45,7 +32,7 @@ var WAY_PARSERS = makeStructureNS(NAMESPACE_URIS, {
  * @type {Object<string, Object<string, import("../xml.js").Parser>>}
  */
 // @ts-ignore
-var PARSERS = makeStructureNS(NAMESPACE_URIS, {
+const PARSERS = makeStructureNS(NAMESPACE_URIS, {
     'node': readNode,
     'way': readWay
 });
@@ -56,37 +43,35 @@ var PARSERS = makeStructureNS(NAMESPACE_URIS, {
  *
  * @api
  */
-var OSMXML = /** @class */ (function (_super) {
-    __extends(OSMXML, _super);
-    function OSMXML() {
-        var _this = _super.call(this) || this;
+class OSMXML extends XMLFeature {
+    constructor() {
+        super();
         /**
          * @inheritDoc
          */
-        _this.dataProjection = getProjection('EPSG:4326');
-        return _this;
+        this.dataProjection = getProjection('EPSG:4326');
     }
     /**
      * @inheritDoc
      */
-    OSMXML.prototype.readFeaturesFromNode = function (node, opt_options) {
-        var options = this.getReadOptions(node, opt_options);
+    readFeaturesFromNode(node, opt_options) {
+        const options = this.getReadOptions(node, opt_options);
         if (node.localName == 'osm') {
-            var state = pushParseAndPop({
+            const state = pushParseAndPop({
                 nodes: {},
                 ways: [],
                 features: []
             }, PARSERS, node, [options]);
             // parse nodes in ways
-            for (var j = 0; j < state.ways.length; j++) {
-                var values = /** @type {Object} */ (state.ways[j]);
+            for (let j = 0; j < state.ways.length; j++) {
+                const values = /** @type {Object} */ (state.ways[j]);
                 /** @type {Array<number>} */
-                var flatCoordinates = [];
-                for (var i = 0, ii = values.ndrefs.length; i < ii; i++) {
-                    var point = state.nodes[values.ndrefs[i]];
+                const flatCoordinates = [];
+                for (let i = 0, ii = values.ndrefs.length; i < ii; i++) {
+                    const point = state.nodes[values.ndrefs[i]];
                     extend(flatCoordinates, point);
                 }
-                var geometry = void 0;
+                let geometry;
                 if (values.ndrefs[0] == values.ndrefs[values.ndrefs.length - 1]) {
                     // closed way
                     geometry = new Polygon(flatCoordinates, GeometryLayout.XY, [flatCoordinates.length]);
@@ -95,7 +80,7 @@ var OSMXML = /** @class */ (function (_super) {
                     geometry = new LineString(flatCoordinates, GeometryLayout.XY);
                 }
                 transformGeometryWithOptions(geometry, false, options);
-                var feature = new Feature(geometry);
+                const feature = new Feature(geometry);
                 feature.setId(values.id);
                 feature.setProperties(values.tags, true);
                 state.features.push(feature);
@@ -105,15 +90,14 @@ var OSMXML = /** @class */ (function (_super) {
             }
         }
         return [];
-    };
-    return OSMXML;
-}(XMLFeature));
+    }
+}
 /**
  * @const
  * @type {Object<string, Object<string, import("../xml.js").Parser>>}
  */
 // @ts-ignore
-var NODE_PARSERS = makeStructureNS(NAMESPACE_URIS, {
+const NODE_PARSERS = makeStructureNS(NAMESPACE_URIS, {
     'tag': readTag
 });
 /**
@@ -121,22 +105,22 @@ var NODE_PARSERS = makeStructureNS(NAMESPACE_URIS, {
  * @param {Array<*>} objectStack Object stack.
  */
 function readNode(node, objectStack) {
-    var options = /** @type {import("./Feature.js").ReadOptions} */ (objectStack[0]);
-    var state = /** @type {Object} */ (objectStack[objectStack.length - 1]);
-    var id = node.getAttribute('id');
+    const options = /** @type {import("./Feature.js").ReadOptions} */ (objectStack[0]);
+    const state = /** @type {Object} */ (objectStack[objectStack.length - 1]);
+    const id = node.getAttribute('id');
     /** @type {import("../coordinate.js").Coordinate} */
-    var coordinates = [
+    const coordinates = [
         parseFloat(node.getAttribute('lon')),
         parseFloat(node.getAttribute('lat'))
     ];
     state.nodes[id] = coordinates;
-    var values = pushParseAndPop({
+    const values = pushParseAndPop({
         tags: {}
     }, NODE_PARSERS, node, objectStack);
     if (!isEmpty(values.tags)) {
-        var geometry = new Point(coordinates);
+        const geometry = new Point(coordinates);
         transformGeometryWithOptions(geometry, false, options);
-        var feature = new Feature(geometry);
+        const feature = new Feature(geometry);
         feature.setId(id);
         feature.setProperties(values.tags, true);
         state.features.push(feature);
@@ -147,13 +131,13 @@ function readNode(node, objectStack) {
  * @param {Array<*>} objectStack Object stack.
  */
 function readWay(node, objectStack) {
-    var id = node.getAttribute('id');
-    var values = pushParseAndPop({
+    const id = node.getAttribute('id');
+    const values = pushParseAndPop({
         id: id,
         ndrefs: [],
         tags: {}
     }, WAY_PARSERS, node, objectStack);
-    var state = /** @type {Object} */ (objectStack[objectStack.length - 1]);
+    const state = /** @type {Object} */ (objectStack[objectStack.length - 1]);
     state.ways.push(values);
 }
 /**
@@ -161,7 +145,7 @@ function readWay(node, objectStack) {
  * @param {Array<*>} objectStack Object stack.
  */
 function readNd(node, objectStack) {
-    var values = /** @type {Object} */ (objectStack[objectStack.length - 1]);
+    const values = /** @type {Object} */ (objectStack[objectStack.length - 1]);
     values.ndrefs.push(node.getAttribute('ref'));
 }
 /**
@@ -169,7 +153,7 @@ function readNd(node, objectStack) {
  * @param {Array<*>} objectStack Object stack.
  */
 function readTag(node, objectStack) {
-    var values = /** @type {Object} */ (objectStack[objectStack.length - 1]);
+    const values = /** @type {Object} */ (objectStack[objectStack.length - 1]);
     values.tags[node.getAttribute('k')] = node.getAttribute('v');
 }
 export default OSMXML;

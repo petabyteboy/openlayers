@@ -9,7 +9,7 @@
  * @return {number} offset Offset.
  */
 export function deflateCoordinate(flatCoordinates, offset, coordinate, stride) {
-    for (var i = 0, ii = coordinate.length; i < ii; ++i) {
+    for (let i = 0, ii = coordinate.length; i < ii; ++i) {
         flatCoordinates[offset++] = coordinate[i];
     }
     return offset;
@@ -22,9 +22,9 @@ export function deflateCoordinate(flatCoordinates, offset, coordinate, stride) {
  * @return {number} offset Offset.
  */
 export function deflateCoordinates(flatCoordinates, offset, coordinates, stride) {
-    for (var i = 0, ii = coordinates.length; i < ii; ++i) {
-        var coordinate = coordinates[i];
-        for (var j = 0; j < stride; ++j) {
+    for (let i = 0, ii = coordinates.length; i < ii; ++i) {
+        const coordinate = coordinates[i];
+        for (let j = 0; j < stride; ++j) {
             flatCoordinates[offset++] = coordinate[j];
         }
     }
@@ -39,10 +39,10 @@ export function deflateCoordinates(flatCoordinates, offset, coordinates, stride)
  * @return {Array<number>} Ends.
  */
 export function deflateCoordinatesArray(flatCoordinates, offset, coordinatess, stride, opt_ends) {
-    var ends = opt_ends ? opt_ends : [];
-    var i = 0;
-    for (var j = 0, jj = coordinatess.length; j < jj; ++j) {
-        var end = deflateCoordinates(flatCoordinates, offset, coordinatess[j], stride);
+    const ends = opt_ends ? opt_ends : [];
+    let i = 0;
+    for (let j = 0, jj = coordinatess.length; j < jj; ++j) {
+        const end = deflateCoordinates(flatCoordinates, offset, coordinatess[j], stride);
         ends[i++] = end;
         offset = end;
     }
@@ -58,10 +58,10 @@ export function deflateCoordinatesArray(flatCoordinates, offset, coordinatess, s
  * @return {Array<Array<number>>} Endss.
  */
 export function deflateMultiCoordinatesArray(flatCoordinates, offset, coordinatesss, stride, opt_endss) {
-    var endss = opt_endss ? opt_endss : [];
-    var i = 0;
-    for (var j = 0, jj = coordinatesss.length; j < jj; ++j) {
-        var ends = deflateCoordinatesArray(flatCoordinates, offset, coordinatesss[j], stride, endss[i]);
+    const endss = opt_endss ? opt_endss : [];
+    let i = 0;
+    for (let j = 0, jj = coordinatesss.length; j < jj; ++j) {
+        const ends = deflateCoordinatesArray(flatCoordinates, offset, coordinatesss[j], stride, endss[i]);
         endss[i++] = ends;
         offset = ends[ends.length - 1];
     }

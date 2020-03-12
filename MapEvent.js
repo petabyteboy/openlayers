@@ -1,16 +1,3 @@
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 /**
  * @module ol/MapEvent
  */
@@ -20,30 +7,27 @@ import Event from './events/Event.js';
  * Events emitted as map events are instances of this type.
  * See {@link module:ol/PluggableMap~PluggableMap} for which events trigger a map event.
  */
-var MapEvent = /** @class */ (function (_super) {
-    __extends(MapEvent, _super);
+class MapEvent extends Event {
     /**
      * @param {string} type Event type.
      * @param {import("./PluggableMap.js").default} map Map.
      * @param {?import("./PluggableMap.js").FrameState=} opt_frameState Frame state.
      */
-    function MapEvent(type, map, opt_frameState) {
-        var _this = _super.call(this, type) || this;
+    constructor(type, map, opt_frameState) {
+        super(type);
         /**
          * The map where the event occurred.
          * @type {import("./PluggableMap.js").default}
          * @api
          */
-        _this.map = map;
+        this.map = map;
         /**
          * The frame state at the time of the event.
          * @type {?import("./PluggableMap.js").FrameState}
          * @api
          */
-        _this.frameState = opt_frameState !== undefined ? opt_frameState : null;
-        return _this;
+        this.frameState = opt_frameState !== undefined ? opt_frameState : null;
     }
-    return MapEvent;
-}(Event));
+}
 export default MapEvent;
 //# sourceMappingURL=MapEvent.js.map

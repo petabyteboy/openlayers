@@ -1,16 +1,3 @@
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 /**
  * @module ol/style/Icon
  */
@@ -62,84 +49,82 @@ import ImageStyle from './Image.js';
  * Set icon style for vector features.
  * @api
  */
-var Icon = /** @class */ (function (_super) {
-    __extends(Icon, _super);
+class Icon extends ImageStyle {
     /**
      * @param {Options=} opt_options Options.
      */
-    function Icon(opt_options) {
-        var _this = this;
-        var options = opt_options || {};
+    constructor(opt_options) {
+        const options = opt_options || {};
         /**
          * @type {number}
          */
-        var opacity = options.opacity !== undefined ? options.opacity : 1;
+        const opacity = options.opacity !== undefined ? options.opacity : 1;
         /**
          * @type {number}
          */
-        var rotation = options.rotation !== undefined ? options.rotation : 0;
+        const rotation = options.rotation !== undefined ? options.rotation : 0;
         /**
          * @type {number}
          */
-        var scale = options.scale !== undefined ? options.scale : 1;
+        const scale = options.scale !== undefined ? options.scale : 1;
         /**
          * @type {boolean}
          */
-        var rotateWithView = options.rotateWithView !== undefined ?
+        const rotateWithView = options.rotateWithView !== undefined ?
             options.rotateWithView : false;
-        _this = _super.call(this, {
+        super({
             opacity: opacity,
             rotation: rotation,
             scale: scale,
             displacement: options.displacement !== undefined ? options.displacement : [0, 0],
             rotateWithView: rotateWithView
-        }) || this;
+        });
         /**
          * @private
          * @type {Array<number>}
          */
-        _this.anchor_ = options.anchor !== undefined ? options.anchor : [0.5, 0.5];
+        this.anchor_ = options.anchor !== undefined ? options.anchor : [0.5, 0.5];
         /**
          * @private
          * @type {Array<number>}
          */
-        _this.normalizedAnchor_ = null;
+        this.normalizedAnchor_ = null;
         /**
          * @private
          * @type {import("./IconOrigin.js").default}
          */
-        _this.anchorOrigin_ = options.anchorOrigin !== undefined ?
+        this.anchorOrigin_ = options.anchorOrigin !== undefined ?
             options.anchorOrigin : IconOrigin.TOP_LEFT;
         /**
          * @private
          * @type {import("./IconAnchorUnits.js").default}
          */
-        _this.anchorXUnits_ = options.anchorXUnits !== undefined ?
+        this.anchorXUnits_ = options.anchorXUnits !== undefined ?
             options.anchorXUnits : IconAnchorUnits.FRACTION;
         /**
          * @private
          * @type {import("./IconAnchorUnits.js").default}
          */
-        _this.anchorYUnits_ = options.anchorYUnits !== undefined ?
+        this.anchorYUnits_ = options.anchorYUnits !== undefined ?
             options.anchorYUnits : IconAnchorUnits.FRACTION;
         /**
          * @private
          * @type {?string}
          */
-        _this.crossOrigin_ =
+        this.crossOrigin_ =
             options.crossOrigin !== undefined ? options.crossOrigin : null;
         /**
          * @type {HTMLImageElement|HTMLCanvasElement}
          */
-        var image = options.img !== undefined ? options.img : null;
+        const image = options.img !== undefined ? options.img : null;
         /**
          * @type {import("../size.js").Size}
          */
-        var imgSize = options.imgSize !== undefined ? options.imgSize : null;
+        const imgSize = options.imgSize !== undefined ? options.imgSize : null;
         /**
          * @type {string|undefined}
          */
-        var src = options.src;
+        let src = options.src;
         assert(!(src !== undefined && image), 4); // `image` and `src` cannot be provided at the same time
         assert(!image || (image && imgSize), 5); // `imgSize` must be set when `image` is provided
         if ((src === undefined || src.length === 0) && image) {
@@ -149,47 +134,46 @@ var Icon = /** @class */ (function (_super) {
         /**
          * @type {import("../ImageState.js").default}
          */
-        var imageState = options.src !== undefined ?
+        const imageState = options.src !== undefined ?
             ImageState.IDLE : ImageState.LOADED;
         /**
          * @private
          * @type {import("../color.js").Color}
          */
-        _this.color_ = options.color !== undefined ? asArray(options.color) : null;
+        this.color_ = options.color !== undefined ? asArray(options.color) : null;
         /**
          * @private
          * @type {import("./IconImage.js").default}
          */
-        _this.iconImage_ = getIconImage(image, /** @type {string} */ (src), imgSize, _this.crossOrigin_, imageState, _this.color_);
+        this.iconImage_ = getIconImage(image, /** @type {string} */ (src), imgSize, this.crossOrigin_, imageState, this.color_);
         /**
          * @private
          * @type {Array<number>}
          */
-        _this.offset_ = options.offset !== undefined ? options.offset : [0, 0];
+        this.offset_ = options.offset !== undefined ? options.offset : [0, 0];
         /**
          * @private
          * @type {import("./IconOrigin.js").default}
          */
-        _this.offsetOrigin_ = options.offsetOrigin !== undefined ?
+        this.offsetOrigin_ = options.offsetOrigin !== undefined ?
             options.offsetOrigin : IconOrigin.TOP_LEFT;
         /**
          * @private
          * @type {Array<number>}
          */
-        _this.origin_ = null;
+        this.origin_ = null;
         /**
          * @private
          * @type {import("../size.js").Size}
          */
-        _this.size_ = options.size !== undefined ? options.size : null;
-        return _this;
+        this.size_ = options.size !== undefined ? options.size : null;
     }
     /**
      * Clones the style. The underlying Image/HTMLCanvasElement is not cloned.
      * @return {Icon} The cloned style.
      * @api
      */
-    Icon.prototype.clone = function () {
+    clone() {
         return new Icon({
             anchor: this.anchor_.slice(),
             anchorOrigin: this.anchorOrigin_,
@@ -206,17 +190,17 @@ var Icon = /** @class */ (function (_super) {
             rotation: this.getRotation(),
             rotateWithView: this.getRotateWithView()
         });
-    };
+    }
     /**
      * @inheritDoc
      * @api
      */
-    Icon.prototype.getAnchor = function () {
+    getAnchor() {
         if (this.normalizedAnchor_) {
             return this.normalizedAnchor_;
         }
-        var anchor = this.anchor_;
-        var size = this.getSize();
+        let anchor = this.anchor_;
+        const size = this.getSize();
         if (this.anchorXUnits_ == IconAnchorUnits.FRACTION ||
             this.anchorYUnits_ == IconAnchorUnits.FRACTION) {
             if (!size) {
@@ -248,7 +232,7 @@ var Icon = /** @class */ (function (_super) {
         }
         this.normalizedAnchor_ = anchor;
         return this.normalizedAnchor_;
-    };
+    }
     /**
      * Set the anchor point. The anchor determines the center point for the
      * symbolizer.
@@ -256,18 +240,18 @@ var Icon = /** @class */ (function (_super) {
      * @param {Array<number>} anchor Anchor.
      * @api
      */
-    Icon.prototype.setAnchor = function (anchor) {
+    setAnchor(anchor) {
         this.anchor_ = anchor;
         this.normalizedAnchor_ = null;
-    };
+    }
     /**
      * Get the icon color.
      * @return {import("../color.js").Color} Color.
      * @api
      */
-    Icon.prototype.getColor = function () {
+    getColor() {
         return this.color_;
-    };
+    }
     /**
      * Get the image icon.
      * @param {number} pixelRatio Pixel ratio.
@@ -275,46 +259,46 @@ var Icon = /** @class */ (function (_super) {
      * @override
      * @api
      */
-    Icon.prototype.getImage = function (pixelRatio) {
+    getImage(pixelRatio) {
         return this.iconImage_.getImage(pixelRatio);
-    };
+    }
     /**
      * @override
      */
-    Icon.prototype.getImageSize = function () {
+    getImageSize() {
         return this.iconImage_.getSize();
-    };
+    }
     /**
      * @override
      */
-    Icon.prototype.getHitDetectionImageSize = function () {
+    getHitDetectionImageSize() {
         return this.getImageSize();
-    };
+    }
     /**
      * @override
      */
-    Icon.prototype.getImageState = function () {
+    getImageState() {
         return this.iconImage_.getImageState();
-    };
+    }
     /**
      * @override
      */
-    Icon.prototype.getHitDetectionImage = function (pixelRatio) {
+    getHitDetectionImage(pixelRatio) {
         return this.iconImage_.getHitDetectionImage(pixelRatio);
-    };
+    }
     /**
      * @inheritDoc
      * @api
      */
-    Icon.prototype.getOrigin = function () {
+    getOrigin() {
         if (this.origin_) {
             return this.origin_;
         }
-        var offset = this.offset_;
-        var displacement = this.getDisplacement();
+        let offset = this.offset_;
+        const displacement = this.getDisplacement();
         if (this.offsetOrigin_ != IconOrigin.TOP_LEFT) {
-            var size = this.getSize();
-            var iconImageSize = this.iconImage_.getSize();
+            const size = this.getSize();
+            const iconImageSize = this.iconImage_.getSize();
             if (!size || !iconImageSize) {
                 return null;
             }
@@ -332,28 +316,28 @@ var Icon = /** @class */ (function (_super) {
         offset[1] += displacement[1];
         this.origin_ = offset;
         return this.origin_;
-    };
+    }
     /**
      * Get the image URL.
      * @return {string|undefined} Image src.
      * @api
      */
-    Icon.prototype.getSrc = function () {
+    getSrc() {
         return this.iconImage_.getSrc();
-    };
+    }
     /**
      * @inheritDoc
      * @api
      */
-    Icon.prototype.getSize = function () {
+    getSize() {
         return !this.size_ ? this.iconImage_.getSize() : this.size_;
-    };
+    }
     /**
      * @override
      */
-    Icon.prototype.listenImageChange = function (listener) {
+    listenImageChange(listener) {
         this.iconImage_.addEventListener(EventType.CHANGE, listener);
-    };
+    }
     /**
      * Load not yet loaded URI.
      * When rendering a feature with an icon style, the vector renderer will
@@ -362,16 +346,15 @@ var Icon = /** @class */ (function (_super) {
      * @override
      * @api
      */
-    Icon.prototype.load = function () {
+    load() {
         this.iconImage_.load();
-    };
+    }
     /**
      * @override
      */
-    Icon.prototype.unlistenImageChange = function (listener) {
+    unlistenImageChange(listener) {
         this.iconImage_.removeEventListener(EventType.CHANGE, listener);
-    };
-    return Icon;
-}(ImageStyle));
+    }
+}
 export default Icon;
 //# sourceMappingURL=Icon.js.map

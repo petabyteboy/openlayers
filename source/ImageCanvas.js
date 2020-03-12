@@ -1,19 +1,6 @@
 /**
  * @module ol/source/ImageCanvas
  */
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 import ImageCanvas from '../ImageCanvas.js';
 import { containsExtent, getHeight, getWidth, scaleFromCenter } from '../extent.js';
 import ImageSource from './Image.js';
@@ -53,49 +40,46 @@ import ImageSource from './Image.js';
  * Base class for image sources where a canvas element is the image.
  * @api
  */
-var ImageCanvasSource = /** @class */ (function (_super) {
-    __extends(ImageCanvasSource, _super);
+class ImageCanvasSource extends ImageSource {
     /**
      * @param {Options=} opt_options ImageCanvas options.
      */
-    function ImageCanvasSource(opt_options) {
-        var _this = this;
-        var options = opt_options ? opt_options : {};
-        _this = _super.call(this, {
+    constructor(opt_options) {
+        const options = opt_options ? opt_options : {};
+        super({
             attributions: options.attributions,
             projection: options.projection,
             resolutions: options.resolutions,
             state: options.state
-        }) || this;
+        });
         /**
         * @private
         * @type {FunctionType}
         */
-        _this.canvasFunction_ = options.canvasFunction;
+        this.canvasFunction_ = options.canvasFunction;
         /**
         * @private
         * @type {import("../ImageCanvas.js").default}
         */
-        _this.canvas_ = null;
+        this.canvas_ = null;
         /**
         * @private
         * @type {number}
         */
-        _this.renderedRevision_ = 0;
+        this.renderedRevision_ = 0;
         /**
         * @private
         * @type {number}
         */
-        _this.ratio_ = options.ratio !== undefined ?
+        this.ratio_ = options.ratio !== undefined ?
             options.ratio : 1.5;
-        return _this;
     }
     /**
     * @inheritDoc
     */
-    ImageCanvasSource.prototype.getImageInternal = function (extent, resolution, pixelRatio, projection) {
+    getImageInternal(extent, resolution, pixelRatio, projection) {
         resolution = this.findNearestResolution(resolution);
-        var canvas = this.canvas_;
+        let canvas = this.canvas_;
         if (canvas &&
             this.renderedRevision_ == this.getRevision() &&
             canvas.getResolution() == resolution &&
@@ -105,18 +89,17 @@ var ImageCanvasSource = /** @class */ (function (_super) {
         }
         extent = extent.slice();
         scaleFromCenter(extent, this.ratio_);
-        var width = getWidth(extent) / resolution;
-        var height = getHeight(extent) / resolution;
-        var size = [width * pixelRatio, height * pixelRatio];
-        var canvasElement = this.canvasFunction_.call(this, extent, resolution, pixelRatio, size, projection);
+        const width = getWidth(extent) / resolution;
+        const height = getHeight(extent) / resolution;
+        const size = [width * pixelRatio, height * pixelRatio];
+        const canvasElement = this.canvasFunction_.call(this, extent, resolution, pixelRatio, size, projection);
         if (canvasElement) {
             canvas = new ImageCanvas(extent, resolution, pixelRatio, canvasElement);
         }
         this.canvas_ = canvas;
         this.renderedRevision_ = this.getRevision();
         return canvas;
-    };
-    return ImageCanvasSource;
-}(ImageSource));
+    }
+}
 export default ImageCanvasSource;
 //# sourceMappingURL=ImageCanvas.js.map

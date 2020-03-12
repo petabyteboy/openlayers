@@ -1,16 +1,3 @@
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 /**
  * @module ol/geom/MultiPoint
  */
@@ -28,29 +15,27 @@ import { squaredDistance as squaredDx } from '../math.js';
  *
  * @api
  */
-var MultiPoint = /** @class */ (function (_super) {
-    __extends(MultiPoint, _super);
+class MultiPoint extends SimpleGeometry {
     /**
      * @param {Array<import("../coordinate.js").Coordinate>|Array<number>} coordinates Coordinates.
      *     For internal use, flat coordinates in combination with `opt_layout` are also accepted.
      * @param {import("./GeometryLayout.js").default=} opt_layout Layout.
      */
-    function MultiPoint(coordinates, opt_layout) {
-        var _this = _super.call(this) || this;
+    constructor(coordinates, opt_layout) {
+        super();
         if (opt_layout && !Array.isArray(coordinates[0])) {
-            _this.setFlatCoordinates(opt_layout, /** @type {Array<number>} */ (coordinates));
+            this.setFlatCoordinates(opt_layout, /** @type {Array<number>} */ (coordinates));
         }
         else {
-            _this.setCoordinates(/** @type {Array<import("../coordinate.js").Coordinate>} */ (coordinates), opt_layout);
+            this.setCoordinates(/** @type {Array<import("../coordinate.js").Coordinate>} */ (coordinates), opt_layout);
         }
-        return _this;
     }
     /**
      * Append the passed point to this multipoint.
      * @param {Point} point Point.
      * @api
      */
-    MultiPoint.prototype.appendPoint = function (point) {
+    appendPoint(point) {
         if (!this.flatCoordinates) {
             this.flatCoordinates = point.getFlatCoordinates().slice();
         }
@@ -58,100 +43,100 @@ var MultiPoint = /** @class */ (function (_super) {
             extend(this.flatCoordinates, point.getFlatCoordinates());
         }
         this.changed();
-    };
+    }
     /**
      * Make a complete copy of the geometry.
      * @return {!MultiPoint} Clone.
      * @override
      * @api
      */
-    MultiPoint.prototype.clone = function () {
-        var multiPoint = new MultiPoint(this.flatCoordinates.slice(), this.layout);
+    clone() {
+        const multiPoint = new MultiPoint(this.flatCoordinates.slice(), this.layout);
         return multiPoint;
-    };
+    }
     /**
      * @inheritDoc
      */
-    MultiPoint.prototype.closestPointXY = function (x, y, closestPoint, minSquaredDistance) {
+    closestPointXY(x, y, closestPoint, minSquaredDistance) {
         if (minSquaredDistance < closestSquaredDistanceXY(this.getExtent(), x, y)) {
             return minSquaredDistance;
         }
-        var flatCoordinates = this.flatCoordinates;
-        var stride = this.stride;
-        for (var i = 0, ii = flatCoordinates.length; i < ii; i += stride) {
-            var squaredDistance = squaredDx(x, y, flatCoordinates[i], flatCoordinates[i + 1]);
+        const flatCoordinates = this.flatCoordinates;
+        const stride = this.stride;
+        for (let i = 0, ii = flatCoordinates.length; i < ii; i += stride) {
+            const squaredDistance = squaredDx(x, y, flatCoordinates[i], flatCoordinates[i + 1]);
             if (squaredDistance < minSquaredDistance) {
                 minSquaredDistance = squaredDistance;
-                for (var j = 0; j < stride; ++j) {
+                for (let j = 0; j < stride; ++j) {
                     closestPoint[j] = flatCoordinates[i + j];
                 }
                 closestPoint.length = stride;
             }
         }
         return minSquaredDistance;
-    };
+    }
     /**
      * Return the coordinates of the multipoint.
      * @return {Array<import("../coordinate.js").Coordinate>} Coordinates.
      * @override
      * @api
      */
-    MultiPoint.prototype.getCoordinates = function () {
+    getCoordinates() {
         return inflateCoordinates(this.flatCoordinates, 0, this.flatCoordinates.length, this.stride);
-    };
+    }
     /**
      * Return the point at the specified index.
      * @param {number} index Index.
      * @return {Point} Point.
      * @api
      */
-    MultiPoint.prototype.getPoint = function (index) {
-        var n = !this.flatCoordinates ? 0 : this.flatCoordinates.length / this.stride;
+    getPoint(index) {
+        const n = !this.flatCoordinates ? 0 : this.flatCoordinates.length / this.stride;
         if (index < 0 || n <= index) {
             return null;
         }
         return new Point(this.flatCoordinates.slice(index * this.stride, (index + 1) * this.stride), this.layout);
-    };
+    }
     /**
      * Return the points of this multipoint.
      * @return {Array<Point>} Points.
      * @api
      */
-    MultiPoint.prototype.getPoints = function () {
-        var flatCoordinates = this.flatCoordinates;
-        var layout = this.layout;
-        var stride = this.stride;
+    getPoints() {
+        const flatCoordinates = this.flatCoordinates;
+        const layout = this.layout;
+        const stride = this.stride;
         /** @type {Array<Point>} */
-        var points = [];
-        for (var i = 0, ii = flatCoordinates.length; i < ii; i += stride) {
-            var point = new Point(flatCoordinates.slice(i, i + stride), layout);
+        const points = [];
+        for (let i = 0, ii = flatCoordinates.length; i < ii; i += stride) {
+            const point = new Point(flatCoordinates.slice(i, i + stride), layout);
             points.push(point);
         }
         return points;
-    };
+    }
     /**
      * @inheritDoc
      * @api
      */
-    MultiPoint.prototype.getType = function () {
+    getType() {
         return GeometryType.MULTI_POINT;
-    };
+    }
     /**
      * @inheritDoc
      * @api
      */
-    MultiPoint.prototype.intersectsExtent = function (extent) {
-        var flatCoordinates = this.flatCoordinates;
-        var stride = this.stride;
-        for (var i = 0, ii = flatCoordinates.length; i < ii; i += stride) {
-            var x = flatCoordinates[i];
-            var y = flatCoordinates[i + 1];
+    intersectsExtent(extent) {
+        const flatCoordinates = this.flatCoordinates;
+        const stride = this.stride;
+        for (let i = 0, ii = flatCoordinates.length; i < ii; i += stride) {
+            const x = flatCoordinates[i];
+            const y = flatCoordinates[i + 1];
             if (containsXY(extent, x, y)) {
                 return true;
             }
         }
         return false;
-    };
+    }
     /**
      * Set the coordinates of the multipoint.
      * @param {!Array<import("../coordinate.js").Coordinate>} coordinates Coordinates.
@@ -159,15 +144,14 @@ var MultiPoint = /** @class */ (function (_super) {
      * @override
      * @api
      */
-    MultiPoint.prototype.setCoordinates = function (coordinates, opt_layout) {
+    setCoordinates(coordinates, opt_layout) {
         this.setLayout(opt_layout, coordinates, 1);
         if (!this.flatCoordinates) {
             this.flatCoordinates = [];
         }
         this.flatCoordinates.length = deflateCoordinates(this.flatCoordinates, 0, coordinates, this.stride);
         this.changed();
-    };
-    return MultiPoint;
-}(SimpleGeometry));
+    }
+}
 export default MultiPoint;
 //# sourceMappingURL=MultiPoint.js.map

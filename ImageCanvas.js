@@ -1,16 +1,3 @@
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 /**
  * @module ol/ImageCanvas
  */
@@ -24,8 +11,7 @@ import ImageState from './ImageState.js';
  *
  * @typedef {function(function(Error=): void): void} Loader
  */
-var ImageCanvas = /** @class */ (function (_super) {
-    __extends(ImageCanvas, _super);
+class ImageCanvas extends ImageBase {
     /**
      * @param {import("./extent.js").Extent} extent Extent.
      * @param {number} resolution Resolution.
@@ -34,41 +20,39 @@ var ImageCanvas = /** @class */ (function (_super) {
      * @param {Loader=} opt_loader Optional loader function to
      *     support asynchronous canvas drawing.
      */
-    function ImageCanvas(extent, resolution, pixelRatio, canvas, opt_loader) {
-        var _this = this;
-        var state = opt_loader !== undefined ? ImageState.IDLE : ImageState.LOADED;
-        _this = _super.call(this, extent, resolution, pixelRatio, state) || this;
+    constructor(extent, resolution, pixelRatio, canvas, opt_loader) {
+        const state = opt_loader !== undefined ? ImageState.IDLE : ImageState.LOADED;
+        super(extent, resolution, pixelRatio, state);
         /**
          * Optional canvas loader function.
          * @type {?Loader}
          * @private
          */
-        _this.loader_ = opt_loader !== undefined ? opt_loader : null;
+        this.loader_ = opt_loader !== undefined ? opt_loader : null;
         /**
          * @private
          * @type {HTMLCanvasElement}
          */
-        _this.canvas_ = canvas;
+        this.canvas_ = canvas;
         /**
          * @private
          * @type {?Error}
          */
-        _this.error_ = null;
-        return _this;
+        this.error_ = null;
     }
     /**
      * Get any error associated with asynchronous rendering.
      * @return {?Error} Any error that occurred during rendering.
      */
-    ImageCanvas.prototype.getError = function () {
+    getError() {
         return this.error_;
-    };
+    }
     /**
      * Handle async drawing complete.
      * @param {Error=} err Any error during drawing.
      * @private
      */
-    ImageCanvas.prototype.handleLoad_ = function (err) {
+    handleLoad_(err) {
         if (err) {
             this.error_ = err;
             this.state = ImageState.ERROR;
@@ -77,24 +61,23 @@ var ImageCanvas = /** @class */ (function (_super) {
             this.state = ImageState.LOADED;
         }
         this.changed();
-    };
+    }
     /**
      * @inheritDoc
      */
-    ImageCanvas.prototype.load = function () {
+    load() {
         if (this.state == ImageState.IDLE) {
             this.state = ImageState.LOADING;
             this.changed();
             this.loader_(this.handleLoad_.bind(this));
         }
-    };
+    }
     /**
      * @return {HTMLCanvasElement} Canvas element.
      */
-    ImageCanvas.prototype.getImage = function () {
+    getImage() {
         return this.canvas_;
-    };
-    return ImageCanvas;
-}(ImageBase));
+    }
+}
 export default ImageCanvas;
 //# sourceMappingURL=ImageCanvas.js.map

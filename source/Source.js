@@ -1,16 +1,3 @@
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 /**
  * @module ol/source/Source
  */
@@ -52,97 +39,95 @@ import SourceState from './State.js';
  * @abstract
  * @api
  */
-var Source = /** @class */ (function (_super) {
-    __extends(Source, _super);
+class Source extends BaseObject {
     /**
      * @param {Options} options Source options.
      */
-    function Source(options) {
-        var _this = _super.call(this) || this;
+    constructor(options) {
+        super();
         /**
          * @private
          * @type {import("../proj/Projection.js").default}
          */
-        _this.projection_ = getProjection(options.projection);
+        this.projection_ = getProjection(options.projection);
         /**
          * @private
          * @type {?Attribution}
          */
-        _this.attributions_ = adaptAttributions(options.attributions);
+        this.attributions_ = adaptAttributions(options.attributions);
         /**
          * @private
          * @type {boolean}
          */
-        _this.attributionsCollapsible_ = options.attributionsCollapsible !== undefined ?
+        this.attributionsCollapsible_ = options.attributionsCollapsible !== undefined ?
             options.attributionsCollapsible : true;
         /**
          * This source is currently loading data. Sources that defer loading to the
          * map's tile queue never set this to `true`.
          * @type {boolean}
          */
-        _this.loading = false;
+        this.loading = false;
         /**
          * @private
          * @type {SourceState}
          */
-        _this.state_ = options.state !== undefined ?
+        this.state_ = options.state !== undefined ?
             options.state : SourceState.READY;
         /**
          * @private
          * @type {boolean}
          */
-        _this.wrapX_ = options.wrapX !== undefined ? options.wrapX : false;
-        return _this;
+        this.wrapX_ = options.wrapX !== undefined ? options.wrapX : false;
     }
     /**
      * Get the attribution function for the source.
      * @return {?Attribution} Attribution function.
      */
-    Source.prototype.getAttributions = function () {
+    getAttributions() {
         return this.attributions_;
-    };
+    }
     /**
      * @return {boolean} Attributions are collapsible.
      */
-    Source.prototype.getAttributionsCollapsible = function () {
+    getAttributionsCollapsible() {
         return this.attributionsCollapsible_;
-    };
+    }
     /**
      * Get the projection of the source.
      * @return {import("../proj/Projection.js").default} Projection.
      * @api
      */
-    Source.prototype.getProjection = function () {
+    getProjection() {
         return this.projection_;
-    };
+    }
     /**
      * @abstract
      * @return {Array<number>|undefined} Resolutions.
      */
-    Source.prototype.getResolutions = function () {
+    getResolutions() {
         return abstract();
-    };
+    }
     /**
      * Get the state of the source, see {@link module:ol/source/State~State} for possible states.
      * @return {SourceState} State.
      * @api
      */
-    Source.prototype.getState = function () {
+    getState() {
         return this.state_;
-    };
+    }
     /**
      * @return {boolean|undefined} Wrap X.
      */
-    Source.prototype.getWrapX = function () {
+    getWrapX() {
         return this.wrapX_;
-    };
+    }
     /**
      * Refreshes the source. The source will be cleared, and data from the server will be reloaded.
      * @api
      */
-    Source.prototype.refresh = function () {
+    refresh() {
         this.changed();
-    };
+    }
     /**
      * Set the attributions of the source.
      * @param {AttributionLike|undefined} attributions Attributions.
@@ -150,21 +135,20 @@ var Source = /** @class */ (function (_super) {
      *     or `undefined`.
      * @api
      */
-    Source.prototype.setAttributions = function (attributions) {
+    setAttributions(attributions) {
         this.attributions_ = adaptAttributions(attributions);
         this.changed();
-    };
+    }
     /**
      * Set the state of the source.
      * @param {SourceState} state State.
      * @protected
      */
-    Source.prototype.setState = function (state) {
+    setState(state) {
         this.state_ = state;
         this.changed();
-    };
-    return Source;
-}(BaseObject));
+    }
+}
 /**
  * Turns the attributions option into an attributions function.
  * @param {AttributionLike|undefined} attributionLike The attribution option.

@@ -1,19 +1,6 @@
 /**
  * @module ol/source/ImageWMS
  */
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 import { DEFAULT_WMS_VERSION } from './common.js';
 import ImageWrapper from '../Image.js';
 import { assert } from '../asserts.js';
@@ -30,7 +17,7 @@ import { appendParams } from '../uri.js';
  * @const
  * @type {import("../size.js").Size}
  */
-var GETFEATUREINFO_IMAGE_SIZE = [101, 101];
+const GETFEATUREINFO_IMAGE_SIZE = [101, 101];
 /**
  * @typedef {Object} Options
  * @property {import("./Source.js").AttributionLike} [attributions] Attributions.
@@ -61,78 +48,75 @@ var GETFEATUREINFO_IMAGE_SIZE = [101, 101];
  * @fires module:ol/source/Image.ImageSourceEvent
  * @api
  */
-var ImageWMS = /** @class */ (function (_super) {
-    __extends(ImageWMS, _super);
+class ImageWMS extends ImageSource {
     /**
      * @param {Options=} [opt_options] ImageWMS options.
      */
-    function ImageWMS(opt_options) {
-        var _this = this;
-        var options = opt_options ? opt_options : {};
-        _this = _super.call(this, {
+    constructor(opt_options) {
+        const options = opt_options ? opt_options : {};
+        super({
             attributions: options.attributions,
             projection: options.projection,
             resolutions: options.resolutions
-        }) || this;
+        });
         /**
          * @private
          * @type {?string}
          */
-        _this.crossOrigin_ =
+        this.crossOrigin_ =
             options.crossOrigin !== undefined ? options.crossOrigin : null;
         /**
          * @private
          * @type {string|undefined}
          */
-        _this.url_ = options.url;
+        this.url_ = options.url;
         /**
          * @private
          * @type {import("../Image.js").LoadFunction}
          */
-        _this.imageLoadFunction_ = options.imageLoadFunction !== undefined ?
+        this.imageLoadFunction_ = options.imageLoadFunction !== undefined ?
             options.imageLoadFunction : defaultImageLoadFunction;
         /**
          * @private
          * @type {!Object}
          */
-        _this.params_ = options.params || {};
+        this.params_ = options.params || {};
         /**
          * @private
          * @type {boolean}
          */
-        _this.v13_ = true;
-        _this.updateV13_();
+        this.v13_ = true;
+        this.updateV13_();
         /**
          * @private
          * @type {import("./WMSServerType.js").default|undefined}
          */
-        _this.serverType_ = /** @type {import("./WMSServerType.js").default|undefined} */ (options.serverType);
+        this.serverType_ = /** @type {import("./WMSServerType.js").default|undefined} */ (options.serverType);
         /**
          * @private
          * @type {boolean}
          */
-        _this.hidpi_ = options.hidpi !== undefined ? options.hidpi : true;
+        this.hidpi_ = options.hidpi !== undefined ? options.hidpi : true;
         /**
          * @private
          * @type {import("../Image.js").default}
          */
-        _this.image_ = null;
+        this.image_ = null;
         /**
          * @private
          * @type {import("../size.js").Size}
          */
-        _this.imageSize_ = [0, 0];
+        this.imageSize_ = [0, 0];
         /**
          * @private
          * @type {number}
          */
-        _this.renderedRevision_ = 0;
+        this.renderedRevision_ = 0;
         /**
          * @private
          * @type {number}
          */
-        _this.ratio_ = options.ratio !== undefined ? options.ratio : 1.5;
-        return _this;
+        this.ratio_ = options.ratio !== undefined ? options.ratio : 1.5;
     }
     /**
      * Return the GetFeatureInfo URL for the passed coordinate, resolution, and
@@ -148,18 +132,18 @@ var ImageWMS = /** @class */ (function (_super) {
      * @return {string|undefined} GetFeatureInfo URL.
      * @api
      */
-    ImageWMS.prototype.getFeatureInfoUrl = function (coordinate, resolution, projection, params) {
+    getFeatureInfoUrl(coordinate, resolution, projection, params) {
         if (this.url_ === undefined) {
             return undefined;
         }
-        var projectionObj = getProjection(projection);
-        var sourceProjectionObj = this.getProjection();
+        const projectionObj = getProjection(projection);
+        const sourceProjectionObj = this.getProjection();
         if (sourceProjectionObj && sourceProjectionObj !== projectionObj) {
             resolution = calculateSourceResolution(sourceProjectionObj, projectionObj, coordinate, resolution);
             coordinate = transform(coordinate, projectionObj, sourceProjectionObj);
         }
-        var extent = getForViewAndSize(coordinate, resolution, 0, GETFEATUREINFO_IMAGE_SIZE);
-        var baseParams = {
+        const extent = getForViewAndSize(coordinate, resolution, 0, GETFEATUREINFO_IMAGE_SIZE);
+        const baseParams = {
             'SERVICE': 'WMS',
             'VERSION': DEFAULT_WMS_VERSION,
             'REQUEST': 'GetFeatureInfo',
@@ -168,12 +152,12 @@ var ImageWMS = /** @class */ (function (_super) {
             'QUERY_LAYERS': this.params_['LAYERS']
         };
         assign(baseParams, this.params_, params);
-        var x = Math.floor((coordinate[0] - extent[0]) / resolution);
-        var y = Math.floor((extent[3] - coordinate[1]) / resolution);
+        const x = Math.floor((coordinate[0] - extent[0]) / resolution);
+        const y = Math.floor((extent[3] - coordinate[1]) / resolution);
         baseParams[this.v13_ ? 'I' : 'X'] = x;
         baseParams[this.v13_ ? 'J' : 'Y'] = y;
         return this.getRequestUrl_(extent, GETFEATUREINFO_IMAGE_SIZE, 1, sourceProjectionObj || projectionObj, baseParams);
-    };
+    }
     /**
      * Return the GetLegendGraphic URL, optionally optimized for the passed
      * resolution and possibly including any passed specific parameters. Returns
@@ -188,46 +172,46 @@ var ImageWMS = /** @class */ (function (_super) {
      * @return {string|undefined} GetLegendGraphic URL.
      * @api
      */
-    ImageWMS.prototype.getLegendUrl = function (resolution, params) {
+    getLegendUrl(resolution, params) {
         if (this.url_ === undefined) {
             return undefined;
         }
-        var baseParams = {
+        const baseParams = {
             'SERVICE': 'WMS',
             'VERSION': DEFAULT_WMS_VERSION,
             'REQUEST': 'GetLegendGraphic',
             'FORMAT': 'image/png'
         };
         if (params === undefined || params['LAYER'] === undefined) {
-            var layers = this.params_.LAYERS;
-            var isSingleLayer = !Array.isArray(layers) || layers.length === 1;
+            const layers = this.params_.LAYERS;
+            const isSingleLayer = !Array.isArray(layers) || layers.length === 1;
             if (!isSingleLayer) {
                 return undefined;
             }
             baseParams['LAYER'] = layers;
         }
         if (resolution !== undefined) {
-            var mpu = this.getProjection() ? this.getProjection().getMetersPerUnit() : 1;
-            var dpi = 25.4 / 0.28;
-            var inchesPerMeter = 39.37;
+            const mpu = this.getProjection() ? this.getProjection().getMetersPerUnit() : 1;
+            const dpi = 25.4 / 0.28;
+            const inchesPerMeter = 39.37;
             baseParams['SCALE'] = resolution * mpu * inchesPerMeter * dpi;
         }
         assign(baseParams, params);
         return appendParams(/** @type {string} */ (this.url_), baseParams);
-    };
+    }
     /**
      * Get the user-provided params, i.e. those passed to the constructor through
      * the "params" option, and possibly updated using the updateParams method.
      * @return {Object} Params.
      * @api
      */
-    ImageWMS.prototype.getParams = function () {
+    getParams() {
         return this.params_;
-    };
+    }
     /**
      * @inheritDoc
      */
-    ImageWMS.prototype.getImageInternal = function (extent, resolution, pixelRatio, projection) {
+    getImageInternal(extent, resolution, pixelRatio, projection) {
         if (this.url_ === undefined) {
             return null;
         }
@@ -235,15 +219,15 @@ var ImageWMS = /** @class */ (function (_super) {
         if (pixelRatio != 1 && (!this.hidpi_ || this.serverType_ === undefined)) {
             pixelRatio = 1;
         }
-        var imageResolution = resolution / pixelRatio;
-        var center = getCenter(extent);
-        var viewWidth = Math.ceil(getWidth(extent) / imageResolution);
-        var viewHeight = Math.ceil(getHeight(extent) / imageResolution);
-        var viewExtent = getForViewAndSize(center, imageResolution, 0, [viewWidth, viewHeight]);
-        var requestWidth = Math.ceil(this.ratio_ * getWidth(extent) / imageResolution);
-        var requestHeight = Math.ceil(this.ratio_ * getHeight(extent) / imageResolution);
-        var requestExtent = getForViewAndSize(center, imageResolution, 0, [requestWidth, requestHeight]);
-        var image = this.image_;
+        const imageResolution = resolution / pixelRatio;
+        const center = getCenter(extent);
+        const viewWidth = Math.ceil(getWidth(extent) / imageResolution);
+        const viewHeight = Math.ceil(getHeight(extent) / imageResolution);
+        const viewExtent = getForViewAndSize(center, imageResolution, 0, [viewWidth, viewHeight]);
+        const requestWidth = Math.ceil(this.ratio_ * getWidth(extent) / imageResolution);
+        const requestHeight = Math.ceil(this.ratio_ * getHeight(extent) / imageResolution);
+        const requestExtent = getForViewAndSize(center, imageResolution, 0, [requestWidth, requestHeight]);
+        const image = this.image_;
         if (image &&
             this.renderedRevision_ == this.getRevision() &&
             image.getResolution() == resolution &&
@@ -251,7 +235,7 @@ var ImageWMS = /** @class */ (function (_super) {
             containsExtent(image.getExtent(), viewExtent)) {
             return image;
         }
-        var params = {
+        const params = {
             'SERVICE': 'WMS',
             'VERSION': DEFAULT_WMS_VERSION,
             'REQUEST': 'GetMap',
@@ -261,20 +245,20 @@ var ImageWMS = /** @class */ (function (_super) {
         assign(params, this.params_);
         this.imageSize_[0] = Math.round(getWidth(requestExtent) / imageResolution);
         this.imageSize_[1] = Math.round(getHeight(requestExtent) / imageResolution);
-        var url = this.getRequestUrl_(requestExtent, this.imageSize_, pixelRatio, projection, params);
+        const url = this.getRequestUrl_(requestExtent, this.imageSize_, pixelRatio, projection, params);
         this.image_ = new ImageWrapper(requestExtent, resolution, pixelRatio, url, this.crossOrigin_, this.imageLoadFunction_);
         this.renderedRevision_ = this.getRevision();
         this.image_.addEventListener(EventType.CHANGE, this.handleImageChange.bind(this));
         return this.image_;
-    };
+    }
     /**
      * Return the image load function of the source.
      * @return {import("../Image.js").LoadFunction} The image load function.
      * @api
      */
-    ImageWMS.prototype.getImageLoadFunction = function () {
+    getImageLoadFunction() {
         return this.imageLoadFunction_;
-    };
+    }
     /**
      * @param {import("../extent.js").Extent} extent Extent.
      * @param {import("../size.js").Size} size Size.
@@ -284,7 +268,7 @@ var ImageWMS = /** @class */ (function (_super) {
      * @return {string} Request URL.
      * @private
      */
-    ImageWMS.prototype.getRequestUrl_ = function (extent, size, pixelRatio, projection, params) {
+    getRequestUrl_(extent, size, pixelRatio, projection, params) {
         assert(this.url_ !== undefined, 9); // `url` must be configured or set using `#setUrl()`
         params[this.v13_ ? 'CRS' : 'SRS'] = projection.getCode();
         if (!('STYLES' in this.params_)) {
@@ -293,7 +277,7 @@ var ImageWMS = /** @class */ (function (_super) {
         if (pixelRatio != 1) {
             switch (this.serverType_) {
                 case WMSServerType.GEOSERVER:
-                    var dpi = (90 * pixelRatio + 0.5) | 0;
+                    const dpi = (90 * pixelRatio + 0.5) | 0;
                     if ('FORMAT_OPTIONS' in params) {
                         params['FORMAT_OPTIONS'] += ';dpi:' + dpi;
                     }
@@ -315,8 +299,8 @@ var ImageWMS = /** @class */ (function (_super) {
         }
         params['WIDTH'] = size[0];
         params['HEIGHT'] = size[1];
-        var axisOrientation = projection.getAxisOrientation();
-        var bbox;
+        const axisOrientation = projection.getAxisOrientation();
+        let bbox;
         if (this.v13_ && axisOrientation.substr(0, 2) == 'ne') {
             bbox = [extent[1], extent[0], extent[3], extent[2]];
         }
@@ -325,56 +309,55 @@ var ImageWMS = /** @class */ (function (_super) {
         }
         params['BBOX'] = bbox.join(',');
         return appendParams(/** @type {string} */ (this.url_), params);
-    };
+    }
     /**
      * Return the URL used for this WMS source.
      * @return {string|undefined} URL.
      * @api
      */
-    ImageWMS.prototype.getUrl = function () {
+    getUrl() {
         return this.url_;
-    };
+    }
     /**
      * Set the image load function of the source.
      * @param {import("../Image.js").LoadFunction} imageLoadFunction Image load function.
      * @api
      */
-    ImageWMS.prototype.setImageLoadFunction = function (imageLoadFunction) {
+    setImageLoadFunction(imageLoadFunction) {
         this.image_ = null;
         this.imageLoadFunction_ = imageLoadFunction;
         this.changed();
-    };
+    }
     /**
      * Set the URL to use for requests.
      * @param {string|undefined} url URL.
      * @api
      */
-    ImageWMS.prototype.setUrl = function (url) {
+    setUrl(url) {
         if (url != this.url_) {
             this.url_ = url;
             this.image_ = null;
             this.changed();
         }
-    };
+    }
     /**
      * Update the user-provided params.
      * @param {Object} params Params.
      * @api
      */
-    ImageWMS.prototype.updateParams = function (params) {
+    updateParams(params) {
         assign(this.params_, params);
         this.updateV13_();
         this.image_ = null;
         this.changed();
-    };
+    }
     /**
      * @private
      */
-    ImageWMS.prototype.updateV13_ = function () {
-        var version = this.params_['VERSION'] || DEFAULT_WMS_VERSION;
+    updateV13_() {
+        const version = this.params_['VERSION'] || DEFAULT_WMS_VERSION;
         this.v13_ = compareVersions(version, '1.3') >= 0;
-    };
-    return ImageWMS;
-}(ImageSource));
+    }
+}
 export default ImageWMS;
 //# sourceMappingURL=ImageWMS.js.map

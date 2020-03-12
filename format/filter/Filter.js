@@ -8,11 +8,11 @@
  *
  * @abstract
  */
-var Filter = /** @class */ (function () {
+class Filter {
     /**
      * @param {!string} tagName The XML tag name for this filter.
      */
-    function Filter(tagName) {
+    constructor(tagName) {
         /**
          * @private
          * @type {!string}
@@ -23,10 +23,9 @@ var Filter = /** @class */ (function () {
      * The XML tag name for a filter.
      * @returns {!string} Name.
      */
-    Filter.prototype.getTagName = function () {
+    getTagName() {
         return this.tagName_;
-    };
-    return Filter;
-}());
+    }
+}
 export default Filter;
 //# sourceMappingURL=Filter.js.map

@@ -11,11 +11,11 @@
  * for higher level events defined in the library, and works with
  * {@link module:ol/events/Target~Target}.
  */
-var BaseEvent = /** @class */ (function () {
+class BaseEvent {
     /**
      * @param {string} type Type.
      */
-    function BaseEvent(type) {
+    constructor(type) {
         /**
          * @type {boolean}
          */
@@ -37,18 +37,17 @@ var BaseEvent = /** @class */ (function () {
      * Stop event propagation.
      * @api
      */
-    BaseEvent.prototype.preventDefault = function () {
+    preventDefault() {
         this.propagationStopped = true;
-    };
+    }
     /**
      * Stop event propagation.
      * @api
      */
-    BaseEvent.prototype.stopPropagation = function () {
+    stopPropagation() {
         this.propagationStopped = true;
-    };
-    return BaseEvent;
-}());
+    }
+}
 /**
  * @param {Event|import("./Event.js").default} evt Event
  */

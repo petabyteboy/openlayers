@@ -1,16 +1,3 @@
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 /**
  * @module ol/interaction/MouseWheelZoom
  */
@@ -22,7 +9,7 @@ import { clamp } from '../math.js';
 /**
  * @enum {string}
  */
-export var Mode = {
+export const Mode = {
     TRACKPAD: 'trackpad',
     WHEEL: 'wheel'
 };
@@ -46,130 +33,127 @@ export var Mode = {
  * Allows the user to zoom the map by scrolling the mouse wheel.
  * @api
  */
-var MouseWheelZoom = /** @class */ (function (_super) {
-    __extends(MouseWheelZoom, _super);
+class MouseWheelZoom extends Interaction {
     /**
      * @param {Options=} opt_options Options.
      */
-    function MouseWheelZoom(opt_options) {
-        var _this = this;
-        var options = opt_options ? opt_options : {};
-        _this = _super.call(this, /** @type {import("./Interaction.js").InteractionOptions} */ (options)) || this;
+    constructor(opt_options) {
+        const options = opt_options ? opt_options : {};
+        super(/** @type {import("./Interaction.js").InteractionOptions} */ (options));
         /**
          * @private
          * @type {number}
          */
-        _this.totalDelta_ = 0;
+        this.totalDelta_ = 0;
         /**
          * @private
          * @type {number}
          */
-        _this.lastDelta_ = 0;
+        this.lastDelta_ = 0;
         /**
          * @private
          * @type {number}
          */
-        _this.maxDelta_ = options.maxDelta !== undefined ? options.maxDelta : 1;
+        this.maxDelta_ = options.maxDelta !== undefined ? options.maxDelta : 1;
         /**
          * @private
          * @type {number}
          */
-        _this.duration_ = options.duration !== undefined ? options.duration : 250;
+        this.duration_ = options.duration !== undefined ? options.duration : 250;
         /**
          * @private
          * @type {number}
          */
-        _this.timeout_ = options.timeout !== undefined ? options.timeout : 80;
+        this.timeout_ = options.timeout !== undefined ? options.timeout : 80;
         /**
          * @private
          * @type {boolean}
          */
-        _this.useAnchor_ = options.useAnchor !== undefined ? options.useAnchor : true;
+        this.useAnchor_ = options.useAnchor !== undefined ? options.useAnchor : true;
         /**
          * @private
          * @type {import("../events/condition.js").Condition}
          */
-        _this.condition_ = options.condition ? options.condition : always;
+        this.condition_ = options.condition ? options.condition : always;
         /**
          * @private
          * @type {?import("../coordinate.js").Coordinate}
          */
-        _this.lastAnchor_ = null;
+        this.lastAnchor_ = null;
         /**
          * @private
          * @type {number|undefined}
          */
-        _this.startTime_ = undefined;
+        this.startTime_ = undefined;
         /**
          * @private
          * @type {?}
          */
-        _this.timeoutId_;
+        this.timeoutId_;
         /**
          * @private
          * @type {Mode|undefined}
          */
-        _this.mode_ = undefined;
+        this.mode_ = undefined;
         /**
          * Trackpad events separated by this delay will be considered separate
          * interactions.
          * @type {number}
          */
-        _this.trackpadEventGap_ = 400;
+        this.trackpadEventGap_ = 400;
         /**
          * @type {?}
          */
-        _this.trackpadTimeoutId_;
+        this.trackpadTimeoutId_;
         /**
          * The number of delta values per zoom level
          * @private
          * @type {number}
          */
-        _this.deltaPerZoom_ = 300;
-        return _this;
+        this.deltaPerZoom_ = 300;
     }
     /**
      * @private
      * @param {import("../MapBrowserEvent").default} mapBrowserEvent Event.
      * @return {boolean} Condition passes.
      */
-    MouseWheelZoom.prototype.conditionInternal_ = function (mapBrowserEvent) {
-        var pass = true;
+    conditionInternal_(mapBrowserEvent) {
+        let pass = true;
         if (mapBrowserEvent.map.getTargetElement().hasAttribute('tabindex')) {
             pass = focus(mapBrowserEvent);
         }
         return pass && this.condition_(mapBrowserEvent);
-    };
+    }
     /**
      * @private
      */
-    MouseWheelZoom.prototype.endInteraction_ = function () {
+    endInteraction_() {
         this.trackpadTimeoutId_ = undefined;
-        var view = this.getMap().getView();
+        const view = this.getMap().getView();
         view.endInteraction(undefined, this.lastDelta_ ? (this.lastDelta_ > 0 ? 1 : -1) : 0, this.lastAnchor_);
-    };
+    }
     /**
      * Handles the {@link module:ol/MapBrowserEvent map browser event} (if it was a mousewheel-event) and eventually
      * zooms the map.
      * @override
      */
-    MouseWheelZoom.prototype.handleEvent = function (mapBrowserEvent) {
+    handleEvent(mapBrowserEvent) {
         if (!this.conditionInternal_(mapBrowserEvent)) {
             return true;
         }
-        var type = mapBrowserEvent.type;
+        const type = mapBrowserEvent.type;
         if (type !== EventType.WHEEL) {
             return true;
         }
         mapBrowserEvent.preventDefault();
-        var map = mapBrowserEvent.map;
-        var wheelEvent = /** @type {WheelEvent} */ (mapBrowserEvent.originalEvent);
+        const map = mapBrowserEvent.map;
+        const wheelEvent = /** @type {WheelEvent} */ (mapBrowserEvent.originalEvent);
         if (this.useAnchor_) {
             this.lastAnchor_ = mapBrowserEvent.coordinate;
         }
         // Delta normalisation inspired by
         // https://github.com/mapbox/mapbox-gl-js/blob/001c7b9/js/ui/handler/scroll_zoom.js
-        var delta;
+        let delta;
         if (mapBrowserEvent.type == EventType.WHEEL) {
             delta = wheelEvent.deltaY;
             if (FIREFOX &&
@@ -186,7 +170,7 @@ var MouseWheelZoom = /** @class */ (function (_super) {
         else {
             this.lastDelta_ = delta;
         }
-        var now = Date.now();
+        const now = Date.now();
         if (this.startTime_ === undefined) {
             this.startTime_ = now;
         }
@@ -195,7 +179,7 @@ var MouseWheelZoom = /** @class */ (function (_super) {
                 Mode.TRACKPAD :
                 Mode.WHEEL;
         }
-        var view = map.getView();
+        const view = map.getView();
         if (this.mode_ === Mode.TRACKPAD && !view.getConstrainResolution()) {
             if (this.trackpadTimeoutId_) {
                 clearTimeout(this.trackpadTimeoutId_);
@@ -212,21 +196,21 @@ var MouseWheelZoom = /** @class */ (function (_super) {
             return false;
         }
         this.totalDelta_ += delta;
-        var timeLeft = Math.max(this.timeout_ - (now - this.startTime_), 0);
+        const timeLeft = Math.max(this.timeout_ - (now - this.startTime_), 0);
         clearTimeout(this.timeoutId_);
         this.timeoutId_ = setTimeout(this.handleWheelZoom_.bind(this, map), timeLeft);
         return false;
-    };
+    }
     /**
      * @private
      * @param {import("../PluggableMap.js").default} map Map.
      */
-    MouseWheelZoom.prototype.handleWheelZoom_ = function (map) {
-        var view = map.getView();
+    handleWheelZoom_(map) {
+        const view = map.getView();
         if (view.getAnimating()) {
             view.cancelAnimations();
         }
-        var delta = -clamp(this.totalDelta_, -this.maxDelta_ * this.deltaPerZoom_, this.maxDelta_ * this.deltaPerZoom_) / this.deltaPerZoom_;
+        let delta = -clamp(this.totalDelta_, -this.maxDelta_ * this.deltaPerZoom_, this.maxDelta_ * this.deltaPerZoom_) / this.deltaPerZoom_;
         if (view.getConstrainResolution()) {
             // view has a zoom constraint, zoom by 1
             delta = delta ? delta > 0 ? 1 : -1 : 0;
@@ -237,20 +221,19 @@ var MouseWheelZoom = /** @class */ (function (_super) {
         this.lastAnchor_ = null;
         this.startTime_ = undefined;
         this.timeoutId_ = undefined;
-    };
+    }
     /**
      * Enable or disable using the mouse's location as an anchor when zooming
      * @param {boolean} useAnchor true to zoom to the mouse's location, false
      * to zoom to the center of the map
      * @api
      */
-    MouseWheelZoom.prototype.setMouseAnchor = function (useAnchor) {
+    setMouseAnchor(useAnchor) {
         this.useAnchor_ = useAnchor;
         if (!useAnchor) {
             this.lastAnchor_ = null;
         }
-    };
-    return MouseWheelZoom;
-}(Interaction));
+    }
+}
 export default MouseWheelZoom;
 //# sourceMappingURL=MouseWheelZoom.js.map

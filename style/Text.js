@@ -9,7 +9,7 @@ import TextPlacement from './TextPlacement.js';
  *
  * @const {string}
  */
-var DEFAULT_FILL_COLOR = '#333';
+const DEFAULT_FILL_COLOR = '#333';
 /**
  * @typedef {Object} Options
  * @property {string} [font] Font style as CSS 'font' value, see:
@@ -44,12 +44,12 @@ var DEFAULT_FILL_COLOR = '#333';
  * Set text style for vector features.
  * @api
  */
-var Text = /** @class */ (function () {
+class Text {
     /**
      * @param {Options=} opt_options Options.
      */
-    function Text(opt_options) {
-        var options = opt_options || {};
+    constructor(opt_options) {
+        const options = opt_options || {};
         /**
          * @private
          * @type {string|undefined}
@@ -142,7 +142,7 @@ var Text = /** @class */ (function () {
      * @return {Text} The cloned style.
      * @api
      */
-    Text.prototype.clone = function () {
+    clone() {
         return new Text({
             font: this.getFont(),
             placement: this.getPlacement(),
@@ -162,297 +162,296 @@ var Text = /** @class */ (function () {
             backgroundStroke: this.getBackgroundStroke() ? this.getBackgroundStroke().clone() : undefined,
             padding: this.getPadding()
         });
-    };
+    }
     /**
      * Get the `overflow` configuration.
      * @return {boolean} Let text overflow the length of the path they follow.
      * @api
      */
-    Text.prototype.getOverflow = function () {
+    getOverflow() {
         return this.overflow_;
-    };
+    }
     /**
      * Get the font name.
      * @return {string|undefined} Font.
      * @api
      */
-    Text.prototype.getFont = function () {
+    getFont() {
         return this.font_;
-    };
+    }
     /**
      * Get the maximum angle between adjacent characters.
      * @return {number} Angle in radians.
      * @api
      */
-    Text.prototype.getMaxAngle = function () {
+    getMaxAngle() {
         return this.maxAngle_;
-    };
+    }
     /**
      * Get the label placement.
      * @return {import("./TextPlacement.js").default|string} Text placement.
      * @api
      */
-    Text.prototype.getPlacement = function () {
+    getPlacement() {
         return this.placement_;
-    };
+    }
     /**
      * Get the x-offset for the text.
      * @return {number} Horizontal text offset.
      * @api
      */
-    Text.prototype.getOffsetX = function () {
+    getOffsetX() {
         return this.offsetX_;
-    };
+    }
     /**
      * Get the y-offset for the text.
      * @return {number} Vertical text offset.
      * @api
      */
-    Text.prototype.getOffsetY = function () {
+    getOffsetY() {
         return this.offsetY_;
-    };
+    }
     /**
      * Get the fill style for the text.
      * @return {import("./Fill.js").default} Fill style.
      * @api
      */
-    Text.prototype.getFill = function () {
+    getFill() {
         return this.fill_;
-    };
+    }
     /**
      * Determine whether the text rotates with the map.
      * @return {boolean|undefined} Rotate with map.
      * @api
      */
-    Text.prototype.getRotateWithView = function () {
+    getRotateWithView() {
         return this.rotateWithView_;
-    };
+    }
     /**
      * Get the text rotation.
      * @return {number|undefined} Rotation.
      * @api
      */
-    Text.prototype.getRotation = function () {
+    getRotation() {
         return this.rotation_;
-    };
+    }
     /**
      * Get the text scale.
      * @return {number|undefined} Scale.
      * @api
      */
-    Text.prototype.getScale = function () {
+    getScale() {
         return this.scale_;
-    };
+    }
     /**
      * Get the stroke style for the text.
      * @return {import("./Stroke.js").default} Stroke style.
      * @api
      */
-    Text.prototype.getStroke = function () {
+    getStroke() {
         return this.stroke_;
-    };
+    }
     /**
      * Get the text to be rendered.
      * @return {string|undefined} Text.
      * @api
      */
-    Text.prototype.getText = function () {
+    getText() {
         return this.text_;
-    };
+    }
     /**
      * Get the text alignment.
      * @return {string|undefined} Text align.
      * @api
      */
-    Text.prototype.getTextAlign = function () {
+    getTextAlign() {
         return this.textAlign_;
-    };
+    }
     /**
      * Get the text baseline.
      * @return {string|undefined} Text baseline.
      * @api
      */
-    Text.prototype.getTextBaseline = function () {
+    getTextBaseline() {
         return this.textBaseline_;
-    };
+    }
     /**
      * Get the background fill style for the text.
      * @return {import("./Fill.js").default} Fill style.
      * @api
      */
-    Text.prototype.getBackgroundFill = function () {
+    getBackgroundFill() {
         return this.backgroundFill_;
-    };
+    }
     /**
      * Get the background stroke style for the text.
      * @return {import("./Stroke.js").default} Stroke style.
      * @api
      */
-    Text.prototype.getBackgroundStroke = function () {
+    getBackgroundStroke() {
         return this.backgroundStroke_;
-    };
+    }
     /**
      * Get the padding for the text.
      * @return {Array<number>} Padding.
      * @api
      */
-    Text.prototype.getPadding = function () {
+    getPadding() {
         return this.padding_;
-    };
+    }
     /**
      * Set the `overflow` property.
      *
      * @param {boolean} overflow Let text overflow the path that it follows.
      * @api
      */
-    Text.prototype.setOverflow = function (overflow) {
+    setOverflow(overflow) {
         this.overflow_ = overflow;
-    };
+    }
     /**
      * Set the font.
      *
      * @param {string|undefined} font Font.
      * @api
      */
-    Text.prototype.setFont = function (font) {
+    setFont(font) {
         this.font_ = font;
-    };
+    }
     /**
      * Set the maximum angle between adjacent characters.
      *
      * @param {number} maxAngle Angle in radians.
      * @api
      */
-    Text.prototype.setMaxAngle = function (maxAngle) {
+    setMaxAngle(maxAngle) {
         this.maxAngle_ = maxAngle;
-    };
+    }
     /**
      * Set the x offset.
      *
      * @param {number} offsetX Horizontal text offset.
      * @api
      */
-    Text.prototype.setOffsetX = function (offsetX) {
+    setOffsetX(offsetX) {
         this.offsetX_ = offsetX;
-    };
+    }
     /**
      * Set the y offset.
      *
      * @param {number} offsetY Vertical text offset.
      * @api
      */
-    Text.prototype.setOffsetY = function (offsetY) {
+    setOffsetY(offsetY) {
         this.offsetY_ = offsetY;
-    };
+    }
     /**
      * Set the text placement.
      *
      * @param {import("./TextPlacement.js").default|string} placement Placement.
      * @api
      */
-    Text.prototype.setPlacement = function (placement) {
+    setPlacement(placement) {
         this.placement_ = placement;
-    };
+    }
     /**
      * Set whether to rotate the text with the view.
      *
      * @param {boolean} rotateWithView Rotate with map.
      * @api
      */
-    Text.prototype.setRotateWithView = function (rotateWithView) {
+    setRotateWithView(rotateWithView) {
         this.rotateWithView_ = rotateWithView;
-    };
+    }
     /**
      * Set the fill.
      *
      * @param {import("./Fill.js").default} fill Fill style.
      * @api
      */
-    Text.prototype.setFill = function (fill) {
+    setFill(fill) {
         this.fill_ = fill;
-    };
+    }
     /**
      * Set the rotation.
      *
      * @param {number|undefined} rotation Rotation.
      * @api
      */
-    Text.prototype.setRotation = function (rotation) {
+    setRotation(rotation) {
         this.rotation_ = rotation;
-    };
+    }
     /**
      * Set the scale.
      *
      * @param {number|undefined} scale Scale.
      * @api
      */
-    Text.prototype.setScale = function (scale) {
+    setScale(scale) {
         this.scale_ = scale;
-    };
+    }
     /**
      * Set the stroke.
      *
      * @param {import("./Stroke.js").default} stroke Stroke style.
      * @api
      */
-    Text.prototype.setStroke = function (stroke) {
+    setStroke(stroke) {
         this.stroke_ = stroke;
-    };
+    }
     /**
      * Set the text.
      *
      * @param {string|undefined} text Text.
      * @api
      */
-    Text.prototype.setText = function (text) {
+    setText(text) {
         this.text_ = text;
-    };
+    }
     /**
      * Set the text alignment.
      *
      * @param {string|undefined} textAlign Text align.
      * @api
      */
-    Text.prototype.setTextAlign = function (textAlign) {
+    setTextAlign(textAlign) {
         this.textAlign_ = textAlign;
-    };
+    }
     /**
      * Set the text baseline.
      *
      * @param {string|undefined} textBaseline Text baseline.
      * @api
      */
-    Text.prototype.setTextBaseline = function (textBaseline) {
+    setTextBaseline(textBaseline) {
         this.textBaseline_ = textBaseline;
-    };
+    }
     /**
      * Set the background fill.
      *
      * @param {import("./Fill.js").default} fill Fill style.
      * @api
      */
-    Text.prototype.setBackgroundFill = function (fill) {
+    setBackgroundFill(fill) {
         this.backgroundFill_ = fill;
-    };
+    }
     /**
      * Set the background stroke.
      *
      * @param {import("./Stroke.js").default} stroke Stroke style.
      * @api
      */
-    Text.prototype.setBackgroundStroke = function (stroke) {
+    setBackgroundStroke(stroke) {
         this.backgroundStroke_ = stroke;
-    };
+    }
     /**
      * Set the padding (`[top, right, bottom, left]`).
      *
      * @param {!Array<number>} padding Padding.
      * @api
      */
-    Text.prototype.setPadding = function (padding) {
+    setPadding(padding) {
         this.padding_ = padding;
-    };
-    return Text;
-}());
+    }
+}
 export default Text;
 //# sourceMappingURL=Text.js.map

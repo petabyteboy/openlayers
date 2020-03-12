@@ -18,24 +18,24 @@ import { lerp } from '../../math.js';
  * exceeded). Entries of the array are x, y, anchorX, angle, chunk.
  */
 export function drawTextOnPath(flatCoordinates, offset, end, stride, text, startM, maxAngle, scale, measureAndCacheTextWidth, font, cache) {
-    var result = [];
+    const result = [];
     // Keep text upright
-    var reverse = flatCoordinates[offset] > flatCoordinates[end - stride];
-    var numChars = text.length;
-    var x1 = flatCoordinates[offset];
-    var y1 = flatCoordinates[offset + 1];
+    const reverse = flatCoordinates[offset] > flatCoordinates[end - stride];
+    const numChars = text.length;
+    let x1 = flatCoordinates[offset];
+    let y1 = flatCoordinates[offset + 1];
     offset += stride;
-    var x2 = flatCoordinates[offset];
-    var y2 = flatCoordinates[offset + 1];
-    var segmentM = 0;
-    var segmentLength = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
-    var angleChanged = false;
-    var index, previousAngle;
-    for (var i = 0; i < numChars; ++i) {
+    let x2 = flatCoordinates[offset];
+    let y2 = flatCoordinates[offset + 1];
+    let segmentM = 0;
+    let segmentLength = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+    let angleChanged = false;
+    let index, previousAngle;
+    for (let i = 0; i < numChars; ++i) {
         index = reverse ? numChars - i - 1 : i;
-        var char = text[index];
-        var charLength = scale * measureAndCacheTextWidth(font, char, cache);
-        var charM = startM + charLength / 2;
+        const char = text[index];
+        const charLength = scale * measureAndCacheTextWidth(font, char, cache);
+        const charM = startM + charLength / 2;
         while (offset < end - stride && segmentM + segmentLength < charM) {
             x1 = x2;
             y1 = y2;
@@ -45,13 +45,13 @@ export function drawTextOnPath(flatCoordinates, offset, end, stride, text, start
             segmentM += segmentLength;
             segmentLength = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
         }
-        var segmentPos = charM - segmentM;
-        var angle = Math.atan2(y2 - y1, x2 - x1);
+        const segmentPos = charM - segmentM;
+        let angle = Math.atan2(y2 - y1, x2 - x1);
         if (reverse) {
             angle += angle > 0 ? -Math.PI : Math.PI;
         }
         if (previousAngle !== undefined) {
-            var delta = angle - previousAngle;
+            let delta = angle - previousAngle;
             angleChanged = angleChanged || delta !== 0;
             delta += (delta > Math.PI) ? -2 * Math.PI : (delta < -Math.PI) ? 2 * Math.PI : 0;
             if (Math.abs(delta) > maxAngle) {
@@ -59,9 +59,9 @@ export function drawTextOnPath(flatCoordinates, offset, end, stride, text, start
             }
         }
         previousAngle = angle;
-        var interpolate = segmentPos / segmentLength;
-        var x = lerp(x1, x2, interpolate);
-        var y = lerp(y1, y2, interpolate);
+        const interpolate = segmentPos / segmentLength;
+        const x = lerp(x1, x2, interpolate);
+        const y = lerp(y1, y2, interpolate);
         result[index] = [x, y, charLength / 2, angle, char];
         startM += charLength;
     }

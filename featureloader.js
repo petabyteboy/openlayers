@@ -8,7 +8,7 @@ import FormatType from './format/FormatType.js';
  * @type {boolean}
  * @private
  */
-var withCredentials = false;
+let withCredentials = false;
 /**
  * {@link module:ol/source/Vector} sources use a function of this type to
  * load features.
@@ -56,7 +56,7 @@ export function loadFeaturesXhr(url, format, success, failure) {
      * @this {import("./source/Vector").default|import("./VectorTile.js").default}
      */
     function (extent, resolution, projection) {
-        var xhr = new XMLHttpRequest();
+        const xhr = new XMLHttpRequest();
         xhr.open('GET', typeof url === 'function' ? url(extent, resolution, projection) : url, true);
         if (format.getType() == FormatType.ARRAY_BUFFER) {
             xhr.responseType = 'arraybuffer';
@@ -69,9 +69,9 @@ export function loadFeaturesXhr(url, format, success, failure) {
         xhr.onload = function (event) {
             // status will be 0 for file:// urls
             if (!xhr.status || xhr.status >= 200 && xhr.status < 300) {
-                var type = format.getType();
+                const type = format.getType();
                 /** @type {Document|Node|Object|string|undefined} */
-                var source = void 0;
+                let source;
                 if (type == FormatType.JSON || type == FormatType.TEXT) {
                     source = xhr.responseText;
                 }
@@ -125,7 +125,7 @@ export function xhr(url, format) {
      * @this {import("./source/Vector").default|import("./VectorTile.js").default}
      */
     function (features, dataProjection) {
-        var sourceOrTile = /** @type {?} */ (this);
+        const sourceOrTile = /** @type {?} */ (this);
         if (typeof sourceOrTile.addFeatures === 'function') {
             /** @type {import("./source/Vector").default} */ (sourceOrTile).addFeatures(features);
         }

@@ -1,19 +1,6 @@
 /**
  * @module ol/source/CartoDB
  */
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 import { assign } from '../obj.js';
 import SourceState from './State.js';
 import XYZ from './XYZ.js';
@@ -49,13 +36,12 @@ import XYZ from './XYZ.js';
  * Layer source for the CartoDB Maps API.
  * @api
  */
-var CartoDB = /** @class */ (function (_super) {
-    __extends(CartoDB, _super);
+class CartoDB extends XYZ {
     /**
      * @param {Options} options CartoDB options.
      */
-    function CartoDB(options) {
-        var _this = _super.call(this, {
+    constructor(options) {
+        super({
             attributions: options.attributions,
             cacheSize: options.cacheSize,
             crossOrigin: options.crossOrigin,
@@ -63,48 +49,47 @@ var CartoDB = /** @class */ (function (_super) {
             minZoom: options.minZoom,
             projection: options.projection,
             wrapX: options.wrapX
-        }) || this;
+        });
         /**
          * @type {string}
          * @private
          */
-        _this.account_ = options.account;
+        this.account_ = options.account;
         /**
          * @type {string}
          * @private
          */
-        _this.mapId_ = options.map || '';
+        this.mapId_ = options.map || '';
         /**
          * @type {!Object}
          * @private
          */
-        _this.config_ = options.config || {};
+        this.config_ = options.config || {};
         /**
          * @type {!Object<string, CartoDBLayerInfo>}
          * @private
          */
-        _this.templateCache_ = {};
-        _this.initializeMap_();
-        return _this;
+        this.templateCache_ = {};
+        this.initializeMap_();
     }
     /**
      * Returns the current config.
      * @return {!Object} The current configuration.
      * @api
      */
-    CartoDB.prototype.getConfig = function () {
+    getConfig() {
         return this.config_;
-    };
+    }
     /**
      * Updates the carto db config.
      * @param {Object} config a key-value lookup. Values will replace current values
      *     in the config.
      * @api
      */
-    CartoDB.prototype.updateConfig = function (config) {
+    updateConfig(config) {
         assign(this.config_, config);
         this.initializeMap_();
-    };
+    }
     /**
      * Sets the CartoDB config
      * @param {Object} config In the case of anonymous maps, a CartoDB configuration
@@ -112,31 +97,31 @@ var CartoDB = /** @class */ (function (_super) {
      * If using named maps, a key-value lookup with the template parameters.
      * @api
      */
-    CartoDB.prototype.setConfig = function (config) {
+    setConfig(config) {
         this.config_ = config || {};
         this.initializeMap_();
-    };
+    }
     /**
      * Issue a request to initialize the CartoDB map.
      * @private
      */
-    CartoDB.prototype.initializeMap_ = function () {
-        var paramHash = JSON.stringify(this.config_);
+    initializeMap_() {
+        const paramHash = JSON.stringify(this.config_);
         if (this.templateCache_[paramHash]) {
             this.applyTemplate_(this.templateCache_[paramHash]);
             return;
         }
-        var mapUrl = 'https://' + this.account_ + '.carto.com/api/v1/map';
+        let mapUrl = 'https://' + this.account_ + '.carto.com/api/v1/map';
         if (this.mapId_) {
             mapUrl += '/named/' + this.mapId_;
         }
-        var client = new XMLHttpRequest();
+        const client = new XMLHttpRequest();
         client.addEventListener('load', this.handleInitResponse_.bind(this, paramHash));
         client.addEventListener('error', this.handleInitError_.bind(this));
         client.open('POST', mapUrl);
         client.setRequestHeader('Content-type', 'application/json');
         client.send(JSON.stringify(this.config_));
-    };
+    }
     /**
      * Handle map initialization response.
      * @param {string} paramHash a hash representing the parameter set that was used
@@ -144,11 +129,11 @@ var CartoDB = /** @class */ (function (_super) {
      * @param {Event} event Event.
      * @private
      */
-    CartoDB.prototype.handleInitResponse_ = function (paramHash, event) {
-        var client = /** @type {XMLHttpRequest} */ (event.target);
+    handleInitResponse_(paramHash, event) {
+        const client = /** @type {XMLHttpRequest} */ (event.target);
         // status will be 0 for file:// urls
         if (!client.status || client.status >= 200 && client.status < 300) {
-            var response = void 0;
+            let response;
             try {
                 response = /** @type {CartoDBLayerInfo} */ (JSON.parse(client.responseText));
             }
@@ -163,25 +148,24 @@ var CartoDB = /** @class */ (function (_super) {
         else {
             this.setState(SourceState.ERROR);
         }
-    };
+    }
     /**
      * @private
      * @param {Event} event Event.
      */
-    CartoDB.prototype.handleInitError_ = function (event) {
+    handleInitError_(event) {
         this.setState(SourceState.ERROR);
-    };
+    }
     /**
      * Apply the new tile urls returned by carto db
      * @param {CartoDBLayerInfo} data Result of carto db call.
      * @private
      */
-    CartoDB.prototype.applyTemplate_ = function (data) {
-        var tilesUrl = 'https://' + data.cdn_url.https + '/' + this.account_ +
+    applyTemplate_(data) {
+        const tilesUrl = 'https://' + data.cdn_url.https + '/' + this.account_ +
             '/api/v1/map/' + data.layergroupid + '/{z}/{x}/{y}.png';
         this.setUrl(tilesUrl);
-    };
-    return CartoDB;
-}(XYZ));
+    }
+}
 export default CartoDB;
 //# sourceMappingURL=CartoDB.js.map

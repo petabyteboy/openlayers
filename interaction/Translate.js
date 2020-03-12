@@ -1,16 +1,3 @@
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 /**
  * @module ol/interaction/Translate
  */
@@ -24,7 +11,7 @@ import InteractionProperty from './Property.js';
 /**
  * @enum {string}
  */
-var TranslateEventType = {
+const TranslateEventType = {
     /**
      * Triggered upon feature translation start.
      * @event TranslateEvent#translatestart
@@ -72,8 +59,7 @@ var TranslateEventType = {
  * Events emitted by {@link module:ol/interaction/Translate~Translate} instances
  * are instances of this type.
  */
-var TranslateEvent = /** @class */ (function (_super) {
-    __extends(TranslateEvent, _super);
+export class TranslateEvent extends Event {
     /**
      * @param {TranslateEventType} type Type.
      * @param {Collection<import("../Feature.js").default>} features The features translated.
@@ -81,39 +67,36 @@ var TranslateEvent = /** @class */ (function (_super) {
      * @param {import("../coordinate.js").Coordinate} startCoordinate The original coordinates before.translation started
      * @param {import("../MapBrowserEvent.js").default} mapBrowserEvent Map browser event.
      */
-    function TranslateEvent(type, features, coordinate, startCoordinate, mapBrowserEvent) {
-        var _this = _super.call(this, type) || this;
+    constructor(type, features, coordinate, startCoordinate, mapBrowserEvent) {
+        super(type);
         /**
          * The features being translated.
          * @type {Collection<import("../Feature.js").default>}
          * @api
          */
-        _this.features = features;
+        this.features = features;
         /**
          * The coordinate of the drag event.
          * @const
          * @type {import("../coordinate.js").Coordinate}
          * @api
          */
-        _this.coordinate = coordinate;
+        this.coordinate = coordinate;
         /**
          * The coordinate of the start position before translation started.
          * @const
          * @type {import("../coordinate.js").Coordinate}
          * @api
          */
-        _this.startCoordinate = startCoordinate;
+        this.startCoordinate = startCoordinate;
         /**
          * Associated {@link module:ol/MapBrowserEvent}.
          * @type {import("../MapBrowserEvent.js").default}
          * @api
          */
-        _this.mapBrowserEvent = mapBrowserEvent;
-        return _this;
+        this.mapBrowserEvent = mapBrowserEvent;
     }
-    return TranslateEvent;
-}(Event));
-export { TranslateEvent };
+}
 /**
  * @classdesc
  * Interaction for translating (moving) features.
@@ -121,42 +104,40 @@ export { TranslateEvent };
  * @fires TranslateEvent
  * @api
  */
-var Translate = /** @class */ (function (_super) {
-    __extends(Translate, _super);
+class Translate extends PointerInteraction {
     /**
      * @param {Options=} opt_options Options.
      */
-    function Translate(opt_options) {
-        var _this = this;
-        var options = opt_options ? opt_options : {};
-        _this = _super.call(this, /** @type {import("./Pointer.js").Options} */ (options)) || this;
+    constructor(opt_options) {
+        const options = opt_options ? opt_options : {};
+        super(/** @type {import("./Pointer.js").Options} */ (options));
         /**
          * The last position we translated to.
          * @type {import("../coordinate.js").Coordinate}
          * @private
          */
-        _this.lastCoordinate_ = null;
+        this.lastCoordinate_ = null;
         /**
          * The start position before translation started.
          * @type {import("../coordinate.js").Coordinate}
          * @private
          */
-        _this.startCoordinate_ = null;
+        this.startCoordinate_ = null;
         /**
          * @type {Collection<import("../Feature.js").default>}
          * @private
          */
-        _this.features_ = options.features !== undefined ? options.features : null;
+        this.features_ = options.features !== undefined ? options.features : null;
         /** @type {function(import("../layer/Layer.js").default): boolean} */
-        var layerFilter;
+        let layerFilter;
         if (options.layers) {
             if (typeof options.layers === 'function') {
                 layerFilter = options.layers;
             }
             else {
-                var layers_1 = options.layers;
+                const layers = options.layers;
                 layerFilter = function (layer) {
-                    return includes(layers_1, layer);
+                    return includes(layers, layer);
                 };
             }
         }
@@ -167,78 +148,77 @@ var Translate = /** @class */ (function (_super) {
          * @private
          * @type {function(import("../layer/Layer.js").default): boolean}
          */
-        _this.layerFilter_ = layerFilter;
+        this.layerFilter_ = layerFilter;
         /**
          * @private
          * @type {FilterFunction}
          */
-        _this.filter_ = options.filter ? options.filter : TRUE;
+        this.filter_ = options.filter ? options.filter : TRUE;
         /**
          * @private
          * @type {number}
          */
-        _this.hitTolerance_ = options.hitTolerance ? options.hitTolerance : 0;
+        this.hitTolerance_ = options.hitTolerance ? options.hitTolerance : 0;
         /**
          * @type {import("../Feature.js").default}
          * @private
          */
-        _this.lastFeature_ = null;
-        _this.addEventListener(getChangeEventType(InteractionProperty.ACTIVE), _this.handleActiveChanged_);
-        return _this;
+        this.lastFeature_ = null;
+        this.addEventListener(getChangeEventType(InteractionProperty.ACTIVE), this.handleActiveChanged_);
     }
     /**
      * @inheritDoc
      */
-    Translate.prototype.handleDownEvent = function (event) {
+    handleDownEvent(event) {
         this.lastFeature_ = this.featuresAtPixel_(event.pixel, event.map);
         if (!this.lastCoordinate_ && this.lastFeature_) {
             this.startCoordinate_ = event.coordinate;
             this.lastCoordinate_ = event.coordinate;
             this.handleMoveEvent(event);
-            var features = this.features_ || new Collection([this.lastFeature_]);
+            const features = this.features_ || new Collection([this.lastFeature_]);
             this.dispatchEvent(new TranslateEvent(TranslateEventType.TRANSLATESTART, features, event.coordinate, this.startCoordinate_, event));
             return true;
         }
         return false;
-    };
+    }
     /**
      * @inheritDoc
      */
-    Translate.prototype.handleUpEvent = function (event) {
+    handleUpEvent(event) {
         if (this.lastCoordinate_) {
             this.lastCoordinate_ = null;
             this.handleMoveEvent(event);
-            var features = this.features_ || new Collection([this.lastFeature_]);
+            const features = this.features_ || new Collection([this.lastFeature_]);
             this.dispatchEvent(new TranslateEvent(TranslateEventType.TRANSLATEEND, features, event.coordinate, this.startCoordinate_, event));
             // cleanup
             this.startCoordinate_ = null;
             return true;
         }
         return false;
-    };
+    }
     /**
      * @inheritDoc
      */
-    Translate.prototype.handleDragEvent = function (event) {
+    handleDragEvent(event) {
         if (this.lastCoordinate_) {
-            var newCoordinate = event.coordinate;
-            var deltaX_1 = newCoordinate[0] - this.lastCoordinate_[0];
-            var deltaY_1 = newCoordinate[1] - this.lastCoordinate_[1];
-            var features = this.features_ || new Collection([this.lastFeature_]);
+            const newCoordinate = event.coordinate;
+            const deltaX = newCoordinate[0] - this.lastCoordinate_[0];
+            const deltaY = newCoordinate[1] - this.lastCoordinate_[1];
+            const features = this.features_ || new Collection([this.lastFeature_]);
             features.forEach(function (feature) {
-                var geom = feature.getGeometry();
-                geom.translate(deltaX_1, deltaY_1);
+                const geom = feature.getGeometry();
+                geom.translate(deltaX, deltaY);
                 feature.setGeometry(geom);
             });
             this.lastCoordinate_ = newCoordinate;
             this.dispatchEvent(new TranslateEvent(TranslateEventType.TRANSLATING, features, newCoordinate, this.startCoordinate_, event));
         }
-    };
+    }
     /**
      * @inheritDoc
      */
-    Translate.prototype.handleMoveEvent = function (event) {
-        var elem = event.map.getViewport();
+    handleMoveEvent(event) {
+        const elem = event.map.getViewport();
         // Change the cursor to grab/grabbing if hovering any of the features managed
         // by the interaction
         if (this.featuresAtPixel_(event.pixel, event.map)) {
@@ -248,7 +228,7 @@ var Translate = /** @class */ (function (_super) {
         else {
             elem.classList.remove('ol-grab', 'ol-grabbing');
         }
-    };
+    }
     /**
      * Tests to see if the given coordinates intersects any of our selected
      * features.
@@ -258,7 +238,7 @@ var Translate = /** @class */ (function (_super) {
      * coordinates.
      * @private
      */
-    Translate.prototype.featuresAtPixel_ = function (pixel, map) {
+    featuresAtPixel_(pixel, map) {
         return map.forEachFeatureAtPixel(pixel, function (feature, layer) {
             if (this.filter_(feature, layer)) {
                 if (!this.features_ || includes(this.features_.getArray(), feature)) {
@@ -269,54 +249,53 @@ var Translate = /** @class */ (function (_super) {
             layerFilter: this.layerFilter_,
             hitTolerance: this.hitTolerance_
         });
-    };
+    }
     /**
      * Returns the Hit-detection tolerance.
      * @returns {number} Hit tolerance in pixels.
      * @api
      */
-    Translate.prototype.getHitTolerance = function () {
+    getHitTolerance() {
         return this.hitTolerance_;
-    };
+    }
     /**
      * Hit-detection tolerance. Pixels inside the radius around the given position
      * will be checked for features.
      * @param {number} hitTolerance Hit tolerance in pixels.
      * @api
      */
-    Translate.prototype.setHitTolerance = function (hitTolerance) {
+    setHitTolerance(hitTolerance) {
         this.hitTolerance_ = hitTolerance;
-    };
+    }
     /**
      * @inheritDoc
      */
-    Translate.prototype.setMap = function (map) {
-        var oldMap = this.getMap();
-        _super.prototype.setMap.call(this, map);
+    setMap(map) {
+        const oldMap = this.getMap();
+        super.setMap(map);
         this.updateState_(oldMap);
-    };
+    }
     /**
      * @private
      */
-    Translate.prototype.handleActiveChanged_ = function () {
+    handleActiveChanged_() {
         this.updateState_(null);
-    };
+    }
     /**
      * @param {import("../PluggableMap.js").default} oldMap Old map.
      * @private
      */
-    Translate.prototype.updateState_ = function (oldMap) {
-        var map = this.getMap();
-        var active = this.getActive();
+    updateState_(oldMap) {
+        let map = this.getMap();
+        const active = this.getActive();
         if (!map || !active) {
             map = map || oldMap;
             if (map) {
-                var elem = map.getViewport();
+                const elem = map.getViewport();
                 elem.classList.remove('ol-grab', 'ol-grabbing');
             }
         }
-    };
-    return Translate;
-}(PointerInteraction));
+    }
+}
 export default Translate;
 //# sourceMappingURL=Translate.js.map

@@ -1,16 +1,3 @@
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 /**
  * @module ol/source/TileImage
  */
@@ -75,13 +62,12 @@ import { getForProjection as getTileGridForProjection } from '../tilegrid.js';
  * @fires import("./Tile.js").TileSourceEvent
  * @api
  */
-var TileImage = /** @class */ (function (_super) {
-    __extends(TileImage, _super);
+class TileImage extends UrlTile {
     /**
      * @param {!Options} options Image tile options.
      */
-    function TileImage(options) {
-        var _this = _super.call(this, {
+    constructor(options) {
+        super({
             attributions: options.attributions,
             cacheSize: options.cacheSize,
             opaque: options.opaque,
@@ -99,79 +85,78 @@ var TileImage = /** @class */ (function (_super) {
             key: options.key,
             attributionsCollapsible: options.attributionsCollapsible,
             zDirection: options.zDirection
-        }) || this;
+        });
         /**
          * @protected
          * @type {?string}
          */
-        _this.crossOrigin =
+        this.crossOrigin =
             options.crossOrigin !== undefined ? options.crossOrigin : null;
         /**
          * @protected
          * @type {typeof ImageTile}
          */
-        _this.tileClass = options.tileClass !== undefined ?
+        this.tileClass = options.tileClass !== undefined ?
             options.tileClass : ImageTile;
         /**
          * @protected
          * @type {!Object<string, TileCache>}
          */
-        _this.tileCacheForProjection = {};
+        this.tileCacheForProjection = {};
         /**
          * @protected
          * @type {!Object<string, import("../tilegrid/TileGrid.js").default>}
          */
-        _this.tileGridForProjection = {};
+        this.tileGridForProjection = {};
         /**
          * @private
          * @type {number|undefined}
          */
-        _this.reprojectionErrorThreshold_ = options.reprojectionErrorThreshold;
+        this.reprojectionErrorThreshold_ = options.reprojectionErrorThreshold;
         /**
          * @private
          * @type {boolean}
          */
-        _this.renderReprojectionEdges_ = false;
-        return _this;
+        this.renderReprojectionEdges_ = false;
     }
     /**
      * @inheritDoc
      */
-    TileImage.prototype.canExpireCache = function () {
+    canExpireCache() {
         if (!ENABLE_RASTER_REPROJECTION) {
-            return _super.prototype.canExpireCache.call(this);
+            return super.canExpireCache();
         }
         if (this.tileCache.canExpireCache()) {
             return true;
         }
         else {
-            for (var key in this.tileCacheForProjection) {
+            for (const key in this.tileCacheForProjection) {
                 if (this.tileCacheForProjection[key].canExpireCache()) {
                     return true;
                 }
             }
         }
         return false;
-    };
+    }
     /**
      * @inheritDoc
      */
-    TileImage.prototype.expireCache = function (projection, usedTiles) {
+    expireCache(projection, usedTiles) {
         if (!ENABLE_RASTER_REPROJECTION) {
-            _super.prototype.expireCache.call(this, projection, usedTiles);
+            super.expireCache(projection, usedTiles);
             return;
         }
-        var usedTileCache = this.getTileCacheForProjection(projection);
+        const usedTileCache = this.getTileCacheForProjection(projection);
         this.tileCache.expireCache(this.tileCache == usedTileCache ? usedTiles : {});
-        for (var id in this.tileCacheForProjection) {
-            var tileCache = this.tileCacheForProjection[id];
+        for (const id in this.tileCacheForProjection) {
+            const tileCache = this.tileCacheForProjection[id];
             tileCache.expireCache(tileCache == usedTileCache ? usedTiles : {});
         }
-    };
+    }
     /**
      * @inheritDoc
      */
-    TileImage.prototype.getGutterForProjection = function (projection) {
+    getGutterForProjection(projection) {
         if (ENABLE_RASTER_REPROJECTION &&
             this.getProjection() && projection && !equivalent(this.getProjection(), projection)) {
             return 0;
@@ -179,64 +164,64 @@ var TileImage = /** @class */ (function (_super) {
         else {
             return this.getGutter();
         }
-    };
+    }
     /**
      * @return {number} Gutter.
      */
-    TileImage.prototype.getGutter = function () {
+    getGutter() {
         return 0;
-    };
+    }
     /**
      * @inheritDoc
      */
-    TileImage.prototype.getOpaque = function (projection) {
+    getOpaque(projection) {
         if (ENABLE_RASTER_REPROJECTION &&
             this.getProjection() && projection && !equivalent(this.getProjection(), projection)) {
             return false;
         }
         else {
-            return _super.prototype.getOpaque.call(this, projection);
+            return super.getOpaque(projection);
         }
-    };
+    }
     /**
      * @inheritDoc
      */
-    TileImage.prototype.getTileGridForProjection = function (projection) {
+    getTileGridForProjection(projection) {
         if (!ENABLE_RASTER_REPROJECTION) {
-            return _super.prototype.getTileGridForProjection.call(this, projection);
+            return super.getTileGridForProjection(projection);
         }
-        var thisProj = this.getProjection();
+        const thisProj = this.getProjection();
         if (this.tileGrid && (!thisProj || equivalent(thisProj, projection))) {
             return this.tileGrid;
         }
         else {
-            var projKey = getUid(projection);
+            const projKey = getUid(projection);
             if (!(projKey in this.tileGridForProjection)) {
                 this.tileGridForProjection[projKey] = getTileGridForProjection(projection);
             }
             return (
             /** @type {!import("../tilegrid/TileGrid.js").default} */ (this.tileGridForProjection[projKey]));
         }
-    };
+    }
     /**
      * @inheritDoc
      */
-    TileImage.prototype.getTileCacheForProjection = function (projection) {
+    getTileCacheForProjection(projection) {
         if (!ENABLE_RASTER_REPROJECTION) {
-            return _super.prototype.getTileCacheForProjection.call(this, projection);
+            return super.getTileCacheForProjection(projection);
         }
-        var thisProj = this.getProjection();
+        const thisProj = this.getProjection();
         if (!thisProj || equivalent(thisProj, projection)) {
             return this.tileCache;
         }
         else {
-            var projKey = getUid(projection);
+            const projKey = getUid(projection);
             if (!(projKey in this.tileCacheForProjection)) {
                 this.tileCacheForProjection[projKey] = new TileCache(this.tileCache.highWaterMark);
             }
             return this.tileCacheForProjection[projKey];
         }
-    };
+    }
     /**
      * @param {number} z Tile coordinate z.
      * @param {number} x Tile coordinate x.
@@ -247,42 +232,42 @@ var TileImage = /** @class */ (function (_super) {
      * @return {!import("../Tile.js").default} Tile.
      * @private
      */
-    TileImage.prototype.createTile_ = function (z, x, y, pixelRatio, projection, key) {
-        var tileCoord = [z, x, y];
-        var urlTileCoord = this.getTileCoordForTileUrlFunction(tileCoord, projection);
-        var tileUrl = urlTileCoord ?
+    createTile_(z, x, y, pixelRatio, projection, key) {
+        const tileCoord = [z, x, y];
+        const urlTileCoord = this.getTileCoordForTileUrlFunction(tileCoord, projection);
+        const tileUrl = urlTileCoord ?
             this.tileUrlFunction(urlTileCoord, pixelRatio, projection) : undefined;
-        var tile = new this.tileClass(tileCoord, tileUrl !== undefined ? TileState.IDLE : TileState.EMPTY, tileUrl !== undefined ? tileUrl : '', this.crossOrigin, this.tileLoadFunction, this.tileOptions);
+        const tile = new this.tileClass(tileCoord, tileUrl !== undefined ? TileState.IDLE : TileState.EMPTY, tileUrl !== undefined ? tileUrl : '', this.crossOrigin, this.tileLoadFunction, this.tileOptions);
         tile.key = key;
         tile.addEventListener(EventType.CHANGE, this.handleTileChange.bind(this));
         return tile;
-    };
+    }
     /**
      * @inheritDoc
      */
-    TileImage.prototype.getTile = function (z, x, y, pixelRatio, projection) {
-        var sourceProjection = /** @type {!import("../proj/Projection.js").default} */ (this.getProjection());
+    getTile(z, x, y, pixelRatio, projection) {
+        const sourceProjection = /** @type {!import("../proj/Projection.js").default} */ (this.getProjection());
         if (!ENABLE_RASTER_REPROJECTION ||
             !sourceProjection || !projection || equivalent(sourceProjection, projection)) {
             return this.getTileInternal(z, x, y, pixelRatio, sourceProjection || projection);
         }
         else {
-            var cache = this.getTileCacheForProjection(projection);
-            var tileCoord = [z, x, y];
-            var tile = void 0;
-            var tileCoordKey = getKey(tileCoord);
+            const cache = this.getTileCacheForProjection(projection);
+            const tileCoord = [z, x, y];
+            let tile;
+            const tileCoordKey = getKey(tileCoord);
             if (cache.containsKey(tileCoordKey)) {
                 tile = /** @type {!import("../Tile.js").default} */ (cache.get(tileCoordKey));
             }
-            var key = this.getKey();
+            const key = this.getKey();
             if (tile && tile.key == key) {
                 return tile;
             }
             else {
-                var sourceTileGrid = this.getTileGridForProjection(sourceProjection);
-                var targetTileGrid = this.getTileGridForProjection(projection);
-                var wrappedTileCoord = this.getTileCoordForTileUrlFunction(tileCoord, projection);
-                var newTile = new ReprojTile(sourceProjection, sourceTileGrid, projection, targetTileGrid, tileCoord, wrappedTileCoord, this.getTilePixelRatio(pixelRatio), this.getGutter(), function (z, x, y, pixelRatio) {
+                const sourceTileGrid = this.getTileGridForProjection(sourceProjection);
+                const targetTileGrid = this.getTileGridForProjection(projection);
+                const wrappedTileCoord = this.getTileCoordForTileUrlFunction(tileCoord, projection);
+                const newTile = new ReprojTile(sourceProjection, sourceTileGrid, projection, targetTileGrid, tileCoord, wrappedTileCoord, this.getTilePixelRatio(pixelRatio), this.getGutter(), function (z, x, y, pixelRatio) {
                     return this.getTileInternal(z, x, y, pixelRatio, sourceProjection);
                 }.bind(this), this.reprojectionErrorThreshold_, this.renderReprojectionEdges_);
                 newTile.key = key;
@@ -297,7 +282,7 @@ var TileImage = /** @class */ (function (_super) {
                 return newTile;
             }
         }
-    };
+    }
     /**
      * @param {number} z Tile coordinate z.
      * @param {number} x Tile coordinate x.
@@ -307,10 +292,10 @@ var TileImage = /** @class */ (function (_super) {
      * @return {!import("../Tile.js").default} Tile.
      * @protected
      */
-    TileImage.prototype.getTileInternal = function (z, x, y, pixelRatio, projection) {
-        var tile = null;
-        var tileCoordKey = getKeyZXY(z, x, y);
-        var key = this.getKey();
+    getTileInternal(z, x, y, pixelRatio, projection) {
+        let tile = null;
+        const tileCoordKey = getKeyZXY(z, x, y);
+        const key = this.getKey();
         if (!this.tileCache.containsKey(tileCoordKey)) {
             tile = this.createTile_(z, x, y, pixelRatio, projection, key);
             this.tileCache.set(tileCoordKey, tile);
@@ -321,7 +306,7 @@ var TileImage = /** @class */ (function (_super) {
                 // The source's params changed. If the tile has an interim tile and if we
                 // can use it then we use it. Otherwise we create a new tile.  In both
                 // cases we attempt to assign an interim tile to the new tile.
-                var interimTile = tile;
+                const interimTile = tile;
                 tile = this.createTile_(z, x, y, pixelRatio, projection, key);
                 //make the new tile the head of the list,
                 if (interimTile.getState() == TileState.IDLE) {
@@ -336,23 +321,23 @@ var TileImage = /** @class */ (function (_super) {
             }
         }
         return tile;
-    };
+    }
     /**
      * Sets whether to render reprojection edges or not (usually for debugging).
      * @param {boolean} render Render the edges.
      * @api
      */
-    TileImage.prototype.setRenderReprojectionEdges = function (render) {
+    setRenderReprojectionEdges(render) {
         if (!ENABLE_RASTER_REPROJECTION ||
             this.renderReprojectionEdges_ == render) {
             return;
         }
         this.renderReprojectionEdges_ = render;
-        for (var id in this.tileCacheForProjection) {
+        for (const id in this.tileCacheForProjection) {
             this.tileCacheForProjection[id].clear();
         }
         this.changed();
-    };
+    }
     /**
      * Sets the tile grid to use when reprojecting the tiles to the given
      * projection instead of the default tile grid for the projection.
@@ -365,19 +350,18 @@ var TileImage = /** @class */ (function (_super) {
      * @param {import("../tilegrid/TileGrid.js").default} tilegrid Tile grid to use for the projection.
      * @api
      */
-    TileImage.prototype.setTileGridForProjection = function (projection, tilegrid) {
+    setTileGridForProjection(projection, tilegrid) {
         if (ENABLE_RASTER_REPROJECTION) {
-            var proj = getProjection(projection);
+            const proj = getProjection(projection);
             if (proj) {
-                var projKey = getUid(proj);
+                const projKey = getUid(proj);
                 if (!(projKey in this.tileGridForProjection)) {
                     this.tileGridForProjection[projKey] = tilegrid;
                 }
             }
         }
-    };
-    return TileImage;
-}(UrlTile));
+    }
+}
 /**
  * @param {ImageTile} imageTile Image tile.
  * @param {string} src Source.

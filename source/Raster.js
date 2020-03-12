@@ -1,16 +1,3 @@
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 /**
  * @module ol/source/Raster
  */
@@ -49,7 +36,7 @@ import Source from './Source.js';
 /**
  * @enum {string}
  */
-var RasterEventType = {
+const RasterEventType = {
     /**
      * Triggered before operations are run.
      * @event module:ol/source/Raster.RasterSourceEvent#beforeoperations
@@ -67,7 +54,7 @@ var RasterEventType = {
  * Raster operation type. Supported values are `'pixel'` and `'image'`.
  * @enum {string}
  */
-var RasterOperationType = {
+const RasterOperationType = {
     PIXEL: 'pixel',
     IMAGE: 'image'
 };
@@ -76,39 +63,35 @@ var RasterOperationType = {
  * Events emitted by {@link module:ol/source/Raster} instances are instances of this
  * type.
  */
-var RasterSourceEvent = /** @class */ (function (_super) {
-    __extends(RasterSourceEvent, _super);
+export class RasterSourceEvent extends Event {
     /**
      * @param {string} type Type.
      * @param {import("../PluggableMap.js").FrameState} frameState The frame state.
      * @param {Object} data An object made available to operations.
      */
-    function RasterSourceEvent(type, frameState, data) {
-        var _this = _super.call(this, type) || this;
+    constructor(type, frameState, data) {
+        super(type);
         /**
          * The raster extent.
          * @type {import("../extent.js").Extent}
          * @api
          */
-        _this.extent = frameState.extent;
+        this.extent = frameState.extent;
         /**
          * The pixel resolution (map units per pixel).
          * @type {number}
          * @api
          */
-        _this.resolution = frameState.viewState.resolution / frameState.pixelRatio;
+        this.resolution = frameState.viewState.resolution / frameState.pixelRatio;
         /**
          * An object made available to all operations.  This can be used by operations
          * as a storage object (e.g. for calculating statistics).
          * @type {Object}
          * @api
          */
-        _this.data = data;
-        return _this;
+        this.data = data;
     }
-    return RasterSourceEvent;
-}(Event));
-export { RasterSourceEvent };
+}
 /**
  * @typedef {Object} Options
  * @property {Array<import("./Source.js").default|import("../layer/Layer.js").default>} sources Input
@@ -137,80 +120,79 @@ export { RasterSourceEvent };
  * @fires module:ol/source/Raster.RasterSourceEvent
  * @api
  */
-var RasterSource = /** @class */ (function (_super) {
-    __extends(RasterSource, _super);
+class RasterSource extends ImageSource {
     /**
      * @param {Options} options Options.
      */
-    function RasterSource(options) {
-        var _this = _super.call(this, {
+    constructor(options) {
+        super({
             projection: null
-        }) || this;
+        });
         /**
          * @private
          * @type {*}
          */
-        _this.worker_ = null;
+        this.worker_ = null;
         /**
          * @private
          * @type {RasterOperationType}
          */
-        _this.operationType_ = options.operationType !== undefined ?
+        this.operationType_ = options.operationType !== undefined ?
             options.operationType : RasterOperationType.PIXEL;
         /**
          * @private
          * @type {number}
          */
-        _this.threads_ = options.threads !== undefined ? options.threads : 1;
+        this.threads_ = options.threads !== undefined ? options.threads : 1;
         /**
          * @private
          * @type {Array<import("../layer/Layer.js").default>}
          */
-        _this.layers_ = createLayers(options.sources);
-        var changed = _this.changed.bind(_this);
-        for (var i = 0, ii = _this.layers_.length; i < ii; ++i) {
-            _this.layers_[i].addEventListener(EventType.CHANGE, changed);
+        this.layers_ = createLayers(options.sources);
+        const changed = this.changed.bind(this);
+        for (let i = 0, ii = this.layers_.length; i < ii; ++i) {
+            this.layers_[i].addEventListener(EventType.CHANGE, changed);
         }
         /**
          * @private
          * @type {import("../TileQueue.js").default}
          */
-        _this.tileQueue_ = new TileQueue(function () {
+        this.tileQueue_ = new TileQueue(function () {
             return 1;
-        }, _this.changed.bind(_this));
+        }, this.changed.bind(this));
         /**
          * The most recently requested frame state.
          * @type {import("../PluggableMap.js").FrameState}
          * @private
          */
-        _this.requestedFrameState_;
+        this.requestedFrameState_;
         /**
          * The most recently rendered image canvas.
          * @type {import("../ImageCanvas.js").default}
          * @private
          */
-        _this.renderedImageCanvas_ = null;
+        this.renderedImageCanvas_ = null;
         /**
          * The most recently rendered revision.
          * @type {number}
          */
-        _this.renderedRevision_;
+        this.renderedRevision_;
         /**
          * @private
          * @type {import("../PluggableMap.js").FrameState}
          */
-        _this.frameState_ = {
+        this.frameState_ = {
             animate: false,
             coordinateToPixelTransform: createTransform(),
             extent: null,
             index: 0,
             layerIndex: 0,
-            layerStatesArray: getLayerStatesArray(_this.layers_),
+            layerStatesArray: getLayerStatesArray(this.layers_),
             pixelRatio: 1,
             pixelToCoordinateTransform: createTransform(),
             postRenderFunctions: [],
             size: [0, 0],
-            tileQueue: _this.tileQueue_,
+            tileQueue: this.tileQueue_,
             time: Date.now(),
             usedTiles: {},
             viewState: /** @type {import("../View.js").State} */ ({
@@ -220,23 +202,22 @@ var RasterSource = /** @class */ (function (_super) {
             wantedTiles: {},
             declutterItems: []
         };
-        _this.setAttributions(function (frameState) {
-            var attributions = [];
-            for (var index = 0, iMax = options.sources.length; index < iMax; ++index) {
-                var sourceOrLayer = options.sources[index];
-                var source = sourceOrLayer instanceof Source ? sourceOrLayer : sourceOrLayer.getSource();
-                var attributionGetter = source.getAttributions();
+        this.setAttributions(function (frameState) {
+            const attributions = [];
+            for (let index = 0, iMax = options.sources.length; index < iMax; ++index) {
+                const sourceOrLayer = options.sources[index];
+                const source = sourceOrLayer instanceof Source ? sourceOrLayer : sourceOrLayer.getSource();
+                const attributionGetter = source.getAttributions();
                 if (typeof attributionGetter === 'function') {
-                    var sourceAttribution = attributionGetter(frameState);
+                    const sourceAttribution = attributionGetter(frameState);
                     attributions.push.apply(attributions, sourceAttribution);
                 }
             }
             return attributions.length !== 0 ? attributions : null;
         });
         if (options.operation !== undefined) {
-            _this.setOperation(options.operation, options.lib);
+            this.setOperation(options.operation, options.lib);
         }
-        return _this;
     }
     /**
      * Set the operation.
@@ -245,7 +226,7 @@ var RasterSource = /** @class */ (function (_super) {
      *     in a worker.
      * @api
      */
-    RasterSource.prototype.setOperation = function (operation, opt_lib) {
+    setOperation(operation, opt_lib) {
         this.worker_ = new Processor({
             operation: operation,
             imageOps: this.operationType_ === RasterOperationType.IMAGE,
@@ -254,7 +235,7 @@ var RasterSource = /** @class */ (function (_super) {
             threads: this.threads_
         });
         this.changed();
-    };
+    }
     /**
      * Update the stored frame state.
      * @param {import("../extent.js").Extent} extent The view extent (in map units).
@@ -263,29 +244,29 @@ var RasterSource = /** @class */ (function (_super) {
      * @return {import("../PluggableMap.js").FrameState} The updated frame state.
      * @private
      */
-    RasterSource.prototype.updateFrameState_ = function (extent, resolution, projection) {
-        var frameState = /** @type {import("../PluggableMap.js").FrameState} */ (assign({}, this.frameState_));
+    updateFrameState_(extent, resolution, projection) {
+        const frameState = /** @type {import("../PluggableMap.js").FrameState} */ (assign({}, this.frameState_));
         frameState.viewState = /** @type {import("../View.js").State} */ (assign({}, frameState.viewState));
-        var center = getCenter(extent);
+        const center = getCenter(extent);
         frameState.extent = extent.slice();
         frameState.size[0] = Math.round(getWidth(extent) / resolution);
         frameState.size[1] = Math.round(getHeight(extent) / resolution);
         frameState.time = Infinity;
-        var viewState = frameState.viewState;
+        const viewState = frameState.viewState;
         viewState.center = center;
         viewState.projection = projection;
         viewState.resolution = resolution;
         return frameState;
-    };
+    }
     /**
      * Determine if all sources are ready.
      * @return {boolean} All sources are ready.
      * @private
      */
-    RasterSource.prototype.allSourcesReady_ = function () {
-        var ready = true;
-        var source;
-        for (var i = 0, ii = this.layers_.length; i < ii; ++i) {
+    allSourcesReady_() {
+        let ready = true;
+        let source;
+        for (let i = 0, ii = this.layers_.length; i < ii; ++i) {
             source = this.layers_[i].getSource();
             if (source.getState() !== SourceState.READY) {
                 ready = false;
@@ -293,20 +274,20 @@ var RasterSource = /** @class */ (function (_super) {
             }
         }
         return ready;
-    };
+    }
     /**
      * @inheritDoc
      */
-    RasterSource.prototype.getImage = function (extent, resolution, pixelRatio, projection) {
+    getImage(extent, resolution, pixelRatio, projection) {
         if (!this.allSourcesReady_()) {
             return null;
         }
-        var frameState = this.updateFrameState_(extent, resolution, projection);
+        const frameState = this.updateFrameState_(extent, resolution, projection);
         this.requestedFrameState_ = frameState;
         // check if we can't reuse the existing ol/ImageCanvas
         if (this.renderedImageCanvas_) {
-            var renderedResolution = this.renderedImageCanvas_.getResolution();
-            var renderedExtent = this.renderedImageCanvas_.getExtent();
+            const renderedResolution = this.renderedImageCanvas_.getResolution();
+            const renderedExtent = this.renderedImageCanvas_.getExtent();
             if (resolution !== renderedResolution || !equals(extent, renderedExtent)) {
                 this.renderedImageCanvas_ = null;
             }
@@ -319,18 +300,18 @@ var RasterSource = /** @class */ (function (_super) {
             requestAnimationFrame(this.changed.bind(this));
         }
         return this.renderedImageCanvas_;
-    };
+    }
     /**
      * Start processing source data.
      * @private
      */
-    RasterSource.prototype.processSources_ = function () {
-        var frameState = this.requestedFrameState_;
-        var len = this.layers_.length;
-        var imageDatas = new Array(len);
-        for (var i = 0; i < len; ++i) {
+    processSources_() {
+        const frameState = this.requestedFrameState_;
+        const len = this.layers_.length;
+        const imageDatas = new Array(len);
+        for (let i = 0; i < len; ++i) {
             frameState.layerIndex = i;
-            var imageData = getImageData(this.layers_[i], frameState);
+            const imageData = getImageData(this.layers_[i], frameState);
             if (imageData) {
                 imageDatas[i] = imageData;
             }
@@ -338,10 +319,10 @@ var RasterSource = /** @class */ (function (_super) {
                 return;
             }
         }
-        var data = {};
+        const data = {};
         this.dispatchEvent(new RasterSourceEvent(RasterEventType.BEFOREOPERATIONS, frameState, data));
         this.worker_.process(imageDatas, data, this.onWorkerComplete_.bind(this, frameState));
-    };
+    }
     /**
      * Called when pixel processing is complete.
      * @param {import("../PluggableMap.js").FrameState} frameState The frame state.
@@ -350,24 +331,24 @@ var RasterSource = /** @class */ (function (_super) {
      * @param {Object} data The user data.
      * @private
      */
-    RasterSource.prototype.onWorkerComplete_ = function (frameState, err, output, data) {
+    onWorkerComplete_(frameState, err, output, data) {
         if (err || !output) {
             return;
         }
         // do nothing if extent or resolution changed
-        var extent = frameState.extent;
-        var resolution = frameState.viewState.resolution;
+        const extent = frameState.extent;
+        const resolution = frameState.viewState.resolution;
         if (resolution !== this.requestedFrameState_.viewState.resolution ||
             !equals(extent, this.requestedFrameState_.extent)) {
             return;
         }
-        var context;
+        let context;
         if (this.renderedImageCanvas_) {
             context = this.renderedImageCanvas_.getImage().getContext('2d');
         }
         else {
-            var width = Math.round(getWidth(extent) / resolution);
-            var height = Math.round(getHeight(extent) / resolution);
+            const width = Math.round(getWidth(extent) / resolution);
+            const height = Math.round(getHeight(extent) / resolution);
             context = createCanvasContext2D(width, height);
             this.renderedImageCanvas_ = new ImageCanvas(extent, resolution, 1, context.canvas);
         }
@@ -375,21 +356,20 @@ var RasterSource = /** @class */ (function (_super) {
         this.changed();
         this.renderedRevision_ = this.getRevision();
         this.dispatchEvent(new RasterSourceEvent(RasterEventType.AFTEROPERATIONS, frameState, data));
-    };
+    }
     /**
      * @override
      */
-    RasterSource.prototype.getImageInternal = function () {
+    getImageInternal() {
         return null; // not implemented
-    };
-    return RasterSource;
-}(ImageSource));
+    }
+}
 /**
  * A reusable canvas context.
  * @type {CanvasRenderingContext2D}
  * @private
  */
-var sharedContext = null;
+let sharedContext = null;
 /**
  * Get image data from a layer.
  * @param {import("../layer/Layer.js").default} layer Layer to render.
@@ -397,17 +377,17 @@ var sharedContext = null;
  * @return {ImageData} The image data.
  */
 function getImageData(layer, frameState) {
-    var renderer = layer.getRenderer();
+    const renderer = layer.getRenderer();
     if (!renderer) {
         throw new Error('Unsupported layer type: ' + layer);
     }
     if (!renderer.prepareFrame(frameState)) {
         return null;
     }
-    var width = frameState.size[0];
-    var height = frameState.size[1];
-    var container = renderer.renderFrame(frameState, null);
-    var element;
+    const width = frameState.size[0];
+    const height = frameState.size[1];
+    const container = renderer.renderFrame(frameState, null);
+    let element;
     if (container) {
         element = container.firstElementChild;
     }
@@ -415,14 +395,14 @@ function getImageData(layer, frameState) {
         throw new Error('Unsupported rendered element: ' + element);
     }
     if (element.width === width && element.height === height) {
-        var context = element.getContext('2d');
+        const context = element.getContext('2d');
         return context.getImageData(0, 0, width, height);
     }
     if (!sharedContext) {
         sharedContext = createCanvasContext2D(width, height);
     }
     else {
-        var canvas = sharedContext.canvas;
+        const canvas = sharedContext.canvas;
         if (canvas.width !== width || canvas.height !== height) {
             sharedContext = createCanvasContext2D(width, height);
         }
@@ -449,9 +429,9 @@ function getLayerStatesArray(layers) {
  * @return {Array<import("../layer/Layer.js").default>} Array of layers.
  */
 function createLayers(sources) {
-    var len = sources.length;
-    var layers = new Array(len);
-    for (var i = 0; i < len; ++i) {
+    const len = sources.length;
+    const layers = new Array(len);
+    for (let i = 0; i < len; ++i) {
         layers[i] = createLayer(sources[i]);
     }
     return layers;
@@ -463,7 +443,7 @@ function createLayers(sources) {
  */
 function createLayer(layerOrSource) {
     // @type {import("../layer/Layer.js").default}
-    var layer;
+    let layer;
     if (layerOrSource instanceof Source) {
         if (layerOrSource instanceof TileSource) {
             layer = new TileLayer({ source: layerOrSource });

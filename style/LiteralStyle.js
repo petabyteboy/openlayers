@@ -17,7 +17,7 @@
 /**
  * @enum {string}
  */
-export var SymbolType = {
+export const SymbolType = {
     CIRCLE: 'circle',
     SQUARE: 'square',
     TRIANGLE: 'triangle',
